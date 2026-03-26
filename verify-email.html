@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification - Kirinyaga Hostels</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
+
+        :root {
+            --kyu-green: #006747;
+            --kyu-gold: #FFD700;
+        }
+
+        body {
+            background: linear-gradient(145deg, var(--kyu-green), #004d33);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .verification-card {
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            padding: 4rem;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            animation: slideUp 0.6s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            margin-bottom: 2rem;
+        }
+
+        .logo img {
+            height: 80px;
+            width: auto;
+        }
+
+        h2 {
+            color: var(--kyu-green);
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .message {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            margin: 2rem auto;
+            border: 5px solid rgba(0,103,71,0.2);
+            border-left-color: var(--kyu-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: #c6f6d5;
+            color: #22543d;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin: 0 auto 2rem;
+            border: 4px solid #22543d;
+        }
+
+        .error-icon {
+            width: 80px;
+            height: 80px;
+            background: #fed7d7;
+            color: #c53030;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin: 0 auto 2rem;
+            border: 4px solid #c53030;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 3rem;
+            background: var(--kyu-green);
+            color: white;
+            text-decoration: none;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-top: 2rem;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #004d33;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,103,71,0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--kyu-green);
+            color: var(--kyu-green);
+        }
+
+        .btn-outline:hover {
+            background: var(--kyu-green);
+            color: white;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="verification-card">
+        <div class="logo">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
+        </div>
+
+        <div id="loading">
+            <h2>Verifying Email</h2>
+            <div class="spinner"></div>
+            <p class="message">Please wait while we verify your email address...</p>
+        </div>
+
+        <div id="success" class="hidden">
+            <div class="success-icon">✓</div>
+            <h2>Email Verified!</h2>
+            <p class="message">Your email has been successfully verified. You can now log in to your account.</p>
+            <a href="student/login.html" class="btn">Go to Login</a>
+        </div>
+
+        <div id="error" class="hidden">
+            <div class="error-icon">✗</div>
+            <h2>Verification Failed</h2>
+            <p class="message" id="errorMessage">The verification link is invalid or has expired.</p>
+            <div>
+                <a href="student/login.html" class="btn btn-outline">Back to Login</a>
+                <button class="btn" id="resendBtn">Resend Verification</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // Get URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            const email = urlParams.get('email');
+
+            const loading = document.getElementById('loading');
+            const success = document.getElementById('success');
+            const error = document.getElementById('error');
+            const errorMessage = document.getElementById('errorMessage');
+            const resendBtn = document.getElementById('resendBtn');
+
+            if (!token || !email) {
+                showError('Invalid verification link. Missing parameters.');
+                return;
+            }
+
+            // Verify email
+            async function verifyEmail() {
+                try {
+                    const response = await fetch('http://localhost:8000/api/auth/verify-email/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ email, token })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        if (data.email) {
+                            showError(data.email[0]);
+                        } else if (data.token) {
+                            showError(data.token[0]);
+                        } else if (data.non_field_errors) {
+                            showError(data.non_field_errors[0]);
+                        } else {
+                            showError('Verification failed. Please try again.');
+                        }
+                        return;
+                    }
+
+                    // Success
+                    loading.classList.add('hidden');
+                    success.classList.remove('hidden');
+
+                } catch (error) {
+                    console.error('Verification error:', error);
+                    showError('Network error. Please check your connection.');
+                }
+            }
+
+            function showError(message) {
+                loading.classList.add('hidden');
+                error.classList.remove('hidden');
+                errorMessage.textContent = message || 'The verification link is invalid or has expired.';
+            }
+
+            // Resend verification
+            resendBtn?.addEventListener('click', async function() {
+                this.disabled = true;
+                this.textContent = 'Sending...';
+
+                try {
+                    const response = await fetch('http://localhost:8000/api/auth/resend-verification/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ email })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        alert(data.message || 'Failed to resend verification email.');
+                    } else {
+                        alert('Verification email sent! Please check your inbox.');
+                    }
+                } catch (error) {
+                    alert('Network error. Please try again.');
+                } finally {
+                    this.disabled = false;
+                    this.textContent = 'Resend Verification';
+                }
+            });
+
+            // Start verification
+            verifyEmail();
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Kirinyaga Hostels</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        :root {
+            --kyu-green: #006747;
+            --kyu-gold: #FFD700;
+            --kyu-dark: #1e2b3a;
+            --kyu-light: #f8f9fa;
+            --danger: #dc2626;
+            --success: #16a34a;
+            --warning: #ca8a04;
+            --info: #2563eb;
+        }
+
+        body {
+            background: var(--kyu-light);
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        body.dark-mode {
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .card,
+        body.dark-mode .welcome-card,
+        body.dark-mode .search-section,
+        body.dark-mode .support-form {
+            background: #1e293b;
+            color: #e2e8f0;
+            border-color: #334155;
+        }
+
+        body.dark-mode input,
+        body.dark-mode select,
+        body.dark-mode textarea {
+            background: #334155;
+            border-color: #475569;
+            color: white;
+        }
+
+        body.dark-mode .action-btn {
+            background: #2d3a4f;
+            color: #e2e8f0;
+        }
+
+        /* Header */
+        header {
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--kyu-gold);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: background 0.3s;
+        }
+
+        body.dark-mode header {
+            background: #1e293b;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo img {
+            height: 50px;
+        }
+
+        .logo span {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--kyu-green);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .notifications {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notifications .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--kyu-green);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .dark-mode-toggle {
+            cursor: pointer;
+            font-size: 1.5rem;
+            user-select: none;
+        }
+
+        /* Main container */
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        /* Welcome card */
+        .welcome-card {
+            background: white;
+            border-radius: 30px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            transition: background 0.3s;
+        }
+
+        .welcome-text h1 {
+            color: var(--kyu-green);
+            margin-bottom: 0.5rem;
+            font-size: 1.8rem;
+        }
+
+        .stats {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--kyu-green);
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        body.dark-mode .stat-label {
+            color: #94a3b8;
+        }
+
+        /* Search section */
+        .search-section {
+            background: white;
+            border-radius: 30px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+            transition: background 0.3s;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 50px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--kyu-green);
+        }
+
+        .search-bar button {
+            background: var(--kyu-green);
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .search-bar button:hover {
+            background: #004d33;
+        }
+
+        .suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            z-index: 100;
+        }
+
+        body.dark-mode .suggestions {
+            background: #1e293b;
+            border: 1px solid #334155;
+        }
+
+        .suggestion-item {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 1px solid #e2e8f0;
+            transition: background 0.2s;
+        }
+
+        .suggestion-item:hover {
+            background: #f7fafc;
+        }
+
+        body.dark-mode .suggestion-item {
+            border-color: #334155;
+        }
+
+        body.dark-mode .suggestion-item:hover {
+            background: #2d3a4f;
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-select {
+            padding: 0.8rem 1.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 40px;
+            font-size: 0.95rem;
+            background: white;
+            cursor: pointer;
+            flex: 1 1 160px;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--kyu-green);
+        }
+
+        /* Dashboard grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 30px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: background 0.3s;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header h2 {
+            color: var(--kyu-green);
+            font-size: 1.3rem;
+        }
+
+        .card-header a {
+            color: var(--kyu-green);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .card-header a:hover {
+            text-decoration: underline;
+        }
+
+        /* Booking list */
+        .booking-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .booking-item:last-child {
+            border-bottom: none;
+        }
+
+        .booking-info h3 {
+            margin-bottom: 0.3rem;
+            font-size: 1.1rem;
+        }
+
+        .booking-info p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        body.dark-mode .booking-info p {
+            color: #94a3b8;
+        }
+
+        .booking-status {
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-confirmed { background: #d1fae5; color: #065f46; }
+        .status-cancelled { background: #fee2e2; color: #b91c1c; }
+        .status-completed { background: #e5e7eb; color: #4b5563; }
+        .status-expired { background: #e5e7eb; color: #4b5563; }
+
+        /* Hostel grid */
+        .hostel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .hostel-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            background: white;
+        }
+
+        body.dark-mode .hostel-card {
+            background: #1e293b;
+            border-color: #334155;
+        }
+
+        .hostel-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .hostel-image {
+            height: 160px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .hostel-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--kyu-green);
+            color: white;
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .hostel-info {
+            padding: 1rem;
+        }
+
+        .hostel-name {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--kyu-green);
+        }
+
+        .hostel-price {
+            color: var(--kyu-green);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .hostel-distance {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        body.dark-mode .hostel-distance {
+            color: #94a3b8;
+        }
+
+        .hostel-amenities {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .amenity-tag {
+            background: #f7fafc;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+        }
+
+        body.dark-mode .amenity-tag {
+            background: #2d3a4f;
+            color: #e2e8f0;
+        }
+
+        .btn-save {
+            background: transparent;
+            border: 2px solid var(--kyu-green);
+            color: var(--kyu-green);
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .btn-save.saved {
+            background: var(--kyu-green);
+            color: white;
+        }
+
+        .btn-save:hover {
+            background: var(--kyu-green);
+            color: white;
+        }
+
+        /* Quick actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .action-btn {
+            background: #f7fafc;
+            padding: 1rem;
+            border-radius: 20px;
+            text-align: center;
+            text-decoration: none;
+            color: #333;
+            transition: background 0.3s, transform 0.2s;
+            display: block;
+        }
+
+        .action-btn:hover {
+            background: #e2e8f0;
+            transform: translateY(-2px);
+        }
+
+        body.dark-mode .action-btn {
+            background: #2d3a4f;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .action-btn:hover {
+            background: #3b4a63;
+        }
+
+        .action-btn i {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--kyu-green);
+        }
+
+        /* Notifications panel */
+        .notifications-panel {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 350px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 2000;
+            max-height: 500px;
+            overflow: hidden;
+        }
+
+        body.dark-mode .notifications-panel {
+            background: #1e293b;
+            border: 1px solid #334155;
+        }
+
+        .notifications-header {
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notifications-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .notification-item:hover {
+            background: #f7fafc;
+        }
+
+        .notification-item.unread {
+            background: #ebf8ff;
+        }
+
+        body.dark-mode .notification-item.unread {
+            background: #2b4a6b;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .notification-meta {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        body.dark-mode .notification-meta {
+            color: #94a3b8;
+        }
+
+        #closeNotifications {
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        /* Support form */
+        .support-form {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: background 0.3s;
+        }
+
+        .support-form h2 {
+            color: var(--kyu-green);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--kyu-green);
+        }
+
+        .btn-submit {
+            background: var(--kyu-green);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-submit:hover {
+            background: #004d33;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            border: 4px solid rgba(0,0,0,0.1);
+            border-left-color: var(--kyu-green);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Error state */
+        .error-message {
+            color: var(--danger);
+            text-align: center;
+            padding: 2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .welcome-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            .search-bar {
+                flex-direction: column;
+            }
+            .filters {
+                flex-direction: column;
+            }
+            .notifications-panel {
+                width: 90%;
+                right: 5%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
+            <span>Kirinyaga Hostels</span>
+        </div>
+        <div class="user-menu">
+            <div class="dark-mode-toggle" id="darkModeToggle">🌙</div>
+            <div class="notifications" id="notificationsIcon">
+                <span>🔔</span>
+                <span class="badge" id="notificationBadge" style="display: none;">0</span>
+            </div>
+            <div class="user-avatar" id="userAvatar">JD</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Welcome Card -->
+        <div class="welcome-card" id="welcomeCard">
+            <div class="welcome-text">
+                <h1>Welcome back, <span id="userName">Student</span>!</h1>
+                <p>Here's what's happening with your hostel hunt.</p>
+            </div>
+            <div class="stats" id="stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="bookingCount">0</div>
+                    <div class="stat-label">Bookings</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="savedCount">0</div>
+                    <div class="stat-label">Saved</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Section -->
+        <div class="search-section">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search hostels by name or location...">
+                <button id="searchBtn">Search</button>
+                <div class="suggestions" id="suggestions"></div>
+            </div>
+            <div class="filters">
+                <select class="filter-select" id="roomType">
+                    <option value="">All Room Types</option>
+                    <option value="bedsitter">Bedsitter</option>
+                    <option value="single">Single Room</option>
+                    <option value="one_bedroom">One Bedroom</option>
+                    <option value="two_bedroom">Two Bedroom</option>
+                </select>
+                <select class="filter-select" id="maxPrice">
+                    <option value="">Max Price</option>
+                    <option value="3000">KSh 3,000</option>
+                    <option value="5000">KSh 5,000</option>
+                    <option value="7000">KSh 7,000</option>
+                    <option value="10000">KSh 10,000</option>
+                </select>
+                <select class="filter-select" id="maxDistance">
+                    <option value="">Max Distance</option>
+                    <option value="1">1 km</option>
+                    <option value="2">2 km</option>
+                    <option value="3">3 km</option>
+                    <option value="5">5 km</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Left Column -->
+            <div>
+                <!-- Recent Bookings -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Recent Bookings</h2>
+                        <a href="#" id="viewAllBookings">View all</a>
+                    </div>
+                    <div id="bookingsList">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+
+                <!-- Recommended Hostels -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Recommended for You</h2>
+                        <a href="hostel-list.html" id="viewAllRecommended">View all</a>
+                    </div>
+                    <div class="hostel-grid" id="recommendedHostels">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div>
+                <!-- Quick Actions -->
+                <div class="card">
+                    <h2>Quick Actions</h2>
+                    <div class="quick-actions">
+                        <a href="saved-hostels.html" class="action-btn">
+                            <i>❤️</i> Saved Hostels
+                        </a>
+                        <a href="roommate-finder.html" class="action-btn">
+                            <i>👥</i> Roommate Finder
+                        </a>
+                        <a href="2fa-settings.html" class="action-btn">
+                            <i>🔐</i> 2FA Settings
+                        </a>
+                        <a href="settings.html" class="action-btn">
+                            <i>⚙️</i> Settings
+                        </a>
+                        <a href="help.html" class="action-btn">
+                            <i>❓</i> Help Center
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Hostel Updates -->
+                <div class="card">
+                    <h2>Hostel Updates</h2>
+                    <div id="hostelUpdates">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Support / Feedback Form -->
+        <div class="support-form">
+            <h2>Have a question or feedback?</h2>
+            <form id="supportForm">
+                <div class="form-group">
+                    <label for="requestType">Type</label>
+                    <select id="requestType" required>
+                        <option value="">Select...</option>
+                        <option value="question">Question</option>
+                        <option value="report">Report an issue</option>
+                        <option value="recommendation">Recommendation</option>
+                        <option value="experience">Share your experience</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="subject">Subject</label>
+                    <input type="text" id="subject" placeholder="Brief summary" required>
+                </div>
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" rows="5" placeholder="Your feedback..." required></textarea>
+                </div>
+                <button type="submit" class="btn-submit">Send Feedback</button>
+                <div id="feedbackMessage" style="margin-top:1rem;"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notifications Panel -->
+    <div class="notifications-panel" id="notificationsPanel">
+        <div class="notifications-header">
+            <h3>Notifications</h3>
+            <span id="closeNotifications">✕</span>
+        </div>
+        <div class="notifications-list" id="notificationsList">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const API_BASE = 'http://127.0.0.1:8000/api';
+            const accessToken = sessionStorage.getItem('accessToken');
+            if (!accessToken) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // DOM elements
+            const userNameSpan = document.getElementById('userName');
+            const userAvatar = document.getElementById('userAvatar');
+            const bookingCountSpan = document.getElementById('bookingCount');
+            const savedCountSpan = document.getElementById('savedCount');
+            const bookingsList = document.getElementById('bookingsList');
+            const recommendedHostels = document.getElementById('recommendedHostels');
+            const searchInput = document.getElementById('searchInput');
+            const searchBtn = document.getElementById('searchBtn');
+            const suggestionsDiv = document.getElementById('suggestions');
+            const roomTypeFilter = document.getElementById('roomType');
+            const maxPriceFilter = document.getElementById('maxPrice');
+            const maxDistanceFilter = document.getElementById('maxDistance');
+            const hostelUpdatesDiv = document.getElementById('hostelUpdates');
+            const supportForm = document.getElementById('supportForm');
+            const feedbackMessage = document.getElementById('feedbackMessage');
+            const notificationsIcon = document.getElementById('notificationsIcon');
+            const notificationsPanel = document.getElementById('notificationsPanel');
+            const notificationsList = document.getElementById('notificationsList');
+            const notificationBadge = document.getElementById('notificationBadge');
+            const darkModeToggle = document.getElementById('darkModeToggle');
+
+            // State
+            let allHostels = [];
+            let savedHostels = [];
+
+            // Helper: fetch with auth
+            async function authFetch(url, options = {}) {
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`,
+                    ...options.headers
+                };
+                const response = await fetch(url, { ...options, headers, credentials: 'include' });
+                if (response.status === 401) {
+                    sessionStorage.removeItem('accessToken');
+                    window.location.href = 'login.html';
+                }
+                return response;
+            }
+
+            // Load user profile
+            async function loadProfile() {
+                try {
+                    const res = await authFetch(`${API_BASE}/auth/profile/`);
+                    if (!res.ok) throw new Error('Profile fetch failed');
+                    const data = await res.json();
+                    userNameSpan.textContent = data.full_name || 'Student';
+                    const initials = data.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2);
+                    userAvatar.textContent = initials || 'S';
+                } catch (e) {
+                    console.error('Failed to load profile', e);
+                    userNameSpan.textContent = 'Student';
+                    userAvatar.textContent = 'S';
+                }
+            }
+
+            // Load bookings
+            async function loadBookings() {
+                try {
+                    const res = await authFetch(`${API_BASE}/bookings/my/`);
+                    if (!res.ok) throw new Error('Bookings fetch failed');
+                    const data = await res.json();
+                    const bookings = Array.isArray(data) ? data : (data.results || []);
+                    bookingCountSpan.textContent = bookings.length;
+                    renderBookings(bookings.slice(0, 3));
+                } catch (e) {
+                    console.error('Failed to load bookings', e);
+                    bookingsList.innerHTML = '<p class="error-message">Unable to load bookings.</p>';
+                }
+            }
+
+            function renderBookings(bookings) {
+                if (bookings.length === 0) {
+                    bookingsList.innerHTML = '<p>No bookings yet. Start exploring!</p>';
+                    return;
+                }
+                let html = '';
+                bookings.forEach(b => {
+                    const statusClass = `status-${b.status || 'pending'}`;
+                    html += `
+                        <div class="booking-item">
+                            <div class="booking-info">
+                                <h3>${b.hostel_details?.name || 'Hostel'}</h3>
+                                <p>Booked on ${b.created_at ? new Date(b.created_at).toLocaleDateString() : 'N/A'}</p>
+                            </div>
+                            <div class="booking-status ${statusClass}">${b.status || 'pending'}</div>
+                        </div>
+                    `;
+                });
+                bookingsList.innerHTML = html;
+            }
+
+            // Load saved hostels count
+            async function loadSavedCount() {
+                try {
+                    const res = await authFetch(`${API_BASE}/hostels/saved/`);
+                    if (!res.ok) throw new Error('Saved fetch failed');
+                    const data = await res.json();
+                    const saved = Array.isArray(data) ? data : (data.results || []);
+                    savedCountSpan.textContent = saved.length;
+                    savedHostels = saved;
+                } catch (e) {
+                    console.error('Failed to load saved hostels', e);
+                }
+            }
+
+            // Load recommended hostels
+            async function loadRecommended() {
+                try {
+                    const res = await authFetch(`${API_BASE}/hostels/recommended/`);
+                    if (!res.ok) throw new Error('Recommended fetch failed');
+                    const data = await res.json();
+                    const hostels = Array.isArray(data) ? data : (data.results || []);
+                    renderHostels(hostels, recommendedHostels);
+                } catch (e) {
+                    console.error('Failed to load recommended hostels', e);
+                    recommendedHostels.innerHTML = '<p class="error-message">Could not load recommendations.</p>';
+                }
+            }
+
+            function renderHostels(hostels, container) {
+                if (hostels.length === 0) {
+                    container.innerHTML = '<p>No hostels found.</p>';
+                    return;
+                }
+                let html = '';
+                hostels.forEach(h => {
+                    const isSaved = savedHostels.some(s => s.hostel?.id === h.id);
+                    const primaryImage = h.primary_image || 'https://via.placeholder.com/300x200?text=No+Image';
+                    html += `
+                        <div class="hostel-card" data-id="${h.id}">
+                            <div class="hostel-image" style="background-image: url('${primaryImage}')">
+                                <div class="hostel-badge">${h.room_type || 'N/A'}</div>
+                            </div>
+                            <div class="hostel-info">
+                                <div class="hostel-name">${h.name || 'Unnamed'}</div>
+                                <div class="hostel-price">KSh ${h.price || 0}/month</div>
+                                <div class="hostel-distance">📍 ${h.distance_to_university || '?'} km from KyU</div>
+                                <div class="hostel-amenities">
+                                    ${(h.amenities || []).slice(0,3).map(a => `<span class="amenity-tag">${a}</span>`).join('')}
+                                    ${(h.amenities || []).length > 3 ? `<span class="amenity-tag">+${h.amenities.length-3}</span>` : ''}
+                                </div>
+                                <button class="btn-save ${isSaved ? 'saved' : ''}" data-id="${h.id}">${isSaved ? 'Saved' : 'Save'}</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+
+                // Attach save button listeners
+                container.querySelectorAll('.btn-save').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        const hostelId = btn.dataset.id;
+                        const isSaved = btn.classList.contains('saved');
+                        if (isSaved) {
+                            // unsave
+                            const saved = savedHostels.find(s => s.hostel?.id === hostelId);
+                            if (saved && saved.id) {
+                                await authFetch(`${API_BASE}/hostels/saved/${saved.id}/`, { method: 'DELETE' });
+                                btn.classList.remove('saved');
+                                btn.textContent = 'Save';
+                                savedHostels = savedHostels.filter(s => s.hostel?.id !== hostelId);
+                            }
+                        } else {
+                            // save
+                            const res = await authFetch(`${API_BASE}/hostels/saved/`, {
+                                method: 'POST',
+                                body: JSON.stringify({ hostel_id: hostelId })
+                            });
+                            if (res.ok) {
+                                const newSaved = await res.json();
+                                btn.classList.add('saved');
+                                btn.textContent = 'Saved';
+                                savedHostels.push(newSaved);
+                            }
+                        }
+                        loadSavedCount();
+                    });
+                });
+
+                // Click on hostel card goes to detail page
+                container.querySelectorAll('.hostel-card').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        if (e.target.classList.contains('btn-save')) return;
+                        window.location.href = `hostel-detail.html?id=${card.dataset.id}`;
+                    });
+                });
+            }
+
+            // Search with suggestions
+            let searchTimeout;
+            searchInput.addEventListener('input', () => {
+                clearTimeout(searchTimeout);
+                const query = searchInput.value.trim();
+                if (query.length < 2) {
+                    suggestionsDiv.style.display = 'none';
+                    return;
+                }
+                searchTimeout = setTimeout(async () => {
+                    try {
+                        const res = await fetch(`${API_BASE}/hostels/?search=${query}&limit=5`);
+                        const data = await res.json();
+                        const hostels = Array.isArray(data) ? data : (data.results || []);
+                        if (hostels.length > 0) {
+                            let html = '';
+                            hostels.forEach(h => {
+                                html += `<div class="suggestion-item" data-id="${h.id}">${h.name} - ${h.address || ''}</div>`;
+                            });
+                            suggestionsDiv.innerHTML = html;
+                            suggestionsDiv.style.display = 'block';
+                            suggestionsDiv.querySelectorAll('.suggestion-item').forEach(item => {
+                                item.addEventListener('click', () => {
+                                    window.location.href = `hostel-detail.html?id=${item.dataset.id}`;
+                                });
+                            });
+                        } else {
+                            suggestionsDiv.style.display = 'none';
+                        }
+                    } catch (e) {
+                        console.error('Search error', e);
+                    }
+                }, 300);
+            });
+
+            // Search button click – redirect to search results page with filters
+            searchBtn.addEventListener('click', () => {
+                const query = searchInput.value.trim();
+                const roomType = roomTypeFilter.value;
+                const maxPrice = maxPriceFilter.value;
+                const maxDistance = maxDistanceFilter.value;
+                const params = new URLSearchParams();
+                if (query) params.append('search', query);
+                if (roomType) params.append('room_type', roomType);
+                if (maxPrice) params.append('max_price', maxPrice);
+                if (maxDistance) params.append('max_distance', maxDistance);
+                window.location.href = `hostel-list.html?${params.toString()}`;
+            });
+
+            // Load hostel updates (newest hostels)
+            async function loadHostelUpdates() {
+                try {
+                    const res = await fetch(`${API_BASE}/hostels/?ordering=-created_at&limit=5`);
+                    const data = await res.json();
+                    const hostels = Array.isArray(data) ? data : (data.results || []);
+                    if (hostels.length > 0) {
+                        let html = '<ul style="list-style:none; padding:0;">';
+                        hostels.forEach(h => {
+                            html += `<li style="padding:0.5rem 0; border-bottom:1px solid #e2e8f0;">🏠 <strong>${h.name}</strong> – ${h.room_type}</li>`;
+                        });
+                        html += '</ul>';
+                        hostelUpdatesDiv.innerHTML = html;
+                    } else {
+                        hostelUpdatesDiv.innerHTML = '<p>No recent updates.</p>';
+                    }
+                } catch (e) {
+                    console.error('Failed to load updates', e);
+                    hostelUpdatesDiv.innerHTML = '<p>Could not load updates.</p>';
+                }
+            }
+
+            // Notifications
+            async function loadNotifications() {
+                try {
+                    const res = await authFetch(`${API_BASE}/notifications/`);
+                    if (!res.ok) throw new Error('Notifications fetch failed');
+                    let data = await res.json();
+                    const notifs = Array.isArray(data) ? data : (data.results || []);
+                    const unreadCount = notifs.filter(n => !n.is_read).length;
+                    notificationBadge.textContent = unreadCount;
+                    notificationBadge.style.display = unreadCount > 0 ? 'flex' : 'none';
+                    renderNotifications(notifs);
+                } catch (e) {
+                    console.error('Failed to load notifications', e);
+                }
+            }
+
+            function renderNotifications(notifs) {
+                if (notifs.length === 0) {
+                    notificationsList.innerHTML = '<p style="padding:1rem;">No notifications</p>';
+                    return;
+                }
+                let html = '';
+                notifs.forEach(n => {
+                    html += `
+                        <div class="notification-item ${n.is_read ? '' : 'unread'}" data-id="${n.id}">
+                            <div class="notification-title">${n.title || 'Notification'}</div>
+                            <div class="notification-meta">${n.created_at ? new Date(n.created_at).toLocaleString() : ''}</div>
+                        </div>
+                    `;
+                });
+                notificationsList.innerHTML = html;
+                notificationsList.querySelectorAll('.notification-item').forEach(item => {
+                    item.addEventListener('click', async () => {
+                        const id = item.dataset.id;
+                        await authFetch(`${API_BASE}/notifications/${id}/read/`, { method: 'POST' });
+                        item.classList.remove('unread');
+                        loadNotifications(); // refresh badge
+                    });
+                });
+            }
+
+            notificationsIcon.addEventListener('click', () => {
+                notificationsPanel.style.display = 'block';
+            });
+            document.getElementById('closeNotifications').addEventListener('click', () => {
+                notificationsPanel.style.display = 'none';
+            });
+
+            // Support form submission
+            supportForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = {
+                    type: document.getElementById('requestType').value,
+                    subject: document.getElementById('subject').value,
+                    message: document.getElementById('message').value
+                };
+                try {
+                    const res = await authFetch(`${API_BASE}/support/`, {
+                        method: 'POST',
+                        body: JSON.stringify(formData)
+                    });
+                    if (res.ok) {
+                        feedbackMessage.innerHTML = '<div style="color: var(--success);">Thank you! Your feedback has been sent to the admin.</div>';
+                        supportForm.reset();
+                    } else {
+                        const err = await res.json();
+                        feedbackMessage.innerHTML = `<div style="color: var(--danger);">Error: ${err.message || 'Something went wrong'}</div>`;
+                    }
+                } catch (e) {
+                    feedbackMessage.innerHTML = `<div style="color: var(--danger);">Network error. Please try again.</div>`;
+                }
+                setTimeout(() => feedbackMessage.innerHTML = '', 5000);
+            });
+
+            // Dark mode
+            darkModeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                darkModeToggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+                localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+            });
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+                darkModeToggle.textContent = '☀️';
+            }
+
+            // Initial loads
+            loadProfile();
+            loadBookings();
+            loadSavedCount();
+            loadRecommended();
+            loadHostelUpdates();
+            loadNotifications();
+            setInterval(loadNotifications, 30000); // poll every 30 sec
+        })();
+    </script>
+</body>
+</html>

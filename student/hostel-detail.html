@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hostel Details - Kirinyaga Hostels</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
+    <style>
+        /* (keep your existing styles) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
+        :root {
+            --kyu-green: #006747;
+            --kyu-gold: #FFD700;
+        }
+        body {
+            background: #f8f9fa;
+        }
+        header {
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--kyu-gold);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .logo img {
+            height: 50px;
+        }
+        .logo span {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--kyu-green);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        .back-link {
+            margin-bottom: 2rem;
+        }
+        .back-link a {
+            color: var(--kyu-green);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .hostel-detail {
+            background: white;
+            border-radius: 30px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        .hostel-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .hostel-title h1 {
+            color: var(--kyu-green);
+            font-size: 2rem;
+        }
+        .featured-badge {
+            background: var(--kyu-gold);
+            color: #000;
+            padding: 0.5rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 600;
+        }
+
+        /* Slideshow */
+        .slideshow-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            overflow: hidden;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+        }
+        .slide {
+            display: none;
+            width: 100%;
+            height: 100%;
+        }
+        .slide.active {
+            display: block;
+        }
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .prev, .next {
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 16px;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 0 3px 3px 0;
+            transition: 0.3s;
+            user-select: none;
+            z-index: 5;
+        }
+        .next {
+            right: 0;
+            border-radius: 3px 0 0 3px;
+        }
+        .prev:hover, .next:hover {
+            background: rgba(0,0,0,0.8);
+        }
+        .dots {
+            text-align: center;
+            position: absolute;
+            bottom: 15px;
+            width: 100%;
+            z-index: 5;
+        }
+        .dot {
+            cursor: pointer;
+            height: 12px;
+            width: 12px;
+            margin: 0 5px;
+            background-color: rgba(255,255,255,0.5);
+            border-radius: 50%;
+            display: inline-block;
+            transition: background-color 0.3s;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        .dot.active {
+            background-color: var(--kyu-green);
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        .detail-section {
+            background: #f7fafc;
+            padding: 1.5rem;
+            border-radius: 20px;
+        }
+        .detail-section h3 {
+            color: var(--kyu-green);
+            margin-bottom: 1rem;
+        }
+        .detail-item {
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .amenities-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .amenity-tag {
+            background: white;
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            border: 1px solid #e2e8f0;
+            font-size: 0.9rem;
+        }
+        .owner-contact {
+            background: #f7fafc;
+            padding: 1.5rem;
+            border-radius: 20px;
+            margin-top: 2rem;
+        }
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .btn-save {
+            background: transparent;
+            border: 2px solid var(--kyu-green);
+            color: var(--kyu-green);
+            padding: 1rem 3rem;
+            border-radius: 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        .btn-save.saved {
+            background: var(--kyu-green);
+            color: white;
+        }
+        .btn-save:hover {
+            background: var(--kyu-green);
+            color: white;
+        }
+        .spinner {
+            border: 4px solid rgba(0,0,0,0.1);
+            border-left-color: var(--kyu-green);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Modal (only review modal remains) */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 40px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .modal-header h2 {
+            color: var(--kyu-green);
+        }
+        .modal-close {
+            font-size: 2rem;
+            cursor: pointer;
+            color: #666;
+        }
+        .modal-close:hover {
+            color: #e53e3e;
+        }
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--kyu-green);
+        }
+        .rating {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+        .rating input {
+            display: none;
+        }
+        .rating label {
+            font-size: 2rem;
+            color: #ccc;
+            cursor: pointer;
+        }
+        .rating input:checked ~ label,
+        .rating label:hover,
+        .rating label:hover ~ label {
+            color: var(--kyu-gold);
+        }
+        .modal-footer {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: flex-end;
+        }
+        .btn-primary {
+            background: var(--kyu-green);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-primary:hover {
+            background: #004d33;
+        }
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #333;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        footer {
+            background: #1a2e3a;
+            color: #e2e8f0;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
+            <span>Kirinyaga Hostels</span>
+        </div>
+        <a href="javascript:history.back()" style="color: var(--kyu-green); text-decoration: none;">← Back</a>
+    </header>
+
+    <div class="container">
+        <div id="hostelDetail">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <!-- Review Modal (unchanged) -->
+    <div class="modal" id="reviewModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Leave a Review</h2>
+                <span class="modal-close" onclick="closeModal('reviewModal')">&times;</span>
+            </div>
+            <div id="reviewModalBody">
+                <form id="reviewForm">
+                    <div class="form-group">
+                        <label>Rating</label>
+                        <div class="rating">
+                            <input type="radio" name="rating" id="star5" value="5"><label for="star5">★</label>
+                            <input type="radio" name="rating" id="star4" value="4"><label for="star4">★</label>
+                            <input type="radio" name="rating" id="star3" value="3"><label for="star3">★</label>
+                            <input type="radio" name="rating" id="star2" value="2"><label for="star2">★</label>
+                            <input type="radio" name="rating" id="star1" value="1"><label for="star1">★</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Comment</label>
+                        <textarea id="reviewComment" rows="4" required></textarea>
+                    </div>
+                </form>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeModal('reviewModal')">Later</button>
+                    <button class="btn-primary" onclick="submitReview()">Submit Review</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 Kirinyaga University Hostels. All rights reserved.</p>
+    </footer>
+
+    <script>
+        (function() {
+            const API_BASE = 'http://127.0.0.1:8000/api';
+            const CLOUDINARY_BASE = 'https://res.cloudinary.com/dqujm2fhm/';
+            const token = sessionStorage.getItem('accessToken');
+            const urlParams = new URLSearchParams(window.location.search);
+            const hostelId = urlParams.get('id');
+
+            if (!hostelId) {
+                window.location.href = 'hostel-list.html';
+                return;
+            }
+
+            const hostelDetail = document.getElementById('hostelDetail');
+            let slideIndex = 1;
+            let slideInterval;
+
+            function getFullImageUrl(url) {
+                if (!url) return null;
+                if (url.startsWith('http')) return url;
+                if (url.startsWith('image/upload/')) return CLOUDINARY_BASE + url;
+                return url;
+            }
+
+            window.openModal = (id) => document.getElementById(id).classList.add('active');
+            window.closeModal = (id) => document.getElementById(id).classList.remove('active');
+
+            async function loadHostel() {
+                try {
+                    const res = await fetch(`${API_BASE}/hostels/${hostelId}/`);
+                    if (!res.ok) {
+                        throw new Error(`HTTP ${res.status}`);
+                    }
+                    const hostel = await res.json();
+                    renderHostel(hostel);
+                } catch (e) {
+                    console.error('Error loading hostel:', e);
+                    hostelDetail.innerHTML = '<div style="text-align:center; padding:3rem;">Error loading hostel details.</div>';
+                }
+            }
+
+            function renderHostel(h) {
+                let slidesHtml = '', dotsHtml = '';
+                if (h.images && h.images.length > 0) {
+                    h.images.forEach((img, idx) => {
+                        const imageUrl = getFullImageUrl(img.image || img.image_url || img.url);
+                        slidesHtml += `<div class="slide ${idx === 0 ? 'active' : ''}"><img src="${imageUrl}" alt="Hostel image" onerror="this.src='https://via.placeholder.com/800x400?text=No+Image'"></div>`;
+                        dotsHtml += `<span class="dot ${idx === 0 ? 'active' : ''}" onclick="currentSlide(${idx+1})"></span>`;
+                    });
+                } else {
+                    slidesHtml = '<div class="slide active"><img src="https://via.placeholder.com/800x400?text=No+Image" alt="No image"></div>';
+                    dotsHtml = '<span class="dot active"></span>';
+                }
+
+                let amenitiesHtml = '';
+                if (h.amenities && h.amenities.length > 0) {
+                    h.amenities.forEach(a => amenitiesHtml += `<span class="amenity-tag">${a.name}</span>`);
+                }
+                if (h.other_amenities) {
+                    h.other_amenities.split(',').forEach(a => {
+                        if (a.trim()) amenitiesHtml += `<span class="amenity-tag">${a.trim()}</span>`;
+                    });
+                }
+
+                const featuredBadge = h.is_featured ? '<div class="featured-badge">⭐ Featured Hostel</div>' : '';
+
+                const html = `
+                    <div class="back-link"><a href="javascript:history.back()">← Back</a></div>
+                    <div class="hostel-detail">
+                        <div class="hostel-title"><h1>${h.name}</h1>${featuredBadge}</div>
+                        <div class="slideshow-container" id="slideshowContainer">
+                            ${slidesHtml}
+                            <a class="prev" onclick="changeSlide(-1)">❮</a>
+                            <a class="next" onclick="changeSlide(1)">❯</a>
+                            <div class="dots" id="dotsContainer">${dotsHtml}</div>
+                        </div>
+                        <div class="details-grid">
+                            <div class="detail-section">
+                                <h3>📍 Location & Distance</h3>
+                                <div class="detail-item"><strong>Address:</strong> ${h.address}</div>
+                                <div class="detail-item"><strong>Distance from KyU:</strong> ${h.distance_to_university} km</div>
+                            </div>
+                            <div class="detail-section">
+                                <h3>💰 Pricing</h3>
+                                <div class="detail-item"><strong>Monthly Rent:</strong> KSh ${h.price}</div>
+                                <div class="detail-item"><strong>Deposit:</strong> KSh ${h.deposit || 0}</div>
+                                ${h.utilities ? `<div class="detail-item"><strong>Utilities:</strong> KSh ${h.utilities}</div>` : ''}
+                            </div>
+                        </div>
+                        <div class="detail-section"><h3>📝 Description</h3><p>${h.description}</p></div>
+                        <div class="detail-section">
+                            <h3>✨ Amenities</h3>
+                            <div class="amenities-list">${amenitiesHtml || '<span class="amenity-tag">No amenities listed</span>'}</div>
+                        </div>
+                        <div class="owner-contact">
+                            <h3>👤 Hostel Owner Contact</h3>
+                            <div class="contact-item"><strong>Name:</strong> ${h.owner_name || 'Hostel Owner'}</div>
+                            <div class="contact-item"><strong>Phone:</strong> ${h.owner_phone || 'Not available'}</div>
+                        </div>
+                        ${token ? `
+                            <button class="btn-save" id="saveBtn" onclick="toggleSave('${h.id}')">❤️ Save Hostel</button>
+                        ` : `
+                            <p style="text-align:center; margin-top:2rem;"><a href="login.html" style="color: var(--kyu-green);">Log in</a> to save this hostel.</p>
+                        `}
+                    </div>
+                `;
+
+                hostelDetail.innerHTML = html;
+                if (h.images && h.images.length > 1) {
+                    slideInterval = setInterval(() => changeSlide(1), 3000);
+                }
+                if (token) checkSaved(h.id);
+            }
+
+            window.changeSlide = function(n) {
+                const slides = document.querySelectorAll('.slide');
+                const dots = document.querySelectorAll('.dot');
+                if (!slides.length) return;
+                slideIndex += n;
+                if (slideIndex > slides.length) slideIndex = 1;
+                if (slideIndex < 1) slideIndex = slides.length;
+                slides.forEach(s => s.classList.remove('active'));
+                dots.forEach(d => d.classList.remove('active'));
+                slides[slideIndex-1].classList.add('active');
+                dots[slideIndex-1].classList.add('active');
+            };
+            window.currentSlide = function(n) {
+                slideIndex = n;
+                const slides = document.querySelectorAll('.slide');
+                const dots = document.querySelectorAll('.dot');
+                if (!slides.length) return;
+                slides.forEach(s => s.classList.remove('active'));
+                dots.forEach(d => d.classList.remove('active'));
+                slides[slideIndex-1].classList.add('active');
+                dots[slideIndex-1].classList.add('active');
+            };
+
+            async function checkSaved(id) {
+                try {
+                    const res = await fetch(`${API_BASE}/hostels/saved/`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.status === 401) {
+                        sessionStorage.removeItem('accessToken');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    if (!res.ok) {
+                        throw new Error('Failed to fetch saved hostels');
+                    }
+                    const saved = await res.json();
+                    console.log('Saved hostels response:', saved);
+                    const savedArray = Array.isArray(saved) ? saved : (saved.results || []);
+                    const isSaved = savedArray.some(s => s.hostel?.id === id);
+                    const btn = document.getElementById('saveBtn');
+                    if (btn && isSaved) {
+                        btn.classList.add('saved');
+                        btn.textContent = '❤️ Saved';
+                    }
+                } catch (e) {
+                    console.error('Error checking saved status:', e);
+                }
+            }
+
+            window.toggleSave = async function(id) {
+                const btn = document.getElementById('saveBtn');
+                if (btn.classList.contains('saved')) {
+                    // Unsaving
+                    try {
+                        const res = await fetch(`${API_BASE}/hostels/saved/`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        if (res.status === 401) {
+                            sessionStorage.removeItem('accessToken');
+                            window.location.href = 'login.html';
+                            return;
+                        }
+                        const saved = await res.json();
+                        console.log('Saved hostels for unsave:', saved);
+                        const savedArray = Array.isArray(saved) ? saved : (saved.results || []);
+                        const savedItem = savedArray.find(s => s.hostel?.id === id);
+                        if (savedItem) {
+                            const delRes = await fetch(`${API_BASE}/hostels/saved/${savedItem.id}/`, {
+                                method: 'DELETE',
+                                headers: { 'Authorization': `Bearer ${token}` }
+                            });
+                            if (delRes.ok) {
+                                btn.classList.remove('saved');
+                                btn.textContent = '❤️ Save Hostel';
+                            } else {
+                                const errText = await delRes.text();
+                                console.error('Unsave failed:', errText);
+                                alert('Failed to unsave: ' + (errText || 'Unknown error'));
+                            }
+                        } else {
+                            alert('Could not find saved record to delete');
+                        }
+                    } catch (e) {
+                        console.error('Error removing saved hostel:', e);
+                        alert('Error removing saved hostel: ' + e.message);
+                    }
+                } else {
+                    // Saving
+                    try {
+                        const res = await fetch(`${API_BASE}/hostels/saved/`, {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ hostel_id: id })
+                        });
+                        if (res.status === 401) {
+                            sessionStorage.removeItem('accessToken');
+                            window.location.href = 'login.html';
+                            return;
+                        }
+                        const responseText = await res.text();
+                        console.log('Save response:', responseText);
+                        let data;
+                        try {
+                            data = JSON.parse(responseText);
+                        } catch (e) {
+                            console.error('Failed to parse save response:', responseText);
+                            alert('Server returned non-JSON response. See console.');
+                            return;
+                        }
+                        if (res.ok) {
+                            btn.classList.add('saved');
+                            btn.textContent = '❤️ Saved';
+                            // Optionally add the new saved item to local array
+                            // savedHostels.push(data); (if you maintain savedHostels array)
+                        } else {
+                            alert('Failed to save: ' + (data.message || data.detail || 'Unknown error'));
+                        }
+                    } catch (e) {
+                        console.error('Error saving hostel:', e);
+                        alert('Error saving hostel: ' + e.message);
+                    }
+                }
+            };
+
+            // Review modal
+            let currentReviewHostelId = null;
+            window.openReviewModal = function(hostelId) {
+                currentReviewHostelId = hostelId;
+                openModal('reviewModal');
+            };
+            window.submitReview = async function() {
+                const rating = document.querySelector('input[name="rating"]:checked')?.value;
+                const comment = document.getElementById('reviewComment').value;
+                if (!rating) { alert('Please select a rating'); return; }
+                if (!comment.trim()) { alert('Please enter a comment'); return; }
+                const payload = { hostel: currentReviewHostelId, rating: parseInt(rating), comment: comment };
+                try {
+                    const res = await fetch(`${API_BASE}/reviews/`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    if (res.status === 401) {
+                        sessionStorage.removeItem('accessToken');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    if (!res.ok) throw new Error('Review submission failed');
+                    alert('Thank you for your review!');
+                    closeModal('reviewModal');
+                } catch (e) {
+                    alert('Error submitting review: ' + e.message);
+                }
+            };
+
+            loadHostel();
+        })();
+    </script>
+</body>
+</html>

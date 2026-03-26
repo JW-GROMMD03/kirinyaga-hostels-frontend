@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings - Kirinyaga Hostels</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* (Include the same base styles as your hostels page for consistency) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        :root {
+            --kyu-green: #006747;
+            --kyu-gold: #FFD700;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border-light: #e2e8f0;
+            --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1);
+            --danger: #dc2626;
+            --success: #16a34a;
+            --warning: #ca8a04;
+            --info: #2563eb;
+        }
+        body {
+            background: var(--bg-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: var(--bg-white);
+            box-shadow: var(--shadow-sm);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--kyu-gold);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .logo img {
+            height: 45px;
+        }
+        .logo span {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--kyu-green);
+        }
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 16px;
+            background: var(--bg-light);
+            border-radius: 40px;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--kyu-green);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+        .user-role {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        .btn-logout {
+            padding: 0.5rem 1.2rem;
+            border: 2px solid var(--danger);
+            background: transparent;
+            color: var(--danger);
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-logout:hover {
+            background: var(--danger);
+            color: white;
+        }
+        .main-container {
+            flex: 1;
+            max-width: 1400px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .page-header h1 {
+            font-size: 2rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .page-header h1 i {
+            color: var(--kyu-green);
+        }
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        .btn-primary {
+            padding: 0.8rem 1.8rem;
+            background: var(--kyu-green);
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        .btn-primary:hover {
+            background: #004d33;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,103,71,0.3);
+        }
+        .btn-outline {
+            padding: 0.8rem 1.8rem;
+            background: transparent;
+            border: 2px solid var(--kyu-green);
+            color: var(--kyu-green);
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        .btn-outline:hover {
+            background: var(--kyu-green);
+            color: white;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+        .stat-card {
+            background: var(--bg-white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s;
+            border: 1px solid var(--border-light);
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--kyu-green);
+        }
+        .stat-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: rgba(0,103,71,0.1);
+            color: var(--kyu-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+        }
+        .stat-info h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+        .stat-info p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        .filter-bar {
+            background: var(--bg-white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+        }
+        .filter-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .search-box {
+            flex: 2;
+            min-width: 250px;
+            position: relative;
+        }
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+        .search-box input {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 2.8rem;
+            border: 2px solid var(--border-light);
+            border-radius: 40px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--kyu-green);
+        }
+        .filter-select {
+            flex: 1;
+            min-width: 150px;
+            padding: 0.8rem 1rem;
+            border: 2px solid var(--border-light);
+            border-radius: 40px;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            background: white;
+            cursor: pointer;
+        }
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--kyu-green);
+        }
+        .filter-actions {
+            display: flex;
+            gap: 0.8rem;
+        }
+        .filter-actions button {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-filter {
+            background: var(--kyu-green);
+            color: white;
+        }
+        .btn-filter:hover {
+            background: #004d33;
+        }
+        .btn-reset {
+            background: var(--bg-light);
+            color: var(--text-secondary);
+        }
+        .btn-reset:hover {
+            background: var(--border-light);
+        }
+        .bookings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        .booking-card {
+            background: var(--bg-white);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s;
+            border: 1px solid var(--border-light);
+        }
+        .booking-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+        .booking-header {
+            background: linear-gradient(135deg, var(--kyu-green), #004d33);
+            color: white;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .booking-header h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        .booking-status {
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: rgba(255,255,255,0.2);
+        }
+        .status-pending { background: var(--warning); color: white; }
+        .status-confirmed { background: var(--success); color: white; }
+        .status-cancelled { background: var(--danger); color: white; }
+        .booking-content {
+            padding: 1.5rem;
+        }
+        .booking-detail {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .booking-detail i {
+            width: 20px;
+            color: var(--kyu-green);
+        }
+        .booking-price {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--kyu-green);
+            margin-top: 1rem;
+        }
+        .booking-actions {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1.2rem;
+        }
+        .btn-action {
+            flex: 1;
+            padding: 0.7rem;
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .btn-view {
+            background: rgba(0,103,71,0.1);
+            color: var(--kyu-green);
+        }
+        .btn-view:hover {
+            background: rgba(0,103,71,0.2);
+        }
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--bg-white);
+            border-radius: 20px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+        }
+        .empty-state i {
+            font-size: 4rem;
+            color: #cbd5e1;
+            margin-bottom: 1.5rem;
+        }
+        .empty-state h3 {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        .empty-state p {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+        .loading-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+        }
+        .spinner {
+            border: 4px solid rgba(0,103,71,0.1);
+            border-left-color: var(--kyu-green);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .error-message {
+            grid-column: 1 / -1;
+            background: #fee2e2;
+            color: var(--danger);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+        .page-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--border-light);
+            background: white;
+            color: var(--text-primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .page-btn:hover:not(:disabled) {
+            border-color: var(--kyu-green);
+            background: var(--kyu-green);
+            color: white;
+        }
+        .page-btn.active {
+            background: var(--kyu-green);
+            color: white;
+            border-color: var(--kyu-green);
+        }
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        /* Modal styles (reuse from hostels page) */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background-color: var(--bg-white);
+            margin: 2rem auto;
+            padding: 2rem;
+            border-radius: 40px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: var(--shadow-lg);
+        }
+        .close-modal {
+            position: absolute;
+            right: 2rem;
+            top: 1.5rem;
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .close-modal:hover {
+            color: var(--danger);
+        }
+        .modal-details {
+            padding: 1rem 0;
+        }
+        .modal-details h2 {
+            color: var(--kyu-green);
+            margin-bottom: 1.5rem;
+        }
+        .modal-info-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.8rem;
+            background: var(--bg-light);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+        .modal-info-item i {
+            width: 24px;
+            color: var(--kyu-green);
+        }
+        .footer {
+            background: #1e293b;
+            color: white;
+            padding: 2rem;
+            margin-top: 3rem;
+            border-top: 3px solid var(--kyu-gold);
+        }
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        .footer-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.9rem;
+        }
+        .footer-links a:hover {
+            color: var(--kyu-gold);
+        }
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            .page-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .filter-row {
+                flex-direction: column;
+            }
+            .search-box, .filter-select, .filter-actions {
+                width: 100%;
+            }
+            .bookings-grid {
+                grid-template-columns: 1fr;
+            }
+            .footer-links {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='45' height='45' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
+            <span>Kirinyaga Hostels</span>
+        </div>
+        <div class="user-menu">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">O</div>
+                <div class="user-details">
+                    <span class="user-name" id="userName">Loading...</span>
+                    <span class="user-role">User</span>
+                </div>
+            </div>
+            <button class="btn-logout" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="page-header">
+            <h1>
+                <i class="fas fa-calendar-check"></i>
+                My Bookings
+            </h1>
+            <div class="header-actions">
+                <a href="dashboard.html" class="btn-outline">
+                    <i class="fas fa-arrow-left"></i> Dashboard
+                </a>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+                <div class="stat-info">
+                    <h3 id="totalBookings">0</h3>
+                    <p>Total Bookings</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-hourglass-half"></i></div>
+                <div class="stat-info">
+                    <h3 id="pendingBookings">0</h3>
+                    <p>Pending</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-info">
+                    <h3 id="confirmedBookings">0</h3>
+                    <p>Confirmed</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
+                <div class="stat-info">
+                    <h3 id="cancelledBookings">0</h3>
+                    <p>Cancelled</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-bar">
+            <div class="filter-row">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search by hostel name or location...">
+                </div>
+                <select class="filter-select" id="statusFilter">
+                    <option value="all">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+                <select class="filter-select" id="sortFilter">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="price_low">Price: Low to High</option>
+                    <option value="price_high">Price: High to Low</option>
+                </select>
+                <div class="filter-actions">
+                    <button class="btn-filter" onclick="applyFilters()">
+                        <i class="fas fa-filter"></i> Apply
+                    </button>
+                    <button class="btn-reset" onclick="resetFilters()">
+                        <i class="fas fa-redo-alt"></i> Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bookings-grid" id="bookingsGrid">
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p>Loading your bookings...</p>
+            </div>
+        </div>
+
+        <div class="pagination" id="pagination" style="display: none;">
+            <button class="page-btn" id="prevPage" onclick="changePage(-1)" disabled>←</button>
+            <span id="pageNumbers"></span>
+            <button class="page-btn" id="nextPage" onclick="changePage(1)" disabled>→</button>
+        </div>
+    </div>
+
+    <!-- Modal for Booking Details -->
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <div id="modalDetails" class="modal-details">
+                <!-- Details injected here -->
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>© 2025 Kirinyaga University Hostels. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
+                <a href="help.html">Help Center</a>
+                <a href="contact.html">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000/api';
+        const token = sessionStorage.getItem('accessToken');
+        if (!token) window.location.href = 'login.html';
+
+        // Determine user role (you may need to fetch profile)
+        let userRole = 'student'; // default, will be updated from profile
+
+        let allBookings = [];
+        let filteredBookings = [];
+        let currentPage = 1;
+        const itemsPerPage = 9;
+        let currentFilters = {
+            search: '',
+            status: 'all',
+            sort: 'newest'
+        };
+
+        // Utility for API calls
+async function apiFetch(url, options = {}) {
+    try {
+        const response = await fetch(`${API_BASE}${url}`, {
+            ...options,
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+
+        if (response.status === 401) {
+            sessionStorage.removeItem('accessToken');
+            window.location.href = 'login.html';
+            return null;
+        }
+
+        // Read the response body once
+        const text = await response.text();
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch {
+            data = { detail: text };
+        }
+
+        if (!response.ok) {
+            let errorMsg = data.detail || data.message || JSON.stringify(data);
+            throw new Error(`HTTP ${response.status}: ${errorMsg.substring(0, 200)}`);
+        }
+        return data;
+    } catch (error) {
+        console.error('API Fetch Error:', error);
+        throw error;
+    }
+}
+
+        async function loadUserProfile() {
+            try {
+                const data = await apiFetch('/auth/profile/');
+                if (data) {
+                    document.getElementById('userName').textContent = data.full_name || data.email;
+                    const initials = (data.full_name || data.email).split(' ').map(n => n[0]).join('').toUpperCase();
+                    document.getElementById('userAvatar').textContent = initials.slice(0, 2);
+                    userRole = data.role || 'student';
+                }
+            } catch (error) {
+                console.error('Failed to load profile:', error);
+            }
+        }
+
+        async function loadBookings() {
+            const grid = document.getElementById('bookingsGrid');
+            try {
+                // Determine endpoint based on role
+                const endpoint = userRole === 'owner' ? '/bookings/?owner=me' : '/bookings/';
+                console.log(`Fetching bookings from ${endpoint}`);
+                const data = await apiFetch(endpoint);
+                console.log('Received bookings:', data);
+
+                if (Array.isArray(data)) {
+                    allBookings = data;
+                } else if (data && data.results) {
+                    allBookings = data.results;
+                } else {
+                    allBookings = [];
+                }
+
+                updateStats();
+                if (allBookings.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-times"></i>
+                            <h3>No bookings found</h3>
+                            <p>You haven't made any bookings yet.</p>
+                            <a href="hostels.html" class="btn-primary" style="display: inline-flex; margin-top: 1rem;">
+                                <i class="fas fa-search"></i> Browse Hostels
+                            </a>
+                        </div>
+                    `;
+                } else {
+                    applyFilters();
+                }
+            } catch (error) {
+                console.error('Failed to load bookings:', error);
+                grid.innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Failed to load bookings: ${error.message}
+                        <button onclick="loadBookings()" style="margin-left: 1rem; padding: 0.3rem 1rem; background: white; border: none; border-radius: 30px; color: var(--danger); cursor: pointer;">
+                            Retry
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        function updateStats() {
+            const total = allBookings.length;
+            const pending = allBookings.filter(b => b.status === 'pending').length;
+            const confirmed = allBookings.filter(b => b.status === 'confirmed').length;
+            const cancelled = allBookings.filter(b => b.status === 'cancelled').length;
+            document.getElementById('totalBookings').textContent = total;
+            document.getElementById('pendingBookings').textContent = pending;
+            document.getElementById('confirmedBookings').textContent = confirmed;
+            document.getElementById('cancelledBookings').textContent = cancelled;
+        }
+
+        function applyFilters() {
+            currentFilters.search = document.getElementById('searchInput').value.toLowerCase();
+            currentFilters.status = document.getElementById('statusFilter').value;
+            currentFilters.sort = document.getElementById('sortFilter').value;
+
+            filteredBookings = allBookings.filter(booking => {
+                const matchesSearch = (booking.hostel_name && booking.hostel_name.toLowerCase().includes(currentFilters.search)) ||
+                                      (booking.location && booking.location.toLowerCase().includes(currentFilters.search));
+                const matchesStatus = currentFilters.status === 'all' || booking.status === currentFilters.status;
+                return matchesSearch && matchesStatus;
+            });
+
+            switch (currentFilters.sort) {
+                case 'oldest':
+                    filteredBookings.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+                    break;
+                case 'price_low':
+                    filteredBookings.sort((a, b) => a.total_price - b.total_price);
+                    break;
+                case 'price_high':
+                    filteredBookings.sort((a, b) => b.total_price - a.total_price);
+                    break;
+                default:
+                    filteredBookings.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            }
+
+            currentPage = 1;
+            displayBookings();
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = 'all';
+            document.getElementById('sortFilter').value = 'newest';
+            applyFilters();
+        }
+
+        function displayBookings() {
+            const grid = document.getElementById('bookingsGrid');
+            const pagination = document.getElementById('pagination');
+
+            if (filteredBookings.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-times"></i>
+                        <h3>No bookings match your filters</h3>
+                        <p>Try adjusting your search criteria.</p>
+                        <button class="btn-primary" onclick="resetFilters()">Clear Filters</button>
+                    </div>
+                `;
+                pagination.style.display = 'none';
+                return;
+            }
+
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const paginated = filteredBookings.slice(start, end);
+            const totalPages = Math.ceil(filteredBookings.length / itemsPerPage);
+
+            grid.innerHTML = paginated.map(booking => {
+                // Determine status class
+                let statusClass = '';
+                switch(booking.status) {
+                    case 'pending': statusClass = 'status-pending'; break;
+                    case 'confirmed': statusClass = 'status-confirmed'; break;
+                    case 'cancelled': statusClass = 'status-cancelled'; break;
+                    default: statusClass = '';
+                }
+                return `
+                <div class="booking-card">
+                    <div class="booking-header">
+                        <h3>${booking.hostel_name || 'Hostel'}</h3>
+                        <span class="booking-status ${statusClass}">${booking.status || 'N/A'}</span>
+                    </div>
+                    <div class="booking-content">
+                        <div class="booking-detail">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>Check-in: ${new Date(booking.check_in).toLocaleDateString()}</span>
+                        </div>
+                        <div class="booking-detail">
+                            <i class="fas fa-calendar-check"></i>
+                            <span>Check-out: ${new Date(booking.check_out).toLocaleDateString()}</span>
+                        </div>
+                        <div class="booking-detail">
+                            <i class="fas fa-user"></i>
+                            <span>Guest: ${booking.guest_name || 'N/A'}</span>
+                        </div>
+                        <div class="booking-detail">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>${booking.location || 'Location not specified'}</span>
+                        </div>
+                        <div class="booking-price">
+                            KSh ${Number(booking.total_price || 0).toLocaleString()}
+                        </div>
+                        <div class="booking-actions">
+                            <button class="btn-action btn-view" onclick="viewBooking('${booking.id}')">
+                                <i class="fas fa-eye"></i> View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+
+            updatePagination(totalPages);
+        }
+
+        function updatePagination(totalPages) {
+            const pagination = document.getElementById('pagination');
+            const prevBtn = document.getElementById('prevPage');
+            const nextBtn = document.getElementById('nextPage');
+            const pageNumbers = document.getElementById('pageNumbers');
+
+            if (totalPages <= 1) {
+                pagination.style.display = 'none';
+                return;
+            }
+
+            pagination.style.display = 'flex';
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === totalPages;
+
+            let pageHtml = '';
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    pageHtml += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    pageHtml += `<span class="page-btn" style="border: none; background: transparent;">...</span>`;
+                }
+            }
+            pageNumbers.innerHTML = pageHtml;
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            displayBookings();
+        }
+
+        function changePage(direction) {
+            currentPage += direction;
+            displayBookings();
+        }
+
+        async function viewBooking(id) {
+            try {
+                const booking = await apiFetch(`/bookings/${id}/`);
+                openModal(booking);
+            } catch (error) {
+                alert('Failed to load booking details: ' + error.message);
+            }
+        }
+
+        function openModal(booking) {
+            const modal = document.getElementById('bookingModal');
+            const details = document.getElementById('modalDetails');
+            let statusClass = '';
+            switch(booking.status) {
+                case 'pending': statusClass = 'status-pending'; break;
+                case 'confirmed': statusClass = 'status-confirmed'; break;
+                case 'cancelled': statusClass = 'status-cancelled'; break;
+            }
+            details.innerHTML = `
+                <h2>Booking Details</h2>
+                <div class="modal-info-item"><i class="fas fa-home"></i> <strong>Hostel:</strong> ${booking.hostel_name || 'N/A'}</div>
+                <div class="modal-info-item"><i class="fas fa-user"></i> <strong>Guest:</strong> ${booking.guest_name || 'N/A'}</div>
+                <div class="modal-info-item"><i class="fas fa-envelope"></i> <strong>Email:</strong> ${booking.guest_email || 'N/A'}</div>
+                <div class="modal-info-item"><i class="fas fa-phone"></i> <strong>Phone:</strong> ${booking.guest_phone || 'N/A'}</div>
+                <div class="modal-info-item"><i class="fas fa-calendar-alt"></i> <strong>Check-in:</strong> ${new Date(booking.check_in).toLocaleDateString()}</div>
+                <div class="modal-info-item"><i class="fas fa-calendar-check"></i> <strong>Check-out:</strong> ${new Date(booking.check_out).toLocaleDateString()}</div>
+                <div class="modal-info-item"><i class="fas fa-users"></i> <strong>Guests:</strong> ${booking.num_guests || 1}</div>
+                <div class="modal-info-item"><i class="fas fa-tag"></i> <strong>Status:</strong> <span class="booking-status ${statusClass}">${booking.status}</span></div>
+                <div class="modal-info-item"><i class="fas fa-money-bill-wave"></i> <strong>Total Price:</strong> KSh ${Number(booking.total_price || 0).toLocaleString()}</div>
+                ${booking.special_requests ? `<div class="modal-info-item"><i class="fas fa-comment"></i> <strong>Requests:</strong> ${booking.special_requests}</div>` : ''}
+            `;
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('bookingModal').style.display = 'none';
+        }
+
+        function logout() {
+            sessionStorage.removeItem('accessToken');
+            window.location.href = 'login.html';
+        }
+
+        // Event listeners
+        document.getElementById('searchInput').addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') applyFilters();
+        });
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('bookingModal');
+            if (event.target === modal) closeModal();
+        };
+
+        // Load data
+        loadUserProfile().then(() => loadBookings());
+    </script>
+</body>
+</html>

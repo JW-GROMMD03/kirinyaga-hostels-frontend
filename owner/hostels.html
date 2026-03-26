@@ -1,0 +1,1773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Hostels - Kirinyaga Hostels</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Your existing CSS (unchanged) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        :root {
+            --kyu-green: #006747;
+            --kyu-gold: #FFD700;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border-light: #e2e8f0;
+            --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1);
+            --danger: #dc2626;
+            --success: #16a34a;
+            --warning: #ca8a04;
+            --info: #2563eb;
+        }
+
+        body {
+            background: var(--bg-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: var(--bg-white);
+            box-shadow: var(--shadow-sm);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--kyu-gold);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo img {
+            height: 45px;
+        }
+
+        .logo span {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--kyu-green);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 16px;
+            background: var(--bg-light);
+            border-radius: 40px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--kyu-green);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+
+        .user-role {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .btn-logout {
+            padding: 0.5rem 1.2rem;
+            border: 2px solid var(--danger);
+            background: transparent;
+            color: var(--danger);
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-logout:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .main-container {
+            flex: 1;
+            max-width: 1400px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-header h1 i {
+            color: var(--kyu-green);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn-primary {
+            padding: 0.8rem 1.8rem;
+            background: var(--kyu-green);
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary:hover {
+            background: #004d33;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,103,71,0.3);
+        }
+
+        .btn-outline {
+            padding: 0.8rem 1.8rem;
+            background: transparent;
+            border: 2px solid var(--kyu-green);
+            color: var(--kyu-green);
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-outline:hover {
+            background: var(--kyu-green);
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: var(--bg-white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s;
+            border: 1px solid var(--border-light);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--kyu-green);
+        }
+
+        .stat-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: rgba(0,103,71,0.1);
+            color: var(--kyu-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+        }
+
+        .stat-info h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .stat-info p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .filter-bar {
+            background: var(--bg-white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 2;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 2.8rem;
+            border: 2px solid var(--border-light);
+            border-radius: 40px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--kyu-green);
+        }
+
+        .filter-select {
+            flex: 1;
+            min-width: 150px;
+            padding: 0.8rem 1rem;
+            border: 2px solid var(--border-light);
+            border-radius: 40px;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            background: white;
+            cursor: pointer;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--kyu-green);
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .filter-actions button {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-filter {
+            background: var(--kyu-green);
+            color: white;
+        }
+
+        .btn-filter:hover {
+            background: #004d33;
+        }
+
+        .btn-reset {
+            background: var(--bg-light);
+            color: var(--text-secondary);
+        }
+
+        .btn-reset:hover {
+            background: var(--border-light);
+        }
+
+        .hostels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .hostel-card {
+            background: var(--bg-white);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s;
+            border: 1px solid var(--border-light);
+            position: relative;
+        }
+
+        .hostel-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .hostel-image-container {
+            position: relative;
+            height: 220px;
+            overflow: hidden;
+        }
+
+        .hostel-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .hostel-card:hover .hostel-image {
+            transform: scale(1.1);
+        }
+
+        .image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.5));
+            pointer-events: none;
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            z-index: 2;
+        }
+
+        .status-approved {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-pending {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+
+        .featured-tag {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: var(--kyu-gold);
+            color: #000;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 2;
+        }
+
+        .hostel-content {
+            padding: 1.5rem;
+        }
+
+        .hostel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.8rem;
+        }
+
+        .hostel-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.3;
+        }
+
+        .hostel-type {
+            background: var(--bg-light);
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .hostel-location {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .hostel-location i {
+            color: var(--kyu-green);
+            font-size: 0.9rem;
+        }
+
+        .hostel-details {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.2rem;
+            padding-bottom: 1.2rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .detail-item i {
+            color: var(--kyu-green);
+            width: 16px;
+        }
+
+        .price-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+        }
+
+        .price {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--kyu-green);
+        }
+
+        .price small {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: var(--text-secondary);
+        }
+
+        .deposit {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .amenities-preview {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.2rem;
+        }
+
+        .amenity-tag {
+            background: var(--bg-light);
+            padding: 0.3rem 0.8rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .amenity-tag i {
+            color: var(--kyu-green);
+            font-size: 0.7rem;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            text-decoration: none;
+        }
+
+        .btn-view {
+            background: rgba(0,103,71,0.1);
+            color: var(--kyu-green);
+        }
+
+        .btn-view:hover {
+            background: rgba(0,103,71,0.2);
+        }
+
+        .btn-edit {
+            background: var(--bg-light);
+            color: var(--text-primary);
+        }
+
+        .btn-edit:hover {
+            background: var(--border-light);
+        }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+
+        .btn-delete:hover {
+            background: #fecaca;
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--bg-white);
+            border-radius: 20px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #cbd5e1;
+            margin-bottom: 1.5rem;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .loading-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0,103,71,0.1);
+            border-left-color: var(--kyu-green);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            grid-column: 1 / -1;
+            background: #fee2e2;
+            color: var(--danger);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+
+        .page-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--border-light);
+            background: white;
+            color: var(--text-primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            border-color: var(--kyu-green);
+            background: var(--kyu-green);
+            color: white;
+        }
+
+        .page-btn.active {
+            background: var(--kyu-green);
+            color: white;
+            border-color: var(--kyu-green);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: var(--bg-white);
+            margin: 2rem auto;
+            padding: 2rem;
+            border-radius: 40px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .close-modal {
+            position: absolute;
+            right: 2rem;
+            top: 1.5rem;
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.3s;
+            z-index: 10;
+        }
+
+        .close-modal:hover {
+            color: var(--danger);
+        }
+
+        /* Slideshow */
+        .modal-slideshow {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            overflow: hidden;
+            border-radius: 20px;
+            margin-bottom: 1.5rem;
+            background: #f0f0f0;
+        }
+
+        .modal-slide {
+            display: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        .modal-slide.active {
+            display: block;
+        }
+
+        .modal-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .modal-prev, .modal-next {
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 16px;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 0 3px 3px 0;
+            transition: 0.3s;
+            user-select: none;
+            z-index: 5;
+        }
+
+        .modal-next {
+            right: 0;
+            border-radius: 3px 0 0 3px;
+        }
+
+        .modal-prev:hover, .modal-next:hover {
+            background: rgba(0,0,0,0.8);
+        }
+
+        .modal-dots {
+            text-align: center;
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            z-index: 5;
+        }
+
+        .modal-dot {
+            cursor: pointer;
+            height: 12px;
+            width: 12px;
+            margin: 0 5px;
+            background-color: #bbb;
+            border-radius: 50%;
+            display: inline-block;
+            transition: background-color 0.3s;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .modal-dot.active {
+            background-color: var(--kyu-green);
+        }
+
+        .modal-details {
+            padding: 1rem 0;
+        }
+
+        .modal-details h2 {
+            color: var(--kyu-green);
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--kyu-gold);
+            padding-bottom: 0.5rem;
+        }
+
+        .modal-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .modal-info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.8rem;
+            background: var(--bg-light);
+            border-radius: 16px;
+            border: 1px solid var(--border-light);
+            transition: all 0.3s;
+        }
+
+        .modal-info-item i {
+            color: var(--kyu-green);
+            width: 20px;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        .modal-description {
+            margin: 1rem 0;
+            line-height: 1.6;
+            border-radius: 20px;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border-light);
+            line-height: 1.6;
+        }
+
+        .modal-info-item:hover {
+             border-color: var(--kyu-green);
+             transform: translateY(-2px);
+             box-shadow: var(--shadow-sm);
+        }
+
+        .modal-info-item strong {
+             color: var(--text-primary);
+             font-weight: 600;
+             margin-right: 5px;
+        }
+
+        .modal-amenities {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin: 1.5rem 0;
+            padding: 1rem 0;
+            border-top: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .modal-amenity-tag {
+          background: var(--kyu-green);
+          color: white;
+          padding: 0.5rem 1.2rem;
+          border-radius: 30px;
+          font-size: 0.9rem;
+          font-weight: 500;
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          box-shadow: 0 2px 5px rgba(0,103,71,0.2);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: flex-end;
+            flex-direction: column;
+        }
+
+        .modal-actions button {
+             width: 100%;
+        }
+
+        /* Edit form styles */
+        .edit-form .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .edit-form label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .edit-form input, .edit-form textarea, .edit-form select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid var(--border-light);
+            border-radius: 16px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .edit-form input:focus, .edit-form textarea:focus, .edit-form select:focus {
+            outline: none;
+            border-color: var(--kyu-green);
+        }
+
+        .footer {
+            background: #1e293b;
+            color: white;
+            padding: 2rem;
+            margin-top: 3rem;
+            border-top: 3px solid var(--kyu-gold);
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--kyu-gold);
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .page-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .filter-row {
+                flex-direction: column;
+            }
+
+            .search-box, .filter-select, .filter-actions {
+                width: 100%;
+            }
+
+            .hostels-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .modal-info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='45' height='45' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
+            <span>Kirinyaga Hostels</span>
+        </div>
+        <div class="user-menu">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">O</div>
+                <div class="user-details">
+                    <span class="user-name" id="userName">Loading...</span>
+                    <span class="user-role">Hostel Owner</span>
+                </div>
+            </div>
+            <button class="btn-logout" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="page-header">
+            <h1>
+                <i class="fas fa-home"></i>
+                My Hostels
+            </h1>
+            <div class="header-actions">
+                <a href="add-hostel.html" class="btn-primary">
+                    <i class="fas fa-plus-circle"></i>
+                    Add New Hostel
+                </a>
+                <a href="dashboard.html" class="btn-outline">
+                    <i class="fas fa-arrow-left"></i>
+                    Dashboard
+                </a>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-building"></i></div>
+                <div class="stat-info">
+                    <h3 id="totalHostels">0</h3>
+                    <p>Total Hostels</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-info">
+                    <h3 id="approvedCount">0</h3>
+                    <p>Approved</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                <div class="stat-info">
+                    <h3 id="pendingCount">0</h3>
+                    <p>Pending</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-star"></i></div>
+                <div class="stat-info">
+                    <h3 id="featuredCount">0</h3>
+                    <p>Featured</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-bar">
+            <div class="filter-row">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search by hostel name or location..." value="">
+                </div>
+                <select class="filter-select" id="statusFilter">
+                    <option value="all">All Status</option>
+                    <option value="approved">Approved</option>
+                    <option value="pending">Pending</option>
+                </select>
+                <select class="filter-select" id="sortFilter">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="price_low">Price: Low to High</option>
+                    <option value="price_high">Price: High to Low</option>
+                </select>
+                <div class="filter-actions">
+                    <button class="btn-filter" onclick="applyFilters()">
+                        <i class="fas fa-filter"></i> Apply
+                    </button>
+                    <button class="btn-reset" onclick="resetFilters()">
+                        <i class="fas fa-redo-alt"></i> Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="hostels-grid" id="hostelsGrid">
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p>Loading your hostels...</p>
+            </div>
+        </div>
+
+        <div class="pagination" id="pagination" style="display: none;">
+            <button class="page-btn" id="prevPage" onclick="changePage(-1)" disabled>←</button>
+            <span id="pageNumbers"></span>
+            <button class="page-btn" id="nextPage" onclick="changePage(1)" disabled>→</button>
+        </div>
+    </div>
+
+    <!-- Modal for View/Edit -->
+    <div id="hostelModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <div id="modalSlideshow" class="modal-slideshow">
+                <!-- Slides will be injected here -->
+                <a class="modal-prev" onclick="changeModalSlide(-1)">❮</a>
+                <a class="modal-next" onclick="changeModalSlide(1)">❯</a>
+                <div class="modal-dots" id="modalDots"></div>
+            </div>
+            <div id="modalDetails" class="modal-details">
+                <!-- Details will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>© 2025 Kirinyaga University Hostels. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
+                <a href="help.html">Help Center</a>
+                <a href="contact.html">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000/api';
+        const token = sessionStorage.getItem('accessToken');
+        
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        let allHostels = [];
+        let filteredHostels = [];
+        let currentPage = 1;
+        const itemsPerPage = 9;
+        let currentFilters = {
+            search: '',
+            status: 'all',
+            sort: 'newest'
+        };
+
+        // Modal variables
+        let modalSlideIndex = 1;
+        let modalImages = [];
+        let slideshowInterval = null;
+
+        // Utility to extract a valid image URL from a hostel object
+        function getPrimaryImageUrl(hostel) {
+            if (hostel.primary_image && typeof hostel.primary_image === 'string' && hostel.primary_image.trim() !== '') {
+                return hostel.primary_image;
+            }
+            if (hostel.images && Array.isArray(hostel.images) && hostel.images.length > 0) {
+                const firstImage = hostel.images[0];
+                if (typeof firstImage === 'string') return firstImage;
+                if (firstImage && typeof firstImage === 'object') {
+                    if (firstImage.image_url) return firstImage.image_url;
+                    if (firstImage.url) return firstImage.url;
+                    if (firstImage.image) return firstImage.image;
+                }
+            }
+            return 'https://via.placeholder.com/400x250?text=No+Image';
+        }
+
+        async function apiFetch(url, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${url}`, {
+                    ...options,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+
+                if (response.status === 401) {
+                    console.error('Unauthorized - token expired');
+                    sessionStorage.removeItem('accessToken');
+                    window.location.href = 'login.html';
+                    return null;
+                }
+
+                if (!response.ok) {
+                    let errorText = '';
+                    try {
+                        const error = await response.json();
+                        errorText = error.message || error.detail || JSON.stringify(error);
+                    } catch {
+                        errorText = await response.text();
+                    }
+                    throw new Error(`HTTP ${response.status}: ${errorText.substring(0, 200)}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('API Fetch Error:', error);
+                throw error;
+            }
+        }
+
+        async function loadUserProfile() {
+            try {
+                const data = await apiFetch('/auth/profile/');
+                if (data) {
+                    document.getElementById('userName').textContent = data.full_name || data.email;
+                    const initials = (data.full_name || data.email).split(' ').map(n => n[0]).join('').toUpperCase();
+                    document.getElementById('userAvatar').textContent = initials.slice(0, 2);
+                }
+            } catch (error) {
+                console.error('Failed to load profile:', error);
+            }
+        }
+
+        async function loadHostels() {
+            const grid = document.getElementById('hostelsGrid');
+            
+            try {
+                console.log('Fetching hostels from /hostels/my/');
+                const data = await apiFetch('/hostels/my/');
+                console.log('Received data:', data);
+                
+                if (Array.isArray(data)) {
+                    allHostels = data;
+                } else if (data && data.results) {
+                    allHostels = data.results;
+                } else if (data && typeof data === 'object' && data.id) {
+                    allHostels = [data];
+                } else {
+                    allHostels = [];
+                }
+                
+                updateStats();
+                
+                if (allHostels.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-home"></i>
+                            <h3>No hostels found</h3>
+                            <p>You haven't added any hostels yet. Click "Add New Hostel" to get started.</p>
+                            <a href="add-hostel.html" class="btn-primary" style="display: inline-flex; margin-top: 1rem;">
+                                <i class="fas fa-plus-circle"></i> Add Your First Hostel
+                            </a>
+                        </div>
+                    `;
+                } else {
+                    applyFilters();
+                }
+                
+            } catch (error) {
+                console.error('Failed to load hostels:', error);
+                grid.innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Failed to load hostels: ${error.message}
+                        <button onclick="loadHostels()" style="margin-left: 1rem; padding: 0.3rem 1rem; background: white; border: none; border-radius: 30px; color: var(--danger); cursor: pointer;">
+                            Retry
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        function updateStats() {
+            const total = allHostels.length;
+            const approved = allHostels.filter(h => h.is_approved).length;
+            const pending = allHostels.filter(h => !h.is_approved).length;
+            const featured = allHostels.filter(h => h.is_featured).length;
+
+            document.getElementById('totalHostels').textContent = total;
+            document.getElementById('approvedCount').textContent = approved;
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('featuredCount').textContent = featured;
+        }
+
+        function applyFilters() {
+            currentFilters.search = document.getElementById('searchInput').value.toLowerCase();
+            currentFilters.status = document.getElementById('statusFilter').value;
+            currentFilters.sort = document.getElementById('sortFilter').value;
+
+            filteredHostels = allHostels.filter(hostel => {
+                const matchesSearch = (hostel.name && hostel.name.toLowerCase().includes(currentFilters.search)) ||
+                                    (hostel.address && hostel.address.toLowerCase().includes(currentFilters.search));
+                const matchesStatus = currentFilters.status === 'all' ||
+                                     (currentFilters.status === 'approved' && hostel.is_approved) ||
+                                     (currentFilters.status === 'pending' && !hostel.is_approved);
+                return matchesSearch && matchesStatus;
+            });
+
+            switch (currentFilters.sort) {
+                case 'oldest':
+                    filteredHostels.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+                    break;
+                case 'price_low':
+                    filteredHostels.sort((a, b) => a.price - b.price);
+                    break;
+                case 'price_high':
+                    filteredHostels.sort((a, b) => b.price - a.price);
+                    break;
+                default:
+                    filteredHostels.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            }
+
+            currentPage = 1;
+            displayHostels();
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = 'all';
+            document.getElementById('sortFilter').value = 'newest';
+            applyFilters();
+        }
+
+        function displayHostels() {
+            const grid = document.getElementById('hostelsGrid');
+            const pagination = document.getElementById('pagination');
+            
+            if (filteredHostels.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-home"></i>
+                        <h3>No hostels found</h3>
+                        <p>${allHostels.length === 0 ? 
+                            'Get started by adding your first hostel.' : 
+                            'No hostels match your filters. Try adjusting your search criteria.'}</p>
+                        ${allHostels.length === 0 ? 
+                            '<a href="add-hostel.html" class="btn-primary" style="display: inline-flex;">Add Your First Hostel</a>' : 
+                            '<button class="btn-primary" onclick="resetFilters()" style="display: inline-flex;">Clear Filters</button>'}
+                    </div>
+                `;
+                pagination.style.display = 'none';
+                return;
+            }
+
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const paginatedHostels = filteredHostels.slice(start, end);
+            const totalPages = Math.ceil(filteredHostels.length / itemsPerPage);
+
+            grid.innerHTML = paginatedHostels.map(hostel => {
+                const primaryImage = getPrimaryImageUrl(hostel);
+                let amenities = [];
+                if (hostel.amenities && Array.isArray(hostel.amenities)) {
+                    amenities = hostel.amenities.slice(0, 4).map(a => {
+                        if (typeof a === 'string') return a;
+                        if (a.name) return a.name;
+                        return 'Amenity';
+                    });
+                }
+                
+                return `
+                <div class="hostel-card">
+                    <div class="hostel-image-container">
+                        <img src="${primaryImage}" 
+                             alt="${hostel.name || 'Hostel'}" 
+                             class="hostel-image"
+                             onerror="this.src='https://via.placeholder.com/400x250?text=No+Image'">
+                        <div class="image-overlay"></div>
+                        <span class="status-badge ${hostel.is_approved ? 'status-approved' : 'status-pending'}">
+                            <i class="fas ${hostel.is_approved ? 'fa-check-circle' : 'fa-clock'}"></i>
+                            ${hostel.is_approved ? 'Approved' : 'Pending Approval'}
+                        </span>
+                        ${hostel.is_featured ? `
+                        <span class="featured-tag">
+                            <i class="fas fa-star"></i> Featured
+                        </span>
+                        ` : ''}
+                    </div>
+                    <div class="hostel-content">
+                        <div class="hostel-header">
+                            <h3 class="hostel-name">${hostel.name || 'Unnamed Hostel'}</h3>
+                            <span class="hostel-type">${(hostel.room_type || 'Not specified').replace('_', ' ')}</span>
+                        </div>
+                        <div class="hostel-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            ${hostel.address || 'Location not specified'}
+                        </div>
+                        <div class="hostel-details">
+                            <span class="detail-item">
+                                <i class="fas fa-arrows-alt"></i>
+                                ${hostel.distance_to_university ? hostel.distance_to_university + ' km' : 'Distance N/A'}
+                            </span>
+                            <span class="detail-item">
+                                <i class="fas fa-ruler"></i>
+                                ${hostel.room_type?.replace('_', ' ') || 'N/A'}
+                            </span>
+                        </div>
+                        <div class="price-section">
+                            <span class="price">
+                                KSh ${Number(hostel.price || 0).toLocaleString()}
+                                <small>/month</small>
+                            </span>
+                            ${hostel.deposit ? `
+                            <span class="deposit">
+                                Deposit: KSh ${Number(hostel.deposit).toLocaleString()}
+                            </span>
+                            ` : ''}
+                        </div>
+                        ${amenities.length > 0 ? `
+                        <div class="amenities-preview">
+                            ${amenities.map(a => `
+                                <span class="amenity-tag">
+                                    <i class="fas fa-check-circle"></i> ${a}
+                                </span>
+                            `).join('')}
+                            ${hostel.amenities && hostel.amenities.length > 4 ? `
+                                <span class="amenity-tag">
+                                    +${hostel.amenities.length - 4} more
+                                </span>
+                            ` : ''}
+                        </div>
+                        ` : ''}
+                        <div class="card-actions">
+                            <button class="btn-action btn-view" onclick="viewHostel('${hostel.id}')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            <button class="btn-action btn-edit" onclick="editHostel('${hostel.id}')">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn-action btn-delete" onclick="deleteHostel('${hostel.id}')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+
+            updatePagination(totalPages);
+        }
+
+        function updatePagination(totalPages) {
+            const pagination = document.getElementById('pagination');
+            const prevBtn = document.getElementById('prevPage');
+            const nextBtn = document.getElementById('nextPage');
+            const pageNumbers = document.getElementById('pageNumbers');
+
+            if (totalPages <= 1) {
+                pagination.style.display = 'none';
+                return;
+            }
+
+            pagination.style.display = 'flex';
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === totalPages;
+
+            let pageHtml = '';
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    pageHtml += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    pageHtml += `<span class="page-btn" style="border: none; background: transparent;">...</span>`;
+                }
+            }
+            pageNumbers.innerHTML = pageHtml;
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            displayHostels();
+        }
+
+        function changePage(direction) {
+            currentPage += direction;
+            displayHostels();
+        }
+
+        async function deleteHostel(id) {
+            if (!confirm('Are you sure you want to delete this hostel? This action cannot be undone.')) return;
+            
+            try {
+                await apiFetch(`/hostels/${id}/delete/`, { method: 'DELETE' });
+                allHostels = allHostels.filter(h => h.id !== id);
+                applyFilters();
+            } catch (error) {
+                alert('Failed to delete hostel: ' + error.message);
+            }
+        }
+
+        // Modal functions
+        async function viewHostel(id) {
+            try {
+                const hostel = await apiFetch(`/hostels/${id}/`);
+                console.log('Fetched hostel:', hostel);
+                openModal(hostel, 'view');
+            } catch (error) {
+                alert('Failed to load hostel details: ' + error.message);
+            }
+        }
+
+        async function editHostel(id) {
+            try {
+                const hostel = await apiFetch(`/hostels/${id}/`);
+                openModal(hostel, 'edit');
+            } catch (error) {
+                alert('Failed to load hostel details: ' + error.message);
+            }
+        }
+
+function openModal(hostel, mode) {
+    const modal = document.getElementById('hostelModal');
+    const slideshowContainer = document.getElementById('modalSlideshow');
+    const detailsContainer = document.getElementById('modalDetails');
+
+    if (slideshowInterval) clearInterval(slideshowInterval);
+
+    console.log('🔍 Hostel data for modal:', JSON.stringify(hostel, null, 2));
+
+    // ----- IMAGE EXTRACTION WITH CLOUDINARY FIX -----
+    const CLOUDINARY_BASE = 'https://res.cloudinary.com/dqujm2fhm/';
+    let modalImages = [];
+
+    if (hostel.images && Array.isArray(hostel.images)) {
+        modalImages = hostel.images.map(img => {
+            let url = null;
+            if (typeof img === 'string') url = img;
+            else if (img.image) url = img.image;
+            else if (img.image_url) url = img.image_url;
+            else if (img.url) url = img.url;
+            else return null;
+
+            // Fix relative Cloudinary URLs
+            if (url && !url.startsWith('http')) {
+                if (url.startsWith('image/')) {
+                    url = CLOUDINARY_BASE + url;
+                } else {
+                    url = CLOUDINARY_BASE + 'image/upload/' + url;
+                }
+            }
+            return url;
+        }).filter(url => url);
+    }
+
+    // Fallback to primary_image
+    if (modalImages.length === 0 && hostel.primary_image) {
+        let primary = hostel.primary_image;
+        if (primary && !primary.startsWith('http')) {
+            primary = CLOUDINARY_BASE + (primary.startsWith('image/') ? primary : 'image/upload/' + primary);
+        }
+        modalImages = [primary];
+    }
+
+    // Final fallback to placeholder
+    if (modalImages.length === 0) {
+        console.warn('No images found. Using placeholder.');
+        modalImages = ['https://placehold.co/800x400?text=No+Image'];
+    }
+
+    console.log('🖼️ Final image URLs:', modalImages);
+
+    // ----- BUILD SLIDESHOW -----
+    slideshowContainer.innerHTML = '';
+    let slidesHtml = '';
+    let dotsHtml = '';
+
+    modalImages.forEach((img, idx) => {
+        slidesHtml += `<div class="modal-slide ${idx === 0 ? 'active' : ''}">
+            <img src="${img}" alt="Hostel image" onerror="this.src='https://placehold.co/800x400?text=Error+Loading+Image'">
+        </div>`;
+        dotsHtml += `<span class="modal-dot ${idx === 0 ? 'active' : ''}" onclick="currentModalSlide(${idx+1})"></span>`;
+    });
+
+    slideshowContainer.innerHTML = slidesHtml + `
+        <a class="modal-prev" onclick="changeModalSlide(-1)">❮</a>
+        <a class="modal-next" onclick="changeModalSlide(1)">❯</a>
+        <div class="modal-dots">${dotsHtml}</div>
+    `;
+
+    modalSlideIndex = 1;
+    showModalSlide(modalSlideIndex);
+
+    slideshowInterval = setInterval(() => changeModalSlide(1), 15000);
+
+    // ----- RENDER DETAILS -----
+    let amenitiesHtml = '';
+    if (hostel.amenities && Array.isArray(hostel.amenities)) {
+        amenitiesHtml = hostel.amenities.map(a => 
+            `<span class="modal-amenity-tag">${a.name || a}</span>`
+        ).join('');
+    }
+
+    if (mode === 'edit') {
+        detailsContainer.innerHTML = `
+            <h2>Edit ${hostel.name}</h2>
+            <form id="editHostelForm" class="edit-form">
+                <div class="form-group">
+                    <label for="edit-name">Hostel Name</label>
+                    <input type="text" id="edit-name" value="${hostel.name || ''}" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-room_type">Room Type</label>
+                    <select id="edit-room_type">
+                        <option value="bedsitter" ${hostel.room_type === 'bedsitter' ? 'selected' : ''}>Bedsitter</option>
+                        <option value="single" ${hostel.room_type === 'single' ? 'selected' : ''}>Single Room</option>
+                        <option value="one_bedroom" ${hostel.room_type === 'one_bedroom' ? 'selected' : ''}>One Bedroom</option>
+                        <option value="two_bedroom" ${hostel.room_type === 'two_bedroom' ? 'selected' : ''}>Two Bedroom</option>
+                        <option value="studio" ${hostel.room_type === 'studio' ? 'selected' : ''}>Studio</option>
+                        <option value="shared" ${hostel.room_type === 'shared' ? 'selected' : ''}>Shared Room</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit-price">Price (KES/month)</label>
+                    <input type="number" id="edit-price" value="${hostel.price || 0}" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-deposit">Deposit (KES)</label>
+                    <input type="number" id="edit-deposit" value="${hostel.deposit || 0}">
+                </div>
+                <div class="form-group">
+                    <label for="edit-utilities">Utilities (KES/month)</label>
+                    <input type="number" id="edit-utilities" value="${hostel.utilities || 0}">
+                </div>
+                <div class="form-group">
+                    <label for="edit-address">Address</label>
+                    <input type="text" id="edit-address" value="${hostel.address || ''}" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-description">Description</label>
+                    <textarea id="edit-description" rows="4" required>${hostel.description || ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="edit-distance">Distance to University (km)</label>
+                    <input type="number" step="0.01" id="edit-distance" value="${hostel.distance_to_university || ''}">
+                </div>
+                <div class="form-group">
+                    <label for="edit-other_amenities">Other Amenities (comma separated)</label>
+                    <input type="text" id="edit-other_amenities" value="${hostel.other_amenities || ''}">
+                </div>
+            </form>
+            <div class="modal-actions">
+                <button class="btn-primary" onclick="saveEdit('${hostel.id}')">Save Changes</button>
+                <button class="btn-outline" onclick="closeModal()">Cancel</button>
+            </div>
+        `;
+    } else {
+        detailsContainer.innerHTML = `
+            <h2>${hostel.name}</h2>
+            <div class="modal-info-grid">
+                <div class="modal-info-item"><i class="fas fa-tag"></i> <strong>${hostel.room_type?.replace('_', ' ') || 'N/A'}</strong></div>
+                <div class="modal-info-item"><i class="fas fa-users"></i> <strong>Capacity:</strong> ${hostel.capacity || 1}</div>
+                <div class="modal-info-item"><i class="fas fa-map-marker-alt"></i> ${hostel.address || 'No address'}</div>
+                <div class="modal-info-item"><i class="fas fa-road"></i> <strong>Distance:</strong> ${hostel.distance_to_university ? hostel.distance_to_university + ' km' : 'N/A'}</div>
+                <div class="modal-info-item"><i class="fas fa-money-bill-wave"></i> <strong>KSh ${Number(hostel.price || 0).toLocaleString()}/month</strong></div>
+                ${hostel.deposit ? `<div class="modal-info-item"><i class="fas fa-hand-holding-usd"></i> <strong>Deposit:</strong> KSh ${Number(hostel.deposit).toLocaleString()}</div>` : ''}
+                ${hostel.utilities ? `<div class="modal-info-item"><i class="fas fa-bolt"></i> <strong>Utilities:</strong> KSh ${Number(hostel.utilities).toLocaleString()}</div>` : ''}
+            </div>
+            <div class="modal-description">
+                <strong>Description:</strong><br>
+                ${hostel.description || 'No description provided.'}
+            </div>
+            ${amenitiesHtml ? `<div class="modal-amenities">${amenitiesHtml}</div>` : ''}
+            <div class="modal-actions">
+                <button class="btn-primary" onclick="editHostel('${hostel.id}')">Edit</button>
+                <button class="btn-outline" onclick="closeModal()">Close</button>
+            </div>
+        `;
+    }
+
+    modal.style.display = 'block';
+}
+
+        function closeModal() {
+            document.getElementById('hostelModal').style.display = 'none';
+            if (slideshowInterval) {
+                clearInterval(slideshowInterval);
+            }
+        }
+
+        function showModalSlide(n) {
+            const slides = document.querySelectorAll('.modal-slide');
+            const dots = document.querySelectorAll('.modal-dot');
+            if (!slides.length) return;
+            if (n > slides.length) modalSlideIndex = 1;
+            if (n < 1) modalSlideIndex = slides.length;
+            slides.forEach(slide => slide.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+            slides[modalSlideIndex-1].classList.add('active');
+            dots[modalSlideIndex-1].classList.add('active');
+        }
+
+        function changeModalSlide(direction) {
+            modalSlideIndex += direction;
+            showModalSlide(modalSlideIndex);
+        }
+
+        function currentModalSlide(n) {
+            modalSlideIndex = n;
+            showModalSlide(modalSlideIndex);
+        }
+
+        // Save edited hostel
+        async function saveEdit(id) {
+            const form = document.getElementById('editHostelForm');
+            if (!form) {
+                alert('Form not found');
+                return;
+            }
+
+            const updatedData = {
+                name: document.getElementById('edit-name').value,
+                room_type: document.getElementById('edit-room_type').value,
+                price: document.getElementById('edit-price').value,
+                deposit: document.getElementById('edit-deposit').value || 0,
+                utilities: document.getElementById('edit-utilities').value || 0,
+                address: document.getElementById('edit-address').value,
+                description: document.getElementById('edit-description').value,
+                distance_to_university: document.getElementById('edit-distance').value || null,
+                other_amenities: document.getElementById('edit-other_amenities').value || ''
+            };
+
+            try {
+                const result = await apiFetch(`/hostels/${id}/update/`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedData)
+                });
+                alert('Hostel updated successfully!');
+                closeModal();
+                // Refresh the list
+                await loadHostels();
+            } catch (error) {
+                alert('Failed to update hostel: ' + error.message);
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('accessToken');
+            window.location.href = 'login.html';
+        }
+
+        // Event listeners
+        document.getElementById('searchInput').addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') applyFilters();
+        });
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('hostelModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Load data
+        loadUserProfile();
+        loadHostels();
+    </script>
+</body>
+</html>

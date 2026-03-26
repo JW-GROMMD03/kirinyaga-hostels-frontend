@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Hostels - Kirinyaga Hostels</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        :root {
+            --kyu-green: #006747;
+            --kyu-gold: #FFD700;
+            --danger: #dc2626;
+            --success: #16a34a;
+            --warning: #ca8a04;
+            --info: #2563eb;
+        }
+
+        body {
+            background: #f8fafc;
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        body.dark-mode {
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .hostel-card,
+        body.dark-mode header {
+            background: #1e293b;
+            border-color: #334155;
+        }
+
+        body.dark-mode .hostel-distance {
+            color: #94a3b8;
+        }
+
+        body.dark-mode .btn-remove {
+            background: #b91c1c;
+        }
+
+        /* Header */
+        header {
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--kyu-gold);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: background 0.3s;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo img {
+            height: 50px;
+        }
+
+        .logo span {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--kyu-green);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .notifications {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notifications .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--kyu-green);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .dark-mode-toggle {
+            cursor: pointer;
+            font-size: 1.5rem;
+            user-select: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-header h1 {
+            color: var(--kyu-green);
+            font-size: 2rem;
+        }
+
+        .page-header a {
+            color: var(--kyu-green);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .page-header a:hover {
+            text-decoration: underline;
+        }
+
+        .hostel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .hostel-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid #e2e8f0;
+        }
+
+        .hostel-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .hostel-image {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .hostel-info {
+            padding: 1.5rem;
+        }
+
+        .hostel-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--kyu-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .hostel-price {
+            color: var(--kyu-green);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .hostel-distance {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-remove {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 1rem;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .btn-remove:hover {
+            background: #b91c1c;
+        }
+
+        .no-hostels {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+            grid-column: 1 / -1;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0,0,0,0.1);
+            border-left-color: var(--kyu-green);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .error-message {
+            color: var(--danger);
+            text-align: center;
+            padding: 2rem;
+        }
+
+        footer {
+            background: #1a2e3a;
+            color: #e2e8f0;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+            border-top: 3px solid var(--kyu-gold);
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .page-header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
+            <span>Kirinyaga Hostels</span>
+        </div>
+        <div class="user-menu">
+            <div class="dark-mode-toggle" id="darkModeToggle">🌙</div>
+            <div class="notifications" id="notificationsIcon">
+                <span>🔔</span>
+                <span class="badge" id="notificationBadge" style="display: none;">0</span>
+            </div>
+            <div class="user-avatar" id="userAvatar">S</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Saved Hostels</h1>
+            <a href="dashboard.html">← Back to Dashboard</a>
+        </div>
+
+        <div id="savedGrid" class="hostel-grid">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 Kirinyaga University Hostels</p>
+    </footer>
+
+    <script>
+        (function() {
+            const API_BASE = 'http://127.0.0.1:8000/api';
+            const accessToken = sessionStorage.getItem('accessToken');
+            if (!accessToken) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const savedGrid = document.getElementById('savedGrid');
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const notificationBadge = document.getElementById('notificationBadge');
+            const notificationsIcon = document.getElementById('notificationsIcon');
+            const userAvatar = document.getElementById('userAvatar');
+
+            // Helper: fetch with auth
+            async function authFetch(url, options = {}) {
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`,
+                    ...options.headers
+                };
+                const response = await fetch(url, { ...options, headers, credentials: 'include' });
+                if (response.status === 401) {
+                    sessionStorage.removeItem('accessToken');
+                    window.location.href = 'login.html';
+                }
+                return response;
+            }
+
+            // Load user profile for avatar
+            async function loadProfile() {
+                try {
+                    const res = await authFetch(`${API_BASE}/auth/profile/`);
+                    if (!res.ok) throw new Error('Profile fetch failed');
+                    const data = await res.json();
+                    const initials = data.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2);
+                    userAvatar.textContent = initials || 'S';
+                } catch (e) {
+                    console.error('Failed to load profile', e);
+                }
+            }
+
+            // Load notifications for badge
+            async function loadNotifications() {
+                try {
+                    const res = await authFetch(`${API_BASE}/notifications/`);
+                    if (!res.ok) throw new Error('Notifications fetch failed');
+                    const data = await res.json();
+                    const notifs = Array.isArray(data) ? data : (data.results || []);
+                    const unreadCount = notifs.filter(n => !n.is_read).length;
+                    notificationBadge.textContent = unreadCount;
+                    notificationBadge.style.display = unreadCount > 0 ? 'flex' : 'none';
+                } catch (e) {
+                    console.error('Failed to load notifications', e);
+                }
+            }
+
+            // Load saved hostels
+            async function loadSaved() {
+                savedGrid.innerHTML = '<div class="spinner"></div>';
+                try {
+                    const res = await authFetch(`${API_BASE}/hostels/saved/`);
+                    if (!res.ok) throw new Error('Saved fetch failed');
+                    const data = await res.json();
+                    const savedList = Array.isArray(data) ? data : (data.results || []);
+                    if (savedList.length === 0) {
+                        savedGrid.innerHTML = '<div class="no-hostels">You have no saved hostels. Start exploring and save your favourites!</div>';
+                        return;
+                    }
+                    let html = '';
+                    savedList.forEach(item => {
+                        const h = item.hostel;
+                        if (!h) return; // skip if no hostel data
+                        const primaryImage = h.primary_image || 'https://via.placeholder.com/300x200?text=No+Image';
+                        const distance = h.distance_to_university ? `${h.distance_to_university} km from KyU` : '';
+                        html += `
+                            <div class="hostel-card" data-id="${h.id}">
+                                <div class="hostel-image" style="background-image: url('${primaryImage}')"></div>
+                                <div class="hostel-info">
+                                    <div class="hostel-name">${h.name || 'Unnamed'}</div>
+                                    <div class="hostel-price">KSh ${h.price || 0}/month</div>
+                                    ${distance ? `<div class="hostel-distance">📍 ${distance}</div>` : ''}
+                                    <button class="btn-remove" data-save-id="${item.id}">Remove</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    savedGrid.innerHTML = html;
+
+                    // Attach remove button listeners
+                    document.querySelectorAll('.btn-remove').forEach(btn => {
+                        btn.addEventListener('click', async (e) => {
+                            e.stopPropagation();
+                            const saveId = btn.dataset.saveId;
+                            if (!saveId) return;
+                            try {
+                                const delRes = await authFetch(`${API_BASE}/hostels/saved/${saveId}/`, {
+                                    method: 'DELETE'
+                                });
+                                if (delRes.ok) {
+                                    // refresh list
+                                    loadSaved();
+                                    // also refresh badge count (maybe saved count in dashboard)
+                                } else {
+                                    alert('Failed to remove');
+                                }
+                            } catch (e) {
+                                alert('Error removing');
+                            }
+                        });
+                    });
+
+                    // Click on card (but not button) to go to detail
+                    document.querySelectorAll('.hostel-card').forEach(card => {
+                        card.addEventListener('click', (e) => {
+                            if (e.target.classList.contains('btn-remove')) return;
+                            window.location.href = `hostel-detail.html?id=${card.dataset.id}`;
+                        });
+                    });
+
+                } catch (e) {
+                    console.error('Error loading saved hostels:', e);
+                    savedGrid.innerHTML = '<div class="error-message">Failed to load saved hostels. Please try again.</div>';
+                }
+            }
+
+            // Dark mode
+            darkModeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                darkModeToggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+                localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+            });
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+                darkModeToggle.textContent = '☀️';
+            }
+
+            // Notifications click – go to notifications page
+            notificationsIcon.addEventListener('click', () => {
+                window.location.href = 'notifications.html';
+            });
+
+            // Load everything
+            loadProfile();
+            loadNotifications();
+            loadSaved();
+        })();
+    </script>
+</body>
+</html>

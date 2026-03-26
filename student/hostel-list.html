@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Hostels - Kirinyaga Hostels</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
+    <style>
+        /* Your existing CSS (unchanged) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        :root {
+            --kyu-green: #006747;
+            --kyu-gold: #FFD700;
+            --kyu-dark: #1e2b3a;
+            --kyu-light: #f8f9fa;
+        }
+
+        body {
+            background: var(--kyu-light);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--kyu-gold);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo img {
+            height: 50px;
+        }
+
+        .logo span {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--kyu-green);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .notifications {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notifications .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #e53e3e;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--kyu-green);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        /* Main container */
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        /* Page title */
+        .page-title {
+            margin-bottom: 2rem;
+        }
+
+        .page-title h1 {
+            color: var(--kyu-green);
+            font-size: 2.2rem;
+        }
+
+        .page-title p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        /* Search and filters */
+        .search-section {
+            background: white;
+            border-radius: 30px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 50px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            padding-right: 3rem; /* space for loading spinner */
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--kyu-green);
+        }
+
+        .search-bar button {
+            background: var(--kyu-green);
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .search-bar button:hover {
+            background: #004d33;
+        }
+
+        .search-spinner {
+            position: absolute;
+            right: 160px; /* position left of the search button */
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(0,103,71,0.2);
+            border-top-color: var(--kyu-green);
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            display: none;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            flex: 1 1 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 40px;
+            font-size: 0.95rem;
+            background: white;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: var(--kyu-green);
+        }
+
+        .price-range {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .price-range input {
+            width: 50%;
+        }
+
+        .amenities-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 0.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+        }
+
+        .amenity-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: #f1f5f9;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .amenity-checkbox:hover {
+            background: #e2e8f0;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn-filter {
+            background: var(--kyu-green);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-filter:hover {
+            background: #004d33;
+        }
+
+        .btn-reset {
+            background: #e2e8f0;
+            color: #333;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-reset:hover {
+            background: #cbd5e0;
+        }
+
+        /* Hostel grid */
+        .hostel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .hostel-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .hostel-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .hostel-image {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .hostel-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--kyu-green);
+            color: white;
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .hostel-featured {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: var(--kyu-gold);
+            color: #000;
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .hostel-info {
+            padding: 1.5rem;
+        }
+
+        .hostel-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--kyu-green);
+        }
+
+        .hostel-price {
+            font-weight: 600;
+            color: var(--kyu-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .hostel-distance {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .hostel-owner {
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 0.8rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .hostel-owner i {
+            color: var(--kyu-green);
+        }
+
+        .hostel-amenities {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .amenity-tag {
+            background: #f1f5f9;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+        }
+
+        .btn-save {
+            background: transparent;
+            border: 2px solid var(--kyu-green);
+            color: var(--kyu-green);
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-save.saved {
+            background: var(--kyu-green);
+            color: white;
+        }
+
+        .btn-book {
+            background: var(--kyu-green);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .btn-book:hover {
+            background: #004d33;
+        }
+
+        /* Load more */
+        .load-more {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .btn-load {
+            background: var(--kyu-green);
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-load:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-load:hover:not(:disabled) {
+            background: #004d33;
+        }
+
+        /* You may also like */
+        .recommended-section {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .recommended-section h2 {
+            color: var(--kyu-green);
+            margin-bottom: 1.5rem;
+        }
+
+        .recommended-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0,0,0,0.1);
+            border-left-color: var(--kyu-green);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 40px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h2 {
+            color: var(--kyu-green);
+        }
+
+        .modal-close {
+            font-size: 2rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .modal-close:hover {
+            color: #e53e3e;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--kyu-green);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: flex-end;
+        }
+
+        .btn-primary {
+            background: var(--kyu-green);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background: #004d33;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #333;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        footer {
+            background: #1a2e3a;
+            color: #e2e8f0;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+            border-top: 3px solid var(--kyu-gold);
+        }
+
+        footer a {
+            color: var(--kyu-gold);
+            text-decoration: none;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
+            <span>Kirinyaga Hostels</span>
+        </div>
+        <div class="user-menu">
+            <div class="notifications" id="notificationsIcon">
+                <span>🔔</span>
+                <span class="badge" id="notificationBadge" style="display: none;">0</span>
+            </div>
+            <div class="user-avatar" id="userAvatar"></div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="page-title">
+            <h1>Find Your Perfect Hostel</h1>
+            <p>Browse available hostels near Kirinyaga University</p>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="search-section">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search by name or location...">
+                <button id="searchBtn">Search</button>
+                <div class="search-spinner" id="searchSpinner"></div>
+            </div>
+            <div class="filters">
+                <div class="filter-group">
+                    <label>Room Type</label>
+                    <select id="roomType">
+                        <option value="">All</option>
+                        <option value="bedsitter">Bedsitter</option>
+                        <option value="single">Single Room</option>
+                        <option value="one_bedroom">One Bedroom</option>
+                        <option value="two_bedroom">Two Bedroom</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Price (KSh)</label>
+                    <div class="price-range">
+                        <input type="number" id="minPrice" placeholder="Min" min="0">
+                        <input type="number" id="maxPrice" placeholder="Max" min="0">
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label>Max Distance (km)</label>
+                    <input type="number" id="maxDistance" step="0.1" min="0" placeholder="e.g., 2">
+                </div>
+                <div class="filter-group">
+                    <label>Amenities</label>
+                    <div class="amenities-filter" id="amenitiesFilter">
+                        <!-- populated by JS -->
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn-filter" id="applyFilters">Apply Filters</button>
+                    <button class="btn-reset" id="resetFilters">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hostel Grid -->
+        <div id="hostelGrid" class="hostel-grid">
+            <!-- populated by JS -->
+        </div>
+        <div class="load-more">
+            <button class="btn-load" id="loadMoreBtn" style="display: none;">Load More</button>
+        </div>
+
+        <!-- You May Also Like -->
+        <div class="recommended-section">
+            <h2>You May Also Like</h2>
+            <div id="recommendedGrid" class="recommended-grid">
+                <!-- populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Modal -->
+    <div class="modal" id="bookingModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Book Hostel</h2>
+                <span class="modal-close" onclick="closeBookingModal()">&times;</span>
+            </div>
+            <div id="bookingModalBody">
+                <!-- populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 Kirinyaga University Hostels. All rights reserved.</p>
+        <p><a href="../privacy.html">Privacy</a> • <a href="../terms.html">Terms</a> • <a href="../contact.html">Contact</a></p>
+    </footer>
+
+<script>
+    (function() {
+        const API_BASE = 'http://127.0.0.1:8000/api';
+        const CLOUDINARY_BASE = 'https://res.cloudinary.com/dqujm2fhm/';
+        const accessToken = sessionStorage.getItem('accessToken');
+        if (!accessToken) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        // DOM elements
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const searchSpinner = document.getElementById('searchSpinner');
+        const roomTypeSelect = document.getElementById('roomType');
+        const minPriceInput = document.getElementById('minPrice');
+        const maxPriceInput = document.getElementById('maxPrice');
+        const maxDistanceInput = document.getElementById('maxDistance');
+        const amenitiesFilterDiv = document.getElementById('amenitiesFilter');
+        const applyFiltersBtn = document.getElementById('applyFilters');
+        const resetFiltersBtn = document.getElementById('resetFilters');
+        const hostelGrid = document.getElementById('hostelGrid');
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        const recommendedGrid = document.getElementById('recommendedGrid');
+        const userAvatar = document.getElementById('userAvatar');
+        const notificationBadge = document.getElementById('notificationBadge');
+        const notificationsIcon = document.getElementById('notificationsIcon');
+        const bookingModal = document.getElementById('bookingModal');
+        const bookingModalBody = document.getElementById('bookingModalBody');
+
+        let currentPage = 1;
+        let nextPageUrl = null;
+        let amenitiesList = [];
+        let savedHostels = [];
+        let currentHostelForBooking = null;
+        let searchTimeout = null;
+
+        // ==================== Helper: full Cloudinary URL ====================
+        function getFullImageUrl(url) {
+            if (!url) return null;
+            if (url.startsWith('http')) return url;
+            if (url.startsWith('image/upload/')) return CLOUDINARY_BASE + url;
+            return url; // fallback
+        }
+
+        // ==================== Modal functions ====================
+        window.openBookingModal = function(hostel) {
+            currentHostelForBooking = hostel;
+            const today = new Date().toISOString().split('T')[0];
+            const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+            bookingModalBody.innerHTML = `
+                <form id="bookingForm">
+                    <div class="form-group">
+                        <label>Hostel</label>
+                        <input type="text" value="${hostel.name}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Check‑in Date</label>
+                        <input type="date" id="checkIn" min="${today}" value="${today}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Check‑out Date</label>
+                        <input type="date" id="checkOut" min="${tomorrow}" value="${tomorrow}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Number of Guests</label>
+                        <input type="number" id="numGuests" min="1" max="${hostel.capacity || 5}" value="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Special Requests (optional)</label>
+                        <textarea id="specialRequests" rows="3"></textarea>
+                    </div>
+                </form>
+            `;
+            bookingModal.classList.add('active');
+        };
+
+        window.closeBookingModal = function() {
+            bookingModal.classList.remove('active');
+            currentHostelForBooking = null;
+        };
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === bookingModal) {
+                closeBookingModal();
+            }
+        });
+
+        window.submitBooking = async function() {
+            if (!currentHostelForBooking) return;
+            const checkIn = document.getElementById('checkIn')?.value;
+            const checkOut = document.getElementById('checkOut')?.value;
+            const numGuests = document.getElementById('numGuests')?.value;
+            const specialRequests = document.getElementById('specialRequests')?.value;
+
+            if (!checkIn || !checkOut || !numGuests) {
+                alert('Please fill all required fields');
+                return;
+            }
+
+            const payload = {
+                hostel_id: currentHostelForBooking.id,
+                check_in: checkIn,
+                check_out: checkOut,
+                num_guests: parseInt(numGuests),
+                special_requests: specialRequests || ''
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/bookings/`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.message || 'Booking failed');
+                }
+
+                const booking = await res.json();
+                alert('Booking successful! You will receive a confirmation shortly.');
+
+                // Remove the booked hostel from the grid (since it becomes unavailable)
+                document.querySelectorAll(`.hostel-card[data-id="${currentHostelForBooking.id}"]`).forEach(card => card.remove());
+
+                // Refresh notifications
+                loadNotifications();
+
+                closeBookingModal();
+            } catch (e) {
+                alert('Error: ' + e.message);
+            }
+        };
+
+        // ==================== User profile ====================
+        async function loadProfile() {
+            try {
+                const res = await fetch(`${API_BASE}/auth/profile/`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                if (!res.ok) throw new Error('Not authenticated');
+                const data = await res.json();
+                const initials = data.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2);
+                userAvatar.textContent = initials;
+            } catch (e) {
+                console.error('Profile load failed', e);
+                window.location.href = 'login.html';
+            }
+        }
+
+        // ==================== Amenities ====================
+        async function loadAmenities() {
+            try {
+                const res = await fetch(`${API_BASE}/hostels/amenities/`);
+                const data = await res.json();
+                amenitiesList = data;
+                renderAmenitiesFilter();
+                document.querySelectorAll('.amenity-check').forEach(cb => {
+                    cb.addEventListener('change', debouncedSearch);
+                });
+            } catch (e) {
+                console.error('Failed to load amenities', e);
+            }
+        }
+
+        function renderAmenitiesFilter() {
+            let html = '';
+            amenitiesList.forEach(a => {
+                html += `<label class="amenity-checkbox">
+                    <input type="checkbox" value="${a.id}" class="amenity-check"> ${a.name}
+                </label>`;
+            });
+            amenitiesFilterDiv.innerHTML = html;
+        }
+
+        // ==================== Query parameters (OR logic for amenities) ====================
+        function getQueryParams() {
+            const params = new URLSearchParams();
+            if (searchInput.value) params.append('search', searchInput.value);
+            if (roomTypeSelect.value) params.append('room_type', roomTypeSelect.value);
+            if (minPriceInput.value) params.append('price__gte', minPriceInput.value);
+            if (maxPriceInput.value) params.append('price__lte', maxPriceInput.value);
+            if (maxDistanceInput.value) params.append('distance_to_university__lte', maxDistanceInput.value);
+            const checkedAmenities = Array.from(document.querySelectorAll('.amenity-check:checked')).map(cb => cb.value);
+            if (checkedAmenities.length) {
+                // Send as comma-separated string – backend will split and use OR
+                params.append('amenities', checkedAmenities.join(','));
+            }
+            params.append('available', 'true'); // only show available hostels
+            return params;
+        }
+
+        // ==================== Load hostels ====================
+        async function loadHostels(url = null) {
+            let fullUrl;
+            if (url) {
+                fullUrl = url;
+            } else {
+                const params = getQueryParams();
+                params.append('page', currentPage);
+                fullUrl = `${API_BASE}/hostels/?${params.toString()}`;
+            }
+            console.log('Fetching URL:', fullUrl); // Debug
+            try {
+                searchSpinner.style.display = 'block';
+                const res = await fetch(fullUrl);
+                const data = await res.json();
+                return data;
+            } catch (e) {
+                console.error('Failed to load hostels', e);
+                return { results: [], next: null };
+            } finally {
+                searchSpinner.style.display = 'none';
+            }
+        }
+
+        // ==================== Render hostels ====================
+        function renderHostels(hostels, append = false) {
+            if (!append) hostelGrid.innerHTML = '';
+            if (hostels.length === 0) {
+                if (!append) hostelGrid.innerHTML = '<div class="no-results">No hostels match your criteria.</div>';
+                return;
+            }
+            let html = '';
+            hostels.forEach(h => {
+                const isSaved = savedHostels.some(s => s.hostel?.id === h.id);
+                let primaryImage = h.primary_image || (h.images && h.images[0]?.image) || 'https://via.placeholder.com/300x200?text=No+Image';
+                primaryImage = getFullImageUrl(primaryImage);
+                const featuredBadge = h.is_featured ? '<div class="hostel-featured">⭐ Featured</div>' : '';
+                
+                html += `
+                    <div class="hostel-card" data-id="${h.id}">
+                        <div class="hostel-image" style="background-image: url('${primaryImage}')">
+                            <div class="hostel-badge">${h.room_type}</div>
+                            ${featuredBadge}
+                        </div>
+                        <div class="hostel-info">
+                            <div class="hostel-name">${h.name}</div>
+                            <div class="hostel-price">💰 KSh ${h.price}/month</div>
+                            <div class="hostel-distance">📍 ${h.distance_to_university} km from KyU</div>
+                            <div class="hostel-owner">
+                                <i>👤 ${h.owner_name || 'Hostel Owner'}</i>
+                                ${h.owner_phone ? `<span>📞 ${h.owner_phone}</span>` : ''}
+                            </div>
+                            <div class="hostel-amenities">
+                                ${(h.amenities || []).map(a => `<span class="amenity-tag">${a}</span>`).join('')}
+                            </div>
+                            <button class="btn-save ${isSaved ? 'saved' : ''}" data-id="${h.id}">${isSaved ? 'Saved' : 'Save'}</button>
+                            <button class="btn-book" data-id="${h.id}">Book Now</button>
+                        </div>
+                    </div>
+                `;
+            });
+            if (append) {
+                hostelGrid.insertAdjacentHTML('beforeend', html);
+            } else {
+                hostelGrid.innerHTML = html;
+            }
+
+            // Attach save button listeners
+            document.querySelectorAll('.btn-save').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const hostelId = btn.dataset.id;
+                    const isSaved = btn.classList.contains('saved');
+                    if (isSaved) {
+                        const saved = savedHostels.find(s => s.hostel?.id === hostelId);
+                        if (saved) {
+                            await fetch(`${API_BASE}/hostels/saved/${saved.id}/`, {
+                                method: 'DELETE',
+                                headers: { 'Authorization': `Bearer ${accessToken}` }
+                            });
+                            btn.classList.remove('saved');
+                            btn.textContent = 'Save';
+                            savedHostels = savedHostels.filter(s => s.hostel?.id !== hostelId);
+                        }
+                    } else {
+                        const res = await fetch(`${API_BASE}/hostels/saved/`, {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${accessToken}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ hostel_id: hostelId })
+                        });
+                        if (res.ok) {
+                            const saved = await res.json();
+                            savedHostels.push(saved);
+                            btn.classList.add('saved');
+                            btn.textContent = 'Saved';
+                        }
+                    }
+                });
+            });
+
+            // Attach book button listeners
+            document.querySelectorAll('.btn-book').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const hostelId = btn.dataset.id;
+                    const hostel = hostels.find(h => h.id === hostelId);
+                    if (hostel) openBookingModal(hostel);
+                });
+            });
+
+            // Click on card goes to detail page
+            document.querySelectorAll('.hostel-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('btn-save') || e.target.classList.contains('btn-book')) return;
+                    window.location.href = `hostel-detail.html?id=${card.dataset.id}`;
+                });
+            });
+        }
+
+        // ==================== Load saved hostels ====================
+        async function loadSavedHostels() {
+            try {
+                const res = await fetch(`${API_BASE}/hostels/saved/`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                if (res.ok) {
+                    savedHostels = await res.json();
+                }
+            } catch (e) {
+                console.error('Failed to load saved hostels', e);
+            }
+        }
+
+        // ==================== Perform search (reset to page 1) ====================
+        async function performSearch() {
+            currentPage = 1;
+            const data = await loadHostels();
+            renderHostels(data.results);
+            if (data.next) {
+                nextPageUrl = data.next;
+                loadMoreBtn.style.display = 'block';
+            } else {
+                loadMoreBtn.style.display = 'none';
+            }
+        }
+
+        // ==================== Debounced search ====================
+        function debouncedSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                performSearch();
+            }, 300);
+        }
+
+        // ==================== Initial load ====================
+        async function initialLoad() {
+            await loadSavedHostels();
+            await performSearch();
+        }
+
+        // ==================== Load more ====================
+        loadMoreBtn.addEventListener('click', async () => {
+            if (!nextPageUrl) return;
+            const data = await loadHostels(nextPageUrl);
+            renderHostels(data.results, true);
+            if (data.next) {
+                nextPageUrl = data.next;
+            } else {
+                loadMoreBtn.style.display = 'none';
+            }
+        });
+
+        // ==================== Apply filters (manual) ====================
+        applyFiltersBtn.addEventListener('click', async () => {
+            clearTimeout(searchTimeout);
+            await performSearch();
+        });
+
+        // ==================== Reset filters ====================
+        resetFiltersBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            roomTypeSelect.value = '';
+            minPriceInput.value = '';
+            maxPriceInput.value = '';
+            maxDistanceInput.value = '';
+            document.querySelectorAll('.amenity-check').forEach(cb => cb.checked = false);
+            performSearch();
+        });
+
+        // ==================== Search button ====================
+        searchBtn.addEventListener('click', () => {
+            clearTimeout(searchTimeout);
+            performSearch();
+        });
+
+        // ==================== Input and filter changes ====================
+        searchInput.addEventListener('input', debouncedSearch);
+        roomTypeSelect.addEventListener('change', debouncedSearch);
+        minPriceInput.addEventListener('input', debouncedSearch);
+        maxPriceInput.addEventListener('input', debouncedSearch);
+        maxDistanceInput.addEventListener('input', debouncedSearch);
+
+        // ==================== You May Also Like ====================
+        async function loadRecommended() {
+            try {
+                const res = await fetch(`${API_BASE}/hostels/recommended/`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                const data = await res.json();
+                renderRecommended(data.results || data);
+            } catch (e) {
+                console.error('Failed to load recommended', e);
+            }
+        }
+
+        function renderRecommended(hostels) {
+            if (!hostels.length) {
+                recommendedGrid.innerHTML = '<p>No recommendations yet.</p>';
+                return;
+            }
+            let html = '';
+            hostels.slice(0, 4).forEach(h => {
+                let primaryImage = h.primary_image || (h.images && h.images[0]?.image) || 'https://via.placeholder.com/250x150?text=No+Image';
+                primaryImage = getFullImageUrl(primaryImage);
+                html += `
+                    <div class="hostel-card" data-id="${h.id}" style="cursor:pointer;">
+                        <div class="hostel-image" style="height:150px; background-image: url('${primaryImage}')"></div>
+                        <div class="hostel-info">
+                            <div class="hostel-name">${h.name}</div>
+                            <div class="hostel-price">KSh ${h.price}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            recommendedGrid.innerHTML = html;
+            recommendedGrid.querySelectorAll('.hostel-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    window.location.href = `hostel-detail.html?id=${card.dataset.id}`;
+                });
+            });
+        }
+
+        // ==================== Notifications ====================
+        async function loadNotifications() {
+            try {
+                const res = await fetch(`${API_BASE}/notifications/`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                const notifications = await res.json();
+                const unreadCount = notifications.filter(n => !n.is_read).length;
+                if (unreadCount > 0) {
+                    notificationBadge.style.display = 'flex';
+                    notificationBadge.textContent = unreadCount;
+                } else {
+                    notificationBadge.style.display = 'none';
+                }
+            } catch (e) {
+                console.error('Failed to load notifications', e);
+            }
+        }
+
+        notificationsIcon.addEventListener('click', () => {
+            window.location.href = 'notifications.html';
+        });
+
+        // ==================== Add submit button to modal footer ====================
+        const observer = new MutationObserver(() => {
+            if (bookingModalBody.querySelector('#bookingForm') && !bookingModalBody.querySelector('.modal-footer')) {
+                const footer = document.createElement('div');
+                footer.className = 'modal-footer';
+                footer.innerHTML = `
+                    <button class="btn-secondary" onclick="closeBookingModal()">Cancel</button>
+                    <button class="btn-primary" onclick="submitBooking()">Confirm Booking</button>
+                `;
+                bookingModalBody.appendChild(footer);
+            }
+        });
+        observer.observe(bookingModalBody, { childList: true, subtree: true });
+
+        // ==================== Initialize ====================
+        loadProfile();
+        loadAmenities();
+        initialLoad();
+        loadRecommended();
+        loadNotifications();
+        setInterval(loadNotifications, 30000);
+    })();
+</script>
+</body>
+</html>

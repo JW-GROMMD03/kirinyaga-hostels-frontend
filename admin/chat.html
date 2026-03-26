@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Chat - Kirinyaga Hostels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
+        :root { --kyu-green: #006747; --kyu-gold: #FFD700; --admin-dark: #0f172a; --admin-sidebar: #1e293b; --admin-card: #ffffff; --admin-hover: #f1f5f9; --danger: #dc2626; --success: #16a34a; --warning: #ca8a04; --info: #2563eb; --text-primary: #0f172a; --text-secondary: #475569; --border-light: #e2e8f0; }
+        body { background: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; }
+        .top-nav { background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.1); padding: 1rem 2rem; display: flex; align-items: center; gap: 20px; border-bottom: 3px solid var(--kyu-gold); }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo img { height: 40px; }
+        .logo span { font-size: 1.3rem; font-weight: 700; color: var(--kyu-green); }
+        .top-nav-title { flex: 1; }
+        .top-nav-title h1 { font-size: 1.3rem; color: var(--text-primary); }
+        .top-nav-title p { font-size: 0.9rem; color: var(--text-secondary); }
+        .admin-profile { display: flex; align-items: center; gap: 20px; }
+        .notifications { position: relative; cursor: pointer; }
+        .notifications .badge { position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; }
+        .admin-info { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 5px 10px; border-radius: 40px; }
+        .admin-info:hover { background: var(--admin-hover); }
+        .admin-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--kyu-green); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+        .admin-details .name { font-weight: 600; color: var(--text-primary); }
+        .admin-details .role { font-size: 0.8rem; color: var(--text-secondary); }
+        .main-content { padding: 2rem; flex:1; }
+        .chat-container { display: flex; gap: 1rem; height: calc(100vh - 120px); background: white; border-radius: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); overflow: hidden; }
+        .chat-list { width: 30%; border-right: 1px solid var(--border-light); overflow-y: auto; background: #fafafa; }
+        .chat-list-header { padding: 1rem; background: white; border-bottom: 1px solid var(--border-light); font-weight: 600; }
+        .chat-item { padding: 1rem; border-bottom: 1px solid var(--border-light); cursor: pointer; transition: background 0.2s; }
+        .chat-item:hover { background: var(--admin-hover); }
+        .chat-item.active { background: rgba(0,103,71,0.1); border-left: 4px solid var(--kyu-green); }
+        .chat-item .name { font-weight: 600; color: var(--text-primary); }
+        .chat-item .preview { font-size: 0.9rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .chat-item .time { font-size: 0.7rem; color: var(--text-secondary); margin-top: 0.2rem; }
+        .chat-messages { flex:1; display: flex; flex-direction: column; background: white; }
+        .messages-header { padding: 1rem; border-bottom: 1px solid var(--border-light); font-weight: 600; background: #fafafa; }
+        .messages-area { flex:1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; }
+        .message { display: flex; margin-bottom: 0.5rem; }
+        .message.sent { justify-content: flex-end; }
+        .message .bubble { max-width: 70%; padding: 0.8rem 1rem; border-radius: 20px; background: var(--admin-hover); position: relative; }
+        .message.sent .bubble { background: var(--kyu-green); color: white; }
+        .message .time { font-size: 0.7rem; color: var(--text-secondary); margin-top: 0.2rem; text-align: right; }
+        .message.sent .time { color: rgba(255,255,255,0.8); }
+        .typing-indicator { padding: 0.5rem 1rem; color: var(--text-secondary); font-style: italic; }
+        .chat-input-area { display: flex; gap: 0.5rem; padding: 1rem; border-top: 1px solid var(--border-light); }
+        .chat-input-area input { flex:1; padding: 0.8rem; border: 2px solid var(--border-light); border-radius: 30px; outline: none; }
+        .chat-input-area input:focus { border-color: var(--kyu-green); }
+        .chat-input-area button { width: 50px; height: 50px; border-radius: 50%; background: var(--kyu-green); color: white; border: none; cursor: pointer; transition: background 0.3s; }
+        .chat-input-area button:hover { background: #004d33; }
+        .chat-input-area button:disabled { background: #ccc; cursor: not-allowed; }
+        .loading-row { text-align: center; padding: 2rem; color: var(--text-secondary); }
+    </style>
+</head>
+<body>
+    <div class="top-nav">
+        <div class="logo">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
+            <span>KyU Hostels</span>
+        </div>
+        <div class="top-nav-title">
+            <h1>Support Chat</h1>
+            <p>Real‑time messaging with hostel owners</p>
+        </div>
+        <div class="admin-profile">
+            <div class="notifications" id="notificationsBell">
+                <i class="fas fa-bell"></i>
+                <span class="badge" id="notificationBadge">0</span>
+            </div>
+            <div class="admin-info" id="adminMenu">
+                <div class="admin-avatar" id="adminAvatar">A</div>
+                <div class="admin-details">
+                    <div class="name" id="adminName">Admin</div>
+                    <div class="role">Administrator</div>
+                </div>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="chat-container">
+            <div class="chat-list">
+                <div class="chat-list-header">Conversations</div>
+                <div id="conversationList"></div>
+            </div>
+            <div class="chat-messages">
+                <div class="messages-header" id="currentChatHeader">Select a conversation</div>
+                <div class="messages-area" id="messagesArea">
+                    <div class="loading-row">No conversation selected</div>
+                </div>
+                <div class="typing-indicator" id="typingIndicator" style="display: none;">Typing...</div>
+                <div class="chat-input-area">
+                    <input type="text" id="messageInput" placeholder="Type a message..." disabled>
+                    <button id="sendBtn" disabled><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000/api/accounts/admin';
+        const token = sessionStorage.getItem('accessToken');
+        if (!token) window.location.href = 'login.html';
+
+        let conversations = [];
+        let currentConversationId = null;
+        let messages = [];
+        let pollingInterval = null;
+        let typingTimeout = null;
+
+        function formatDate(date) { return new Date(date).toLocaleString(); }
+        function showMessage(text, type) { alert(text); }
+
+        async function apiFetch(url, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${url}`, {
+                    ...options,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+                if (response.status === 401) {
+                    sessionStorage.removeItem('accessToken');
+                    window.location.href = 'login.html';
+                    return null;
+                }
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({}));
+                    throw new Error(error.message || 'API request failed');
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+
+        async function loadConversations() {
+            try {
+                conversations = await apiFetch('/chat/conversations/') || [];
+                const listEl = document.getElementById('conversationList');
+                if (conversations.length === 0) {
+                    listEl.innerHTML = '<div class="chat-item">No conversations</div>';
+                    return;
+                }
+                listEl.innerHTML = conversations.map(conv => `
+                    <div class="chat-item ${conv.id === currentConversationId ? 'active' : ''}" onclick="selectConversation('${conv.id}')">
+                        <div class="name">${conv.owner_name}</div>
+                        <div class="preview">${conv.last_message?.content || 'No messages'}</div>
+                        <div class="time">${conv.last_message ? formatDate(conv.last_message.timestamp) : ''}</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                document.getElementById('conversationList').innerHTML = '<div class="chat-item">Error loading conversations</div>';
+            }
+        }
+
+        async function loadMessages(conversationId) {
+            try {
+                messages = await apiFetch(`/chat/conversations/${conversationId}/messages/`) || [];
+                const area = document.getElementById('messagesArea');
+                if (messages.length === 0) {
+                    area.innerHTML = '<div class="loading-row">No messages yet</div>';
+                } else {
+                    area.innerHTML = messages.map(msg => `
+                        <div class="message ${msg.sender === 'admin' ? 'sent' : ''}">
+                            <div class="bubble">
+                                ${msg.content}
+                                <div class="time">${formatDate(msg.timestamp)}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                area.scrollTop = area.scrollHeight;
+            } catch (error) {
+                document.getElementById('messagesArea').innerHTML = '<div class="loading-row">Error loading messages</div>';
+            }
+        }
+
+        window.selectConversation = async (id) => {
+            if (currentConversationId === id) return;
+            currentConversationId = id;
+            document.getElementById('currentChatHeader').innerText = conversations.find(c => c.id === id)?.owner_name || 'Chat';
+            document.getElementById('messageInput').disabled = false;
+            document.getElementById('sendBtn').disabled = false;
+            await loadMessages(id);
+            // Start polling for new messages every 3 seconds
+            if (pollingInterval) clearInterval(pollingInterval);
+            pollingInterval = setInterval(() => {
+                if (currentConversationId) loadMessages(currentConversationId);
+            }, 3000);
+            // Reload conversation list to update last message
+            loadConversations();
+        };
+
+        document.getElementById('sendBtn').addEventListener('click', async () => {
+            const input = document.getElementById('messageInput');
+            const content = input.value.trim();
+            if (!content || !currentConversationId) return;
+            input.value = '';
+            try {
+                await apiFetch(`/chat/conversations/${currentConversationId}/send/`, {
+                    method: 'POST',
+                    body: JSON.stringify({ content })
+                });
+                await loadMessages(currentConversationId);
+                loadConversations(); // update last message
+            } catch (error) {
+                showMessage('Failed to send message', 'error');
+            }
+        });
+
+        document.getElementById('messageInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') document.getElementById('sendBtn').click();
+            // Typing indicator - simple POST
+            if (currentConversationId) {
+                // Clear previous timeout
+                if (typingTimeout) clearTimeout(typingTimeout);
+                typingTimeout = setTimeout(() => {
+                    // Optionally notify that typing stopped, but we'll just not send anything
+                }, 1000);
+                // Send typing notification (optional)
+                fetch(`${API_BASE}/chat/conversations/${currentConversationId}/typing/`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+                }).catch(() => {});
+            }
+        });
+
+        // Initial load
+        loadConversations();
+
+        // Profile and notifications
+        async function loadAdminProfile() {
+            try {
+                const data = await apiFetch('/auth/profile/');
+                if (data) {
+                    document.getElementById('adminName').textContent = data.full_name;
+                    document.getElementById('adminAvatar').textContent = (data.full_name || 'A').charAt(0).toUpperCase();
+                }
+            } catch (error) {}
+        }
+
+        async function loadNotificationCount() {
+            try {
+                const data = await apiFetch('/dashboard/stats/');
+                if (data?.notifications?.unread > 0) {
+                    document.getElementById('notificationBadge').textContent = data.notifications.unread;
+                    document.getElementById('notificationBadge').style.display = 'flex';
+                } else {
+                    document.getElementById('notificationBadge').style.display = 'none';
+                }
+            } catch (error) {}
+        }
+
+        loadAdminProfile();
+        loadNotificationCount();
+        setInterval(loadNotificationCount, 30000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - Kirinyaga Hostels</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        /* Base styles (same as other dashboard pages) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        :root {
+            --kyu-green: #006747;
+            --kyu-gold: #FFD700;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border-light: #e2e8f0;
+            --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1);
+            --danger: #dc2626;
+            --success: #16a34a;
+            --warning: #ca8a04;
+            --info: #2563eb;
+        }
+        body {
+            background: var(--bg-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: var(--bg-white);
+            box-shadow: var(--shadow-sm);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--kyu-gold);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .logo img {
+            height: 45px;
+        }
+        .logo span {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--kyu-green);
+        }
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 16px;
+            background: var(--bg-light);
+            border-radius: 40px;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--kyu-green);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+        .user-role {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        .btn-logout {
+            padding: 0.5rem 1.2rem;
+            border: 2px solid var(--danger);
+            background: transparent;
+            color: var(--danger);
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-logout:hover {
+            background: var(--danger);
+            color: white;
+        }
+        .main-container {
+            flex: 1;
+            max-width: 1400px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .page-header h1 {
+            font-size: 2rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .page-header h1 i {
+            color: var(--kyu-green);
+        }
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        .btn-outline {
+            padding: 0.8rem 1.8rem;
+            background: transparent;
+            border: 2px solid var(--kyu-green);
+            color: var(--kyu-green);
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        .btn-outline:hover {
+            background: var(--kyu-green);
+            color: white;
+        }
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .kpi-card {
+            background: var(--bg-white);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s;
+            border: 1px solid var(--border-light);
+        }
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--kyu-green);
+        }
+        .kpi-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(0,103,71,0.1);
+            color: var(--kyu-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+        .kpi-content h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+        .kpi-content p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+        .kpi-trend {
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+        }
+        .trend-up { color: var(--success); }
+        .trend-down { color: var(--danger); }
+
+        /* Charts row */
+        .charts-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .chart-card {
+            background: var(--bg-white);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+        }
+        .chart-card h2 {
+            font-size: 1.3rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .chart-card h2 i {
+            color: var(--kyu-green);
+        }
+        canvas {
+            max-height: 300px;
+            width: 100% !important;
+        }
+
+        /* Top hostels table */
+        .table-card {
+            background: var(--bg-white);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+            margin-bottom: 2rem;
+        }
+        .table-card h2 {
+            font-size: 1.3rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            text-align: left;
+            padding: 1rem 0.5rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-bottom: 2px solid var(--border-light);
+        }
+        td {
+            padding: 0.8rem 0.5rem;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-primary);
+        }
+        .badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .badge-success { background: #dcfce7; color: #166534; }
+        .badge-warning { background: #fef9c3; color: #854d0e; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+
+        .loading-state {
+            text-align: center;
+            padding: 3rem;
+        }
+        .spinner {
+            border: 4px solid rgba(0,103,71,0.1);
+            border-left-color: var(--kyu-green);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .error-message {
+            background: #fee2e2;
+            color: var(--danger);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .footer {
+            background: #1e293b;
+            color: white;
+            padding: 2rem;
+            margin-top: 3rem;
+            border-top: 3px solid var(--kyu-gold);
+        }
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        .footer-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.9rem;
+        }
+        .footer-links a:hover {
+            color: var(--kyu-gold);
+        }
+        @media (max-width: 768px) {
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='45' height='45' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
+            <span>Kirinyaga Hostels</span>
+        </div>
+        <div class="user-menu">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">O</div>
+                <div class="user-details">
+                    <span class="user-name" id="userName">Loading...</span>
+                    <span class="user-role">Hostel Owner</span>
+                </div>
+            </div>
+            <button class="btn-logout" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="page-header">
+            <h1>
+                <i class="fas fa-chart-line"></i>
+                Analytics
+            </h1>
+            <div class="header-actions">
+                <a href="dashboard.html" class="btn-outline">
+                    <i class="fas fa-arrow-left"></i> Dashboard
+                </a>
+            </div>
+        </div>
+
+        <div id="loading" class="loading-state">
+            <div class="spinner"></div>
+            <p>Loading analytics data...</p>
+        </div>
+
+        <div id="error" class="error-message" style="display: none;"></div>
+
+        <div id="content" style="display: none;">
+            <!-- KPI Cards -->
+            <div class="kpi-grid" id="kpiCards">
+                <!-- dynamically filled -->
+            </div>
+
+            <!-- Charts -->
+            <div class="charts-row">
+                <div class="chart-card">
+                    <h2><i class="fas fa-calendar-alt"></i> Bookings Over Time</h2>
+                    <canvas id="bookingsChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h2><i class="fas fa-chart-pie"></i> Booking Status</h2>
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Top Performing Hostels -->
+            <div class="table-card">
+                <h2><i class="fas fa-trophy"></i> Top Performing Hostels</h2>
+                <div class="table-responsive">
+                    <table id="topHostelsTable">
+                        <thead>
+                            <tr>
+                                <th>Hostel</th>
+                                <th>Room Type</th>
+                                <th>Price</th>
+                                <th>Bookings</th>
+                                <th>Views</th>
+                                <th>Rating</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>© 2025 Kirinyaga University Hostels. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
+                <a href="help.html">Help Center</a>
+                <a href="contact.html">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000/api';
+        const token = sessionStorage.getItem('accessToken');
+        if (!token) window.location.href = 'login.html';
+
+        let bookingsChart, statusChart;
+
+        // Utility fetch with token
+        async function apiFetch(url, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${url}`, {
+                    ...options,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+                if (response.status === 401) {
+                    sessionStorage.removeItem('accessToken');
+                    window.location.href = 'login.html';
+                    return null;
+                }
+                const text = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch {
+                    data = { detail: text };
+                }
+                if (!response.ok) {
+                    let errorMsg = data.detail || data.message || JSON.stringify(data);
+                    throw new Error(`HTTP ${response.status}: ${errorMsg.substring(0, 200)}`);
+                }
+                return data;
+            } catch (error) {
+                console.error('API Fetch Error:', error);
+                throw error;
+            }
+        }
+
+        async function loadUserProfile() {
+            try {
+                const data = await apiFetch('/auth/profile/');
+                if (data) {
+                    document.getElementById('userName').textContent = data.full_name || data.email;
+                    const initials = (data.full_name || data.email).split(' ').map(n => n[0]).join('').toUpperCase();
+                    document.getElementById('userAvatar').textContent = initials.slice(0, 2);
+                }
+            } catch (error) {
+                console.error('Failed to load profile:', error);
+            }
+        }
+
+        // Main data loading
+        async function loadAnalytics() {
+            const loading = document.getElementById('loading');
+            const errorDiv = document.getElementById('error');
+            const contentDiv = document.getElementById('content');
+
+            try {
+                loading.style.display = 'block';
+                errorDiv.style.display = 'none';
+                contentDiv.style.display = 'none';
+
+                // Fetch all required data in parallel
+                const [stats, hostels, bookings] = await Promise.all([
+                    apiFetch('/hostels/my/stats/').catch(() => ({ total:0, approved:0, pending:0, featured:0, total_views:0, recent_views:0, avg_rating:0 })),
+                    apiFetch('/hostels/my/').catch(() => []),
+                    apiFetch('/bookings/?owner=me').catch(() => [])
+                ]);
+
+                // Process data
+                const hostelList = Array.isArray(hostels) ? hostels : (hostels.results || []);
+                const bookingList = Array.isArray(bookings) ? bookings : (bookings.results || []);
+
+                // Compute additional stats
+                const totalBookings = bookingList.length;
+                const confirmedBookings = bookingList.filter(b => b.status === 'confirmed').length;
+                const pendingBookings = bookingList.filter(b => b.status === 'pending').length;
+                const cancelledBookings = bookingList.filter(b => b.status === 'cancelled').length;
+                const totalRevenue = bookingList.reduce((sum, b) => sum + (parseFloat(b.total_price) || 0), 0);
+
+                // Booking trends (last 6 months)
+                const months = [];
+                const monthlyCounts = [];
+                const now = new Date();
+                for (let i = 5; i >= 0; i--) {
+                    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                    months.push(d.toLocaleDateString('default', { month: 'short', year: 'numeric' }));
+                    const count = bookingList.filter(b => {
+                        const checkIn = new Date(b.check_in);
+                        return checkIn.getMonth() === d.getMonth() && checkIn.getFullYear() === d.getFullYear();
+                    }).length;
+                    monthlyCounts.push(count);
+                }
+
+                // Top hostels by bookings
+                const hostelPerformance = hostelList.map(h => {
+                    const hostelBookings = bookingList.filter(b => b.hostel_id === h.id);
+                    const totalBookings = hostelBookings.length;
+                    const totalViews = h.views_count || 0;
+                    const avgRating = h.average_rating || 0;
+                    return {
+                        ...h,
+                        bookingsCount: totalBookings,
+                        views: totalViews,
+                        rating: avgRating
+                    };
+                }).sort((a, b) => b.bookingsCount - a.bookingsCount).slice(0, 5);
+
+                // Render KPI cards
+                renderKPIs({
+                    totalHostels: stats.total || 0,
+                    approved: stats.approved || 0,
+                    pending: stats.pending || 0,
+                    featured: stats.featured || 0,
+                    totalBookings,
+                    confirmedBookings,
+                    pendingBookings,
+                    cancelledBookings,
+                    totalRevenue,
+                    totalViews: stats.total_views || 0,
+                    recentViews: stats.recent_views || 0,
+                    avgRating: stats.avg_rating || 0
+                });
+
+                // Render charts
+                renderBookingTrendChart(months, monthlyCounts);
+                renderStatusChart(confirmedBookings, pendingBookings, cancelledBookings);
+
+                // Render top hostels table
+                renderTopHostels(hostelPerformance);
+
+                // Show content
+                loading.style.display = 'none';
+                contentDiv.style.display = 'block';
+            } catch (error) {
+                loading.style.display = 'none';
+                errorDiv.style.display = 'block';
+                errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> Failed to load analytics: ${error.message}`;
+            }
+        }
+
+        function renderKPIs(data) {
+            const container = document.getElementById('kpiCards');
+            container.innerHTML = `
+                <div class="kpi-card">
+                    <div class="kpi-icon"><i class="fas fa-home"></i></div>
+                    <div class="kpi-content">
+                        <h3>${data.totalHostels}</h3>
+                        <p>Total Hostels</p>
+                        <div class="kpi-trend"><span class="trend-up">${data.approved} approved</span> · ${data.pending} pending</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon"><i class="fas fa-calendar-check"></i></div>
+                    <div class="kpi-content">
+                        <h3>${data.totalBookings}</h3>
+                        <p>Total Bookings</p>
+                        <div class="kpi-trend">
+                            <span class="trend-up">${data.confirmedBookings} confirmed</span> ·
+                            <span class="trend-down">${data.cancelledBookings} cancelled</span> ·
+                            ${data.pendingBookings} pending
+                        </div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon"><i class="fas fa-money-bill-wave"></i></div>
+                    <div class="kpi-content">
+                        <h3>KSh ${data.totalRevenue.toLocaleString()}</h3>
+                        <p>Total Revenue</p>
+                        <div class="kpi-trend">From ${data.totalBookings} bookings</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon"><i class="fas fa-eye"></i></div>
+                    <div class="kpi-content">
+                        <h3>${data.totalViews}</h3>
+                        <p>Total Views</p>
+                        <div class="kpi-trend">${data.recentViews} in last 30 days</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon"><i class="fas fa-star"></i></div>
+                    <div class="kpi-content">
+                        <h3>${data.avgRating.toFixed(1)}</h3>
+                        <p>Average Rating</p>
+                        <div class="kpi-trend">${data.featured} featured hostels</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderBookingTrendChart(labels, data) {
+            const ctx = document.getElementById('bookingsChart').getContext('2d');
+            if (bookingsChart) bookingsChart.destroy();
+            bookingsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Bookings',
+                        data: data,
+                        borderColor: '#006747',
+                        backgroundColor: 'rgba(0,103,71,0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    }
+                }
+            });
+        }
+
+        function renderStatusChart(confirmed, pending, cancelled) {
+            const ctx = document.getElementById('statusChart').getContext('2d');
+            if (statusChart) statusChart.destroy();
+            statusChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Confirmed', 'Pending', 'Cancelled'],
+                    datasets: [{
+                        data: [confirmed, pending, cancelled],
+                        backgroundColor: ['#16a34a', '#ca8a04', '#dc2626'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        function renderTopHostels(hostels) {
+            const tbody = document.querySelector('#topHostelsTable tbody');
+            if (hostels.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:2rem;">No hostels found</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = hostels.map(h => {
+                const statusClass = h.is_approved ? 'badge-success' : 'badge-warning';
+                const statusText = h.is_approved ? 'Approved' : 'Pending';
+                return `
+                <tr>
+                    <td>${h.name || 'Unnamed'}</td>
+                    <td>${(h.room_type || '').replace('_', ' ')}</td>
+                    <td>KSh ${Number(h.price || 0).toLocaleString()}</td>
+                    <td>${h.bookingsCount}</td>
+                    <td>${h.views}</td>
+                    <td>${h.rating ? h.rating.toFixed(1) : 'N/A'}</td>
+                    <td><span class="badge ${statusClass}">${statusText}</span></td>
+                </tr>
+            `}).join('');
+        }
+
+        function logout() {
+            sessionStorage.removeItem('accessToken');
+            window.location.href = 'login.html';
+        }
+
+        // Load everything
+        loadUserProfile();
+        loadAnalytics();
+    </script>
+</body>
+</html>

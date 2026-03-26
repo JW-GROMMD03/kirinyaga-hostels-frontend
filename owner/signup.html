@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Signup - Kirinyaga Hostels</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
+        :root {
+            --kyu-green: #006747;
+            --kyu-gold: #FFD700;
+        }
+        body {
+            background: linear-gradient(145deg, #0b3b2a 0%, #1a4f3a 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .top-bar {
+            background: rgba(255,255,255,0.98);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            border-bottom: 3px solid var(--kyu-gold);
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--kyu-green);
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 40px;
+            background: rgba(0,103,71,0.1);
+            transition: all 0.3s;
+        }
+        .back-btn:hover {
+            background: var(--kyu-green);
+            color: white;
+            transform: translateX(-5px);
+        }
+        .container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+        .signup-card {
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            padding: 3rem;
+            width: 100%;
+            max-width: 800px;
+        }
+        .university-emblem {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .university-emblem img {
+            width: 80px;
+            height: 80px;
+        }
+        h2 {
+            color: var(--kyu-green);
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--kyu-gold);
+            padding-bottom: 1rem;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--kyu-green);
+        }
+        .room-types {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+        .room-types label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: normal;
+        }
+        .btn-signup {
+            width: 100%;
+            padding: 1.1rem;
+            background: linear-gradient(145deg, var(--kyu-green), #008355);
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 8px 20px rgba(0,103,71,0.4);
+            margin-top: 1rem;
+        }
+        .btn-signup:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(0,103,71,0.6);
+        }
+        .btn-signup:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        .spinner {
+            display: none;
+            width: 40px;
+            height: 40px;
+            margin: 15px auto 0;
+            border: 4px solid rgba(0,103,71,0.2);
+            border-left-color: var(--kyu-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 1rem;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+        .success-message {
+            background: #c6f6d5;
+            color: #22543d;
+            padding: 1rem;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 2rem;
+            color: #555;
+        }
+        .login-link a {
+            color: var(--kyu-green);
+            font-weight: 600;
+            text-decoration: none;
+        }
+        footer {
+            background: #1a2e3a;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            text-align: center;
+            border-top: 3px solid var(--kyu-gold);
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="../index.html" class="back-btn">
+            <span>←</span> Back to Home
+        </a>
+    </div>
+
+    <div class="container">
+        <div class="signup-card">
+            <div class="university-emblem">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
+            </div>
+
+            <h2>Owner Registration</h2>
+            <div class="subtitle">List your hostels on Kirinyaga Hostels</div>
+
+            <div id="error-message" class="error-message"></div>
+            <div id="success-message" class="success-message"></div>
+
+            <form id="signup-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="fullName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="email" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Primary Phone (Kenyan)</label>
+                        <input type="tel" id="primaryPhone" placeholder="e.g., 0712345678" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Secondary Phone (optional, different)</label>
+                        <input type="tel" id="secondaryPhone" placeholder="e.g., 0723456789">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Hostel Name</label>
+                        <input type="text" id="hostelName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Hostel Location</label>
+                        <select id="hostelLocation" required>
+                            <option value="">Select</option>
+                            <option value="kutus">Kutus</option>
+                            <option value="mjini">Mjini</option>
+                            <option value="diaspora">Diaspora</option>
+                            <option value="moringa">Moringa</option>
+                            <option value="ngomongo">Ngomongo</option>
+                            <option value="alabama">Alabama</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" id="otherLocationGroup" style="display: none;">
+                    <label>Specify Other Location</label>
+                    <input type="text" id="otherLocation">
+                </div>
+
+                <div class="form-group">
+                    <label>Specific Address / Landmark</label>
+                    <textarea id="specificAddress" rows="2" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Room Types Offered (select all that apply)</label>
+                    <div class="room-types" id="roomTypesContainer"></div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <input type="password" id="passwordConfirm" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-signup" id="signup-btn">Register</button>
+                <div class="spinner" id="spinner"></div>
+            </form>
+
+            <div class="login-link">
+                Already have an account? <a href="login.html">Log in</a>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 Kirinyaga University Hostels. All rights reserved.</p>
+    </footer>
+
+    <script>
+        (function() {
+            const API_BASE = 'http://127.0.0.1:8000/api/auth';
+            const form = document.getElementById('signup-form');
+            const errorDiv = document.getElementById('error-message');
+            const successDiv = document.getElementById('success-message');
+            const spinner = document.getElementById('spinner');
+            const signupBtn = document.getElementById('signup-btn');
+            const hostelLocation = document.getElementById('hostelLocation');
+            const otherLocationGroup = document.getElementById('otherLocationGroup');
+            const otherLocation = document.getElementById('otherLocation');
+            const roomTypesContainer = document.getElementById('roomTypesContainer');
+
+            // Room types (must match backend RoomType codes)
+            const roomTypeOptions = [
+                { code: 'bedsitter', name: 'Bedsitter' },
+                { code: 'single', name: 'Single Room' },
+                { code: 'one_bedroom', name: 'One Bedroom' },
+                { code: 'two_bedroom', name: 'Two Bedroom' },
+                { code: 'studio', name: 'Studio' },
+                { code: 'shared', name: 'Shared Room' },
+            ];
+
+            function renderRoomTypes() {
+                let html = '';
+                roomTypeOptions.forEach(rt => {
+                    html += `<label><input type="checkbox" value="${rt.code}"> ${rt.name}</label>`;
+                });
+                roomTypesContainer.innerHTML = html;
+            }
+            renderRoomTypes();
+
+            hostelLocation.addEventListener('change', () => {
+                if (hostelLocation.value === 'other') {
+                    otherLocationGroup.style.display = 'block';
+                } else {
+                    otherLocationGroup.style.display = 'none';
+                }
+            });
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const payload = {
+                    full_name: document.getElementById('fullName').value,
+                    email: document.getElementById('email').value,
+                    primary_phone: document.getElementById('primaryPhone').value,
+                    secondary_phone: document.getElementById('secondaryPhone').value || '',
+                    hostel_name: document.getElementById('hostelName').value,
+                    hostel_location: hostelLocation.value,
+                    other_location: hostelLocation.value === 'other' ? otherLocation.value : '',
+                    specific_address: document.getElementById('specificAddress').value,
+                    room_types: Array.from(document.querySelectorAll('#roomTypesContainer input:checked')).map(cb => cb.value),
+                    password: document.getElementById('password').value,
+                    password_confirm: document.getElementById('passwordConfirm').value,
+                };
+
+                signupBtn.disabled = true;
+                spinner.style.display = 'block';
+                errorDiv.style.display = 'none';
+                successDiv.style.display = 'none';
+
+                try {
+                    const res = await fetch(`${API_BASE}/signup/owner/`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const data = await res.json();
+
+                    if (!res.ok) {
+                        let msg = '';
+                        if (data.email) msg += data.email[0] + ' ';
+                        if (data.primary_phone) msg += data.primary_phone[0] + ' ';
+                        if (data.non_field_errors) msg += data.non_field_errors[0];
+                        errorDiv.textContent = msg || 'Registration failed.';
+                        errorDiv.style.display = 'block';
+                        signupBtn.disabled = false;
+                        spinner.style.display = 'none';
+                        return;
+                    }
+
+                    successDiv.textContent = 'Registration successful! Please check your email to verify your account.';
+                    successDiv.style.display = 'block';
+                    form.reset();
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 3000);
+                } catch (err) {
+                    errorDiv.textContent = 'Network error. Please try again.';
+                    errorDiv.style.display = 'block';
+                    signupBtn.disabled = false;
+                    spinner.style.display = 'none';
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

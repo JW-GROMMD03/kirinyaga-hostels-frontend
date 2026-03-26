@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hostel Details - Kirinyaga Hostels</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        :root {
+            --kyu-green: #006747;
+            --kyu-gold: #FFD700;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border-light: #e2e8f0;
+            --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1);
+            --danger: #dc2626;
+            --success: #16a34a;
+            --warning: #ca8a04;
+            --info: #2563eb;
+        }
+        body {
+            background: var(--bg-light);
+            min-height: 100vh;
+        }
+        .top-bar {
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow-sm);
+            border-bottom: 3px solid var(--kyu-gold);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--kyu-green);
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 40px;
+            background: rgba(0,103,71,0.1);
+            transition: all 0.3s;
+        }
+        .back-btn:hover {
+            background: var(--kyu-green);
+            color: white;
+            transform: translateX(-5px);
+        }
+        .back-btn span {
+            font-size: 1.4rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        .detail-card {
+            background: white;
+            border-radius: 40px;
+            box-shadow: var(--shadow-md);
+            padding: 2rem;
+        }
+        .slideshow-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            overflow: hidden;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+        }
+        .slide {
+            display: none;
+            width: 100%;
+            height: 100%;
+        }
+        .slide.active {
+            display: block;
+        }
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .prev, .next {
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 16px;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 0 3px 3px 0;
+            transition: 0.3s;
+        }
+        .next {
+            right: 0;
+            border-radius: 3px 0 0 3px;
+        }
+        .prev:hover, .next:hover {
+            background: rgba(0,0,0,0.8);
+        }
+        .dots {
+            text-align: center;
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+        }
+        .dot {
+            cursor: pointer;
+            height: 15px;
+            width: 15px;
+            margin: 0 5px;
+            background-color: #bbb;
+            border-radius: 50%;
+            display: inline-block;
+            transition: background-color 0.3s;
+        }
+        .dot.active {
+            background-color: var(--kyu-green);
+        }
+        .hostel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .hostel-header h1 {
+            color: var(--kyu-green);
+            font-size: 2rem;
+        }
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            font-weight: 600;
+        }
+        .badge.approved {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .badge.pending {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .price-tag {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--kyu-green);
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 1rem;
+            background: var(--bg-light);
+            border-radius: 16px;
+        }
+        .info-item i {
+            width: 30px;
+            color: var(--kyu-green);
+            font-size: 1.3rem;
+        }
+        .amenities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .amenity-tag {
+            background: var(--bg-light);
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        .description {
+            line-height: 1.6;
+            color: var(--text-primary);
+            margin: 1.5rem 0;
+        }
+        .actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .btn {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: var(--kyu-green);
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #004d33;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,103,71,0.3);
+        }
+        .btn-outline {
+            border: 2px solid var(--kyu-green);
+            background: transparent;
+            color: var(--kyu-green);
+        }
+        .btn-outline:hover {
+            background: var(--kyu-green);
+            color: white;
+        }
+        .spinner {
+            display: none;
+            width: 40px;
+            height: 40px;
+            margin: 2rem auto;
+            border: 4px solid rgba(0,0,0,0.1);
+            border-left-color: var(--kyu-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 2rem;
+            border-radius: 16px;
+            text-align: center;
+        }
+        footer {
+            background: #1a2e3a;
+            color: #e2e8f0;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="#" onclick="goBack()" class="back-btn">
+            <span>←</span> Back
+        </a>
+    </div>
+
+    <div class="container">
+        <div class="detail-card">
+            <div id="slideshowContainer" class="slideshow-container">
+                <!-- Slides will be injected by JS -->
+                <a class="prev" onclick="changeSlide(-1)">❮</a>
+                <a class="next" onclick="changeSlide(1)">❯</a>
+                <div class="dots" id="dots"></div>
+            </div>
+
+            <div id="hostelDetails">
+                <!-- Content will be injected by JS -->
+            </div>
+
+            <div class="spinner" id="spinner"></div>
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 Kirinyaga University Hostels. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000/api';
+        const CLOUDINARY_BASE = 'https://res.cloudinary.com/dqujm2fhm/';
+        const token = sessionStorage.getItem('accessToken');
+        const urlParams = new URLSearchParams(window.location.search);
+        const hostelId = urlParams.get('id');
+
+        if (!hostelId) {
+            document.getElementById('errorMessage').style.display = 'block';
+            document.getElementById('errorMessage').textContent = 'No hostel ID provided.';
+        }
+
+        let slideIndex = 1;
+        let images = [];
+
+        function goBack() {
+            if (document.referrer) {
+                window.location.href = document.referrer;
+            } else {
+                window.location.href = 'hostels.html';
+            }
+        }
+
+        async function loadHostelDetails() {
+            const spinner = document.getElementById('spinner');
+            const errorDiv = document.getElementById('errorMessage');
+            const detailsDiv = document.getElementById('hostelDetails');
+            const slideshowContainer = document.getElementById('slideshowContainer');
+
+            spinner.style.display = 'block';
+            errorDiv.style.display = 'none';
+
+            try {
+                const res = await fetch(`${API_BASE}/hostels/${hostelId}/`, {
+                    headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const hostel = await res.json();
+                console.log('Hostel details:', hostel);
+
+                // Set page title
+                document.title = `${hostel.name} - Kirinyaga Hostels`;
+
+                // Images for slideshow – convert relative URLs to full Cloudinary URLs
+                images = (hostel.images || []).map(img => {
+                    let url = img.image || img.image_url || img.url;
+                    if (url && !url.startsWith('http')) {
+                        url = CLOUDINARY_BASE + url;
+                    }
+                    return url;
+                }).filter(url => url);
+
+                renderSlideshow(images);
+
+                // Render hostel info
+                detailsDiv.innerHTML = `
+                    <div class="hostel-header">
+                        <h1>${hostel.name}</h1>
+                        <span class="badge ${hostel.is_approved ? 'approved' : 'pending'}">
+                            ${hostel.is_approved ? '✓ Approved' : '⏳ Pending Approval'}
+                        </span>
+                    </div>
+
+                    <div class="price-tag">KSh ${Number(hostel.price || 0).toLocaleString()} /month</div>
+                    ${hostel.deposit ? `<p>Deposit: KSh ${Number(hostel.deposit).toLocaleString()}</p>` : ''}
+                    ${hostel.utilities ? `<p>Utilities: KSh ${Number(hostel.utilities).toLocaleString()}/month</p>` : ''}
+
+                    <div class="grid-2">
+                        <div class="info-item">
+                            <i class="fas fa-bed"></i>
+                            <div>
+                                <strong>Room Type</strong><br>
+                                ${(hostel.room_type || '').replace('_', ' ')}
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-users"></i>
+                            <div>
+                                <strong>Capacity</strong><br>
+                                ${hostel.capacity || 1} person(s)
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <strong>Address</strong><br>
+                                ${hostel.address || 'Not specified'}
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-road"></i>
+                            <div>
+                                <strong>Distance to University</strong><br>
+                                ${hostel.distance_to_university ? hostel.distance_to_university + ' km' : 'Not specified'}
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2>Description</h2>
+                    <div class="description">${hostel.description || 'No description provided.'}</div>
+
+                    <h2>Amenities</h2>
+                    <div class="amenities-grid" id="amenitiesGrid"></div>
+
+                    <div class="actions">
+                        <a href="edit-hostel.html?id=${hostel.id}" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Edit Hostel
+                        </a>
+                        <button class="btn btn-outline" onclick="deleteHostel('${hostel.id}')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                `;
+
+                // Render amenities
+                const amenitiesGrid = document.getElementById('amenitiesGrid');
+                if (hostel.amenities && hostel.amenities.length) {
+                    hostel.amenities.forEach(a => {
+                        amenitiesGrid.innerHTML += `<div class="amenity-tag">${a.name || a}</div>`;
+                    });
+                } else {
+                    amenitiesGrid.innerHTML = '<p>No amenities listed.</p>';
+                }
+
+                spinner.style.display = 'none';
+            } catch (err) {
+                console.error('Error loading hostel details:', err);
+                spinner.style.display = 'none';
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = 'Failed to load hostel details. Please try again.';
+            }
+        }
+
+        function renderSlideshow(images) {
+            const slideshowContainer = document.getElementById('slideshowContainer');
+            const dotsContainer = document.getElementById('dots');
+            let slidesHtml = '';
+            let dotsHtml = '';
+
+            if (!images || images.length === 0) {
+                slidesHtml = '<div class="slide active"><img src="https://placehold.co/800x400?text=No+Image" alt="No image"></div>';
+                dotsHtml = '<span class="dot active"></span>';
+            } else {
+                images.forEach((img, idx) => {
+                    slidesHtml += `<div class="slide ${idx === 0 ? 'active' : ''}"><img src="${img}" alt="Hostel image" onerror="this.src='https://placehold.co/800x400?text=Error'"></div>`;
+                    dotsHtml += `<span class="dot ${idx === 0 ? 'active' : ''}" onclick="currentSlide(${idx+1})"></span>`;
+                });
+            }
+
+            // Insert slides before the navigation arrows (which are already in the container)
+            const existingSlides = slideshowContainer.querySelectorAll('.slide');
+            existingSlides.forEach(s => s.remove());
+            slideshowContainer.insertAdjacentHTML('afterbegin', slidesHtml);
+            dotsContainer.innerHTML = dotsHtml;
+
+            slideIndex = 1;
+            showSlide(slideIndex);
+        }
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            const dots = document.querySelectorAll('.dot');
+            if (!slides.length) return;
+            if (n > slides.length) slideIndex = 1;
+            if (n < 1) slideIndex = slides.length;
+            slides.forEach(slide => slide.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+            slides[slideIndex-1].classList.add('active');
+            dots[slideIndex-1].classList.add('active');
+        }
+
+        function changeSlide(n) {
+            showSlide(slideIndex += n);
+        }
+
+        function currentSlide(n) {
+            showSlide(slideIndex = n);
+        }
+
+        async function deleteHostel(id) {
+            if (!confirm('Are you sure you want to delete this hostel?')) return;
+            try {
+                const res = await fetch(`${API_BASE}/hostels/${id}/delete/`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    alert('Hostel deleted successfully.');
+                    window.location.href = 'hostels.html';
+                } else {
+                    const data = await res.json();
+                    alert('Error: ' + (data.error || 'Could not delete hostel.'));
+                }
+            } catch (err) {
+                alert('Network error. Please try again.');
+            }
+        }
+
+        window.onload = loadHostelDetails;
+    </script>
+</body>
+</html>

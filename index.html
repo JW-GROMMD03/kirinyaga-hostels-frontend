@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kirinyaga University Hostels - Student Accommodation</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        :root {
+            --kyu-green: #006747;
+            --kyu-gold: #FFD700;
+            --kyu-dark: #1e2b3a;
+            --kyu-light: #f8f9fa;
+        }
+
+        body {
+            background: var(--kyu-light);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        header {
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 3px solid var(--kyu-gold);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo img {
+            height: 60px;
+            width: auto;
+        }
+
+        .logo-text h1 {
+            color: var(--kyu-green);
+            font-size: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .logo-text span {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        nav {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            transition: all 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--kyu-green);
+            background: rgba(0,103,71,0.1);
+        }
+
+        .btn-login {
+            background: var(--kyu-green);
+            color: white !important;
+            padding: 0.6rem 1.8rem !important;
+        }
+
+        .btn-login:hover {
+            background: #004d33;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,103,71,0.3);
+        }
+
+        .btn-signup {
+            border: 2px solid var(--kyu-green);
+            color: var(--kyu-green) !important;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
+                        url('https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-4.0.3&auto=format&fit=crop&w=1486&q=80') center/cover fixed;
+            min-height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+
+        .hero-content {
+            max-width: 900px;
+            padding: 2rem;
+            animation: fadeInUp 1s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+            font-weight: 700;
+        }
+
+        .hero h1 span {
+            color: var(--kyu-gold);
+        }
+
+        .hero p {
+            font-size: 1.4rem;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: var(--kyu-green);
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,103,71,0.3);
+        }
+
+        .btn-primary:hover {
+            background: #004d33;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,103,71,0.5);
+        }
+
+        .btn-outline-light {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+        }
+
+        .btn-outline-light:hover {
+            background: white;
+            color: var(--kyu-green);
+            transform: translateY(-3px);
+        }
+
+        /* Search Bar */
+        .search-section {
+            background: white;
+            padding: 2.5rem;
+            margin-top: -50px;
+            border-radius: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+            position: relative;
+            z-index: 100;
+            border: 1px solid rgba(255,215,0,0.3);
+        }
+
+        .search-form {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .search-form input {
+            flex: 1;
+            padding: 1.2rem 1.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            font-size: 1rem;
+            min-width: 250px;
+            transition: all 0.3s;
+        }
+
+        .search-form input:focus {
+            outline: none;
+            border-color: var(--kyu-green);
+            box-shadow: 0 0 0 4px rgba(0,103,71,0.1);
+        }
+
+        .search-form button {
+            background: var(--kyu-green);
+            color: white;
+            border: none;
+            padding: 1.2rem 3rem;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-form button:hover {
+            background: #004d33;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,103,71,0.4);
+        }
+
+        /* Section Styles */
+        .section {
+            padding: 6rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.8rem;
+            color: var(--kyu-green);
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 4rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* How It Works */
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+
+        .step {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .step::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--kyu-green), var(--kyu-gold));
+        }
+
+        .step:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 20px 40px rgba(0,103,71,0.15);
+        }
+
+        .step-icon {
+            width: 100px;
+            height: 100px;
+            background: rgba(0,103,71,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 3rem;
+            color: var(--kyu-green);
+            transition: all 0.3s;
+        }
+
+        .step:hover .step-icon {
+            background: var(--kyu-green);
+            color: white;
+            transform: rotate(360deg);
+        }
+
+        .step h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .step p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        /* Featured Hostels */
+        .hostel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
+            margin-top: 3rem;
+        }
+
+        .hostel-card {
+            background: white;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .hostel-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,103,71,0.2);
+        }
+
+        .hostel-image {
+            height: 220px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .hostel-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--kyu-green);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .hostel-info {
+            padding: 2rem;
+        }
+
+        .hostel-info h3 {
+            font-size: 1.5rem;
+            color: var(--kyu-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .hostel-location {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .hostel-price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .hostel-price span {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 400;
+        }
+
+        .hostel-amenities {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .amenity {
+            background: #f0f0f0;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .btn-details {
+            background: transparent;
+            border: 2px solid var(--kyu-green);
+            color: var(--kyu-green);
+            padding: 0.8rem 2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+        }
+
+        .btn-details:hover {
+            background: var(--kyu-green);
+            color: white;
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(0,103,71,0.1);
+            border-left-color: var(--kyu-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Error Message */
+        .error-message {
+            text-align: center;
+            padding: 3rem;
+            color: #dc2626;
+            background: #fee2e2;
+            border-radius: 20px;
+            margin: 2rem;
+        }
+
+        /* Testimonials Section */
+        .testimonials {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            padding: 6rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .testimonials::before {
+            content: '"';
+            position: absolute;
+            top: -100px;
+            left: -50px;
+            font-size: 400px;
+            color: rgba(0,103,71,0.05);
+            font-family: serif;
+        }
+
+        .testimonial-slider {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            min-height: 400px;
+        }
+
+        .testimonial-slide {
+            position: absolute;
+            width: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            pointer-events: none;
+            background: white;
+            border-radius: 40px;
+            padding: 3rem;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+            text-align: center;
+            border: 1px solid rgba(255,215,0,0.3);
+        }
+
+        .testimonial-slide.active {
+            opacity: 1;
+            pointer-events: auto;
+            position: relative;
+            animation: slideIn 1s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .testimonial-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 2rem;
+            border: 5px solid var(--kyu-gold);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .testimonial-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--kyu-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .testimonial-role {
+            color: #666;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .testimonial-quote {
+            font-size: 1.3rem;
+            font-style: italic;
+            color: #555;
+            margin-bottom: 2rem;
+            line-height: 1.8;
+            position: relative;
+        }
+
+        .testimonial-quote::before,
+        .testimonial-quote::after {
+            content: '"';
+            font-size: 2rem;
+            color: var(--kyu-gold);
+            font-weight: 700;
+        }
+
+        .testimonial-stars {
+            color: var(--kyu-gold);
+            font-size: 1.5rem;
+            letter-spacing: 5px;
+            margin-bottom: 1rem;
+        }
+
+        .slider-dots {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 3rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #ccc;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .dot.active {
+            background: var(--kyu-green);
+            transform: scale(1.3);
+            box-shadow: 0 0 0 3px rgba(255,215,0,0.3);
+        }
+
+        /* Stats Section */
+        .stats {
+            background: var(--kyu-green);
+            color: white;
+            padding: 4rem 2rem;
+        }
+
+        .stats-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 3rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--kyu-gold);
+        }
+
+        .stat-label {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), 
+                        url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80') center/cover fixed;
+            padding: 6rem 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .cta-section h2 {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta-section p {
+            font-size: 1.3rem;
+            margin-bottom: 2.5rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--kyu-dark);
+            color: white;
+            padding: 4rem 2rem 2rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-section h3 {
+            color: var(--kyu-gold);
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+
+        .footer-section p {
+            color: #ccc;
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        .footer-section a {
+            color: #ccc;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.8rem;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: var(--kyu-gold);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .social-links a {
+            width: 45px;
+            height: 45px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+            transition: all 0.3s;
+        }
+
+        .social-links a:hover {
+            background: var(--kyu-green);
+            transform: translateY(-5px);
+        }
+
+        .newsletter-form {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .newsletter-form input {
+            flex: 1;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 30px;
+            outline: none;
+        }
+
+        .newsletter-form button {
+            background: var(--kyu-green);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .newsletter-form button:hover {
+            background: #004d33;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #444;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .copyright a {
+            color: var(--kyu-gold);
+            text-decoration: none;
+        }
+
+        .copyright a:hover {
+            text-decoration: underline;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--kyu-green);
+            color: white;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            z-index: 1000;
+            font-size: 1.5rem;
+            border: 2px solid var(--kyu-gold);
+        }
+
+        .back-to-top:hover {
+            background: #004d33;
+            transform: translateY(-5px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            nav {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1.2rem;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .testimonial-slide {
+                padding: 2rem;
+            }
+            
+            .testimonial-quote {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
+            <div class="logo-text">
+                <h1>Kirinyaga Hostels</h1>
+                <span>Official Student Accommodation</span>
+            </div>
+        </div>
+        <nav>
+            <a href="#home">Home</a>
+            <a href="#about">About</a>
+            <a href="#how-it-works">How It Works</a>
+            <a href="#contact">Contact</a>
+            <a href="student/login.html" class="btn-login">Student Login</a>
+            <a href="owner/login.html" class="btn-signup">Owner Login</a>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>Find Your <span>Perfect Student Home</span> Near KyU</h1>
+            <p>Safe, verified, and affordable hostels just minutes from campus</p>
+            <div class="hero-buttons">
+                <a href="student/signup.html" class="btn-primary">Get Started as Student</a>
+                <a href="owner/signup.html" class="btn-outline-light">List Your Hostel</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search Section -->
+    <div class="search-section">
+        <form class="search-form" action="student/login.html" method="get">
+            <input type="text" placeholder="Search by hostel name, location, or price..." name="q">
+            <button type="submit">
+                <span>🔍</span> Find Hostels
+            </button>
+        </form>
+    </div>
+
+    <!-- How It Works -->
+    <section class="section" id="how-it-works">
+        <h2 class="section-title">How It Works</h2>
+        <p class="section-subtitle">Three simple steps to find your ideal student accommodation</p>
+        
+        <div class="steps">
+            <div class="step">
+                <div class="step-icon">🔍</div>
+                <h3>1. Search</h3>
+                <p>Browse through hundreds of verified hostels near Kirinyaga University. Filter by price, location, and amenities.</p>
+            </div>
+            <div class="step">
+                <div class="step-icon">📋</div>
+                <h3>2. Book</h3>
+                <p>Reserve your room with a simple click. Your booking is held for 1 hour while you complete payment.</p>
+            </div>
+            <div class="step">
+                <div class="step-icon">🏠</div>
+                <h3>3. Move In</h3>
+                <p>Confirm payment, get your keys, and move into your new home. It's that simple!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Hostels Section with Live Data -->
+    <section class="section" id="featured-hostels">
+        <h2 class="section-title">Featured Hostels</h2>
+        <p class="section-subtitle">Top-rated accommodations popular with KyU students</p>
+        
+        <div id="hostelContainer" class="hostel-grid">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Loading featured hostels...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+        <div class="stats-grid">
+            <div>
+                <div class="stat-number" id="statHostels">500+</div>
+                <div class="stat-label">Verified Hostels</div>
+            </div>
+            <div>
+                <div class="stat-number" id="statStudents">5,000+</div>
+                <div class="stat-label">Happy Students</div>
+            </div>
+            <div>
+                <div class="stat-number">98%</div>
+                <div class="stat-label">Satisfaction Rate</div>
+            </div>
+            <div>
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">Support</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials" id="about">
+        <h2 class="section-title">What Students Say</h2>
+        <p class="section-subtitle">Real experiences from KyU students who found their home through us</p>
+        
+        <div class="testimonial-slider" id="testimonialSlider">
+            <!-- Slides will be generated by JavaScript -->
+        </div>
+        <div class="slider-dots" id="sliderDots"></div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <h2>Ready to Find Your Perfect Student Home?</h2>
+        <p>Join thousands of KyU students who have already found safe, comfortable accommodation through our platform</p>
+        <div class="cta-buttons">
+            <a href="student/signup.html" class="btn-primary">Sign Up as Student</a>
+            <a href="owner/signup.html" class="btn-outline-light">List Your Hostel</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Kirinyaga Hostels</h3>
+                <p>Official student accommodation platform for Kirinyaga University. We connect students with safe, verified hostels near campus.</p>
+                <div class="social-links">
+                    <a href="#">f</a>
+                    <a href="#">t</a>
+                    <a href="#">in</a>
+                    <a href="#">ig</a>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <a href="#home">Home</a>
+                <a href="#about">About Us</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="student/login.html">Student Login</a>
+                <a href="owner/login.html">Owner Login</a>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Contact Info</h3>
+                <p>📍 Kirinyaga University, Kerugoya, Kenya</p>
+                <p>📞 <a href="tel:+254703250550" style="display: inline; color: var(--kyu-gold);">0703 250 550</a></p>
+                <p>✉️ <a href="mailto:dux.technicae941@gmail.com" style="display: inline; color: var(--kyu-gold);">dux.technicae941@gmail.com</a></p>
+                <p>🕒 Mon-Fri: 8:00 AM - 5:00 PM</p>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Newsletter</h3>
+                <p>Subscribe for hostel updates and offers</p>
+                <form class="newsletter-form" id="newsletterForm">
+                    <input type="email" id="newsletterEmail" placeholder="Your email" required>
+                    <button type="submit">Subscribe</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <p>&copy; 2025 Kirinyaga University Hostels. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'});">↑</div>
+
+    <script>
+        (function() {
+            // API Base URL
+            const API_BASE = 'http://127.0.0.1:8000/api';
+            
+            // ============================================
+            // FETCH FEATURED HOSTELS FROM BACKEND
+            // ============================================
+            async function loadFeaturedHostels() {
+                const container = document.getElementById('hostelContainer');
+                
+                try {
+                    const response = await fetch(`${API_BASE}/hostels/featured/`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    const hostels = data.results || data || [];
+                    
+                    if (hostels.length === 0) {
+                        container.innerHTML = '<div class="error-message">No featured hostels available at the moment.</div>';
+                        return;
+                    }
+                    
+                    // Update stats with real counts
+                    try {
+                        const statsResponse = await fetch(`${API_BASE}/admin/dashboard/stats/`);
+                        const statsData = await statsResponse.json();
+                        if (statsData) {
+                            document.getElementById('statHostels').innerHTML = statsData.hostels?.total || '500+';
+                            document.getElementById('statStudents').innerHTML = statsData.users?.total_users || '5,000+';
+                        }
+                    } catch(e) {
+                        console.log('Stats not available, using defaults');
+                    }
+                    
+                    // Generate hostel cards
+                    let html = '';
+                    
+                    for (const hostel of hostels) {
+                        // Get amenities list
+                        const amenities = hostel.amenities || ['WiFi', 'Security', 'Water'];
+                        const amenitiesHtml = amenities.slice(0, 4).map(a => `<span class="amenity">${a}</span>`).join('');
+                        
+                        // Get image URL
+                        let imageUrl = 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80';
+                        if (hostel.images && hostel.images.length > 0) {
+                            imageUrl = hostel.images[0];
+                        }
+                        
+                        // Calculate average rating
+                        let rating = hostel.avg_rating || 4.5;
+                        let reviewCount = hostel.review_count || 0;
+                        
+                        html += `
+                            <div class="hostel-card">
+                                <div class="hostel-image" style="background-image: url('${imageUrl}');">
+                                    <div class="hostel-badge">⭐ ${rating.toFixed(1)} (${reviewCount} reviews)</div>
+                                </div>
+                                <div class="hostel-info">
+                                    <h3>${escapeHtml(hostel.name)}</h3>
+                                    <div class="hostel-location">
+                                        <span>📍</span> ${escapeHtml(hostel.address || 'Kutus Town')}, ${hostel.distance_to_university ? hostel.distance_to_university + 'km' : 'Near KyU'}
+                                    </div>
+                                    <div class="hostel-price">
+                                        KSh ${formatPrice(hostel.price)} <span>/month</span>
+                                    </div>
+                                    <div class="hostel-amenities">
+                                        ${amenitiesHtml}
+                                    </div>
+                                    <a href="student/login.html" class="btn-details">View Details</a>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    container.innerHTML = html;
+                    
+                } catch(error) {
+                    console.error('Error loading featured hostels:', error);
+                    container.innerHTML = `
+                        <div class="error-message">
+                            <p>Unable to load featured hostels. Please try again later.</p>
+                            <button onclick="location.reload()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: var(--kyu-green); color: white; border: none; border-radius: 8px; cursor: pointer;">Retry</button>
+                        </div>
+                    `;
+                    
+                    // Fallback to default data
+                    loadDefaultHostels();
+                }
+            }
+            
+            // Fallback function in case API fails
+            function loadDefaultHostels() {
+                const container = document.getElementById('hostelContainer');
+                const defaultHostels = [
+                    {
+                        name: "Green Haven",
+                        address: "Kutus Town",
+                        distance: "0.8km",
+                        price: 4500,
+                        rating: 4.8,
+                        reviews: 120,
+                        amenities: ["WiFi", "Security", "Water", "Parking"],
+                        image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80"
+                    },
+                    {
+                        name: "University View",
+                        address: "Mjini",
+                        distance: "0.3km",
+                        price: 5200,
+                        rating: 4.9,
+                        reviews: 85,
+                        amenities: ["WiFi", "Security", "24/7 Power", "Study Room"],
+                        image: "https://images.unsplash.com/photo-1555852105-64f35c5f7e9e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80"
+                    },
+                    {
+                        name: "Safe Haven",
+                        address: "Diaspora",
+                        distance: "1.2km",
+                        price: 3800,
+                        rating: 4.7,
+                        reviews: 156,
+                        amenities: ["WiFi", "24/7 Security", "Water", "Kitchen"],
+                        image: "https://images.unsplash.com/photo-1493809842364-78817add7ffb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80"
+                    }
+                ];
+                
+                let html = '';
+                for (const hostel of defaultHostels) {
+                    html += `
+                        <div class="hostel-card">
+                            <div class="hostel-image" style="background-image: url('${hostel.image}');">
+                                <div class="hostel-badge">⭐ ${hostel.rating} (${hostel.reviews} reviews)</div>
+                            </div>
+                            <div class="hostel-info">
+                                <h3>${hostel.name}</h3>
+                                <div class="hostel-location">
+                                    <span>📍</span> ${hostel.address}, ${hostel.distance} from KyU
+                                </div>
+                                <div class="hostel-price">
+                                    KSh ${hostel.price} <span>/month</span>
+                                </div>
+                                <div class="hostel-amenities">
+                                    ${hostel.amenities.map(a => `<span class="amenity">${a}</span>`).join('')}
+                                </div>
+                                <a href="student/login.html" class="btn-details">View Details</a>
+                            </div>
+                        </div>
+                    `;
+                }
+                container.innerHTML = html;
+            }
+            
+            function escapeHtml(text) {
+                if (!text) return '';
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            function formatPrice(price) {
+                return Number(price).toLocaleString();
+            }
+            
+            // ============================================
+            // TESTIMONIALS DATA
+            // ============================================
+            const testimonials = [
+                { name: "John Kamau", role: "3rd Year, Computer Science", quote: "I found a clean, secure bedsitter just 5 minutes from campus through this platform. The verification process gave me peace of mind.", stars: 5 },
+                { name: "Wanjiku Muthoni", role: "2nd Year, Business", quote: "The roommate finder helped me connect with two other girls who share my budget and study habits. We now live together in a nice one-bedroom.", stars: 5 },
+                { name: "Peter Ochieng", role: "4th Year, Engineering", quote: "Verified hostels only – that's what I loved. No scams, just genuine places. The emergency contact feature is a lifesaver.", stars: 5 },
+                { name: "Aisha Mohammed", role: "1st Year, Medicine", quote: "As a first-year, I was nervous about housing. This platform guided me perfectly. My parents are happy with the security.", stars: 5 },
+                { name: "Brian Kipchoge", role: "3rd Year, Economics", quote: "I booked in less than 10 minutes. The whole process is seamless and the landlord was already vetted.", stars: 4 },
+                { name: "Faith Akinyi", role: "2nd Year, Nursing", quote: "The emergency contact button gives me peace of mind. Safety first! I recommend this to all my friends.", stars: 5 },
+                { name: "Kevin Mwangi", role: "4th Year, Law", quote: "Great selection of hostels. I compared prices and found a gem near Mjini. The price history helped me negotiate.", stars: 5 },
+                { name: "Cynthia Jerop", role: "1st Year, Education", quote: "Moving from Eldoret, I didn't know where to stay. This platform made everything easy. Thank you!", stars: 5 },
+                { name: "Daniel Mutua", role: "3rd Year, IT", quote: "The landlord was already vetted. I moved in without any issues. The WiFi is fast and reliable.", stars: 4 },
+                { name: "Esther Njeri", role: "2nd Year, Journalism", quote: "I love the calendar view. I could see availability instantly and book my preferred room.", stars: 5 },
+                { name: "Samuel Kipruto", role: "4th Year, Agriculture", quote: "Quick response from the owner. The whole experience was great. I've already referred 5 friends.", stars: 5 },
+                { name: "Lucy Wairimu", role: "1st Year, Psychology", quote: "I saved so much time by using this site. Found a place in Diaspora within hours.", stars: 5 },
+                { name: "James Odhiambo", role: "3rd Year, Accounting", quote: "The price history chart helped me negotiate a fair rent. Saved me 500 bob per month!", stars: 4 },
+                { name: "Mary Wambui", role: "2nd Year, Public Health", quote: "I found a hostel with WiFi and 24/7 security. Just what I needed for my studies.", stars: 5 },
+                { name: "Elijah Mwenda", role: "4th Year, Political Science", quote: "Even with my tight budget, I found a decent place in Kutus. The platform is a game-changer.", stars: 5 },
+                { name: "Grace Adhiambo", role: "1st Year, Pharmacy", quote: "The platform is very user-friendly. I'll definitely use it again next year.", stars: 5 },
+                { name: "Joseph Kariuki", role: "3rd Year, Architecture", quote: "I recommended this to all my friends. It's the best housing platform for KyU students.", stars: 5 }
+            ];
+            
+            // Initialize testimonials
+            function initTestimonials() {
+                const slider = document.getElementById('testimonialSlider');
+                const dotsContainer = document.getElementById('sliderDots');
+                
+                if (!slider) return;
+                
+                let currentIndex = 0;
+                let slideInterval;
+                
+                // Generate slides
+                testimonials.forEach((t, index) => {
+                    const slide = document.createElement('div');
+                    slide.className = `testimonial-slide ${index === 0 ? 'active' : ''}`;
+                    
+                    const stars = '★'.repeat(t.stars) + '☆'.repeat(5 - t.stars);
+                    
+                    slide.innerHTML = `
+                        <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(t.name)}&background=006747&color=fff&size=120&bold=true&length=2" alt="${t.name}" class="testimonial-img">
+                        <div class="testimonial-name">${t.name}</div>
+                        <div class="testimonial-role">${t.role}</div>
+                        <div class="testimonial-stars">${stars}</div>
+                        <div class="testimonial-quote">${t.quote}</div>
+                    `;
+                    slider.appendChild(slide);
+                    
+                    const dot = document.createElement('span');
+                    dot.className = `dot ${index === 0 ? 'active' : ''}`;
+                    dot.dataset.index = index;
+                    dot.addEventListener('click', () => goToSlide(index));
+                    dotsContainer.appendChild(dot);
+                });
+                
+                const slides = document.querySelectorAll('.testimonial-slide');
+                const dots = document.querySelectorAll('.dot');
+                
+                function goToSlide(index) {
+                    if (index < 0) index = slides.length - 1;
+                    if (index >= slides.length) index = 0;
+                    
+                    slides.forEach((s, i) => {
+                        s.classList.toggle('active', i === index);
+                    });
+                    
+                    dots.forEach((d, i) => {
+                        d.classList.toggle('active', i === index);
+                    });
+                    
+                    currentIndex = index;
+                }
+                
+                function nextSlide() {
+                    goToSlide(currentIndex + 1);
+                }
+                
+                slideInterval = setInterval(nextSlide, 30000);
+                
+                slider.addEventListener('mouseenter', () => clearInterval(slideInterval));
+                slider.addEventListener('mouseleave', () => {
+                    slideInterval = setInterval(nextSlide, 30000);
+                });
+            }
+            
+            // ============================================
+            // NEWSLETTER SUBSCRIPTION
+            // ============================================
+            document.getElementById('newsletterForm')?.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const email = document.getElementById('newsletterEmail').value;
+                
+                try {
+                    const response = await fetch(`${API_BASE}/newsletter/subscribe/`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: email })
+                    });
+                    
+                    if (response.ok) {
+                        alert('Thank you for subscribing! You will receive updates soon.');
+                        this.reset();
+                    } else {
+                        alert('Subscription failed. Please try again later.');
+                    }
+                } catch(error) {
+                    alert('Thank you for subscribing! You will receive updates soon.');
+                    this.reset();
+                }
+            });
+            
+            // ============================================
+            // SMOOTH SCROLL & BACK TO TOP
+            // ============================================
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+            
+            window.addEventListener('scroll', () => {
+                const btn = document.querySelector('.back-to-top');
+                if (window.scrollY > 300) {
+                    btn.style.display = 'flex';
+                } else {
+                    btn.style.display = 'none';
+                }
+            });
+            
+            // ============================================
+            // INITIALIZE
+            // ============================================
+            loadFeaturedHostels();
+            initTestimonials();
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Management - Kirinyaga Hostels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
+        :root { --kyu-green: #006747; --kyu-gold: #FFD700; --admin-dark: #0f172a; --admin-sidebar: #1e293b; --admin-card: #ffffff; --admin-hover: #f1f5f9; --danger: #dc2626; --success: #16a34a; --warning: #ca8a04; --info: #2563eb; --text-primary: #0f172a; --text-secondary: #475569; --border-light: #e2e8f0; }
+        body { background: #f8fafc; min-height: 100vh; }
+        .top-nav { background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.1); padding: 1rem 2rem; display: flex; align-items: center; gap: 20px; border-bottom: 3px solid var(--kyu-gold); }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo img { height: 40px; }
+        .logo span { font-size: 1.3rem; font-weight: 700; color: var(--kyu-green); }
+        .top-nav-title { flex: 1; }
+        .top-nav-title h1 { font-size: 1.3rem; color: var(--text-primary); }
+        .top-nav-title p { font-size: 0.9rem; color: var(--text-secondary); }
+        .admin-profile { display: flex; align-items: center; gap: 20px; }
+        .notifications { position: relative; cursor: pointer; }
+        .notifications .badge { position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; }
+        .admin-info { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 5px 10px; border-radius: 40px; }
+        .admin-info:hover { background: var(--admin-hover); }
+        .admin-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--kyu-green); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+        .admin-details .name { font-weight: 600; color: var(--text-primary); }
+        .admin-details .role { font-size: 0.8rem; color: var(--text-secondary); }
+        .main-content { padding: 2rem; }
+        .panel { background: white; border-radius: 20px; padding: 1.5rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+        .panel-header h2 { font-size: 1.3rem; color: var(--text-primary); }
+        .panel-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn { padding: 0.6rem 1.2rem; border-radius: 40px; border: none; font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; }
+        .btn-primary { background: var(--kyu-green); color: white; }
+        .btn-primary:hover { background: #004d33; transform: translateY(-2px); }
+        .btn-outline { background: transparent; border: 2px solid var(--kyu-green); color: var(--kyu-green); }
+        .btn-outline:hover { background: var(--kyu-green); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #b91c1c; }
+        .table-container { overflow-x: auto; border-radius: 16px; border: 1px solid var(--border-light); }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 1rem; background: #f8fafc; color: var(--text-secondary); font-weight: 600; font-size: 0.9rem; border-bottom: 2px solid var(--border-light); }
+        td { padding: 1rem; border-bottom: 1px solid var(--border-light); }
+        tr:hover td { background: var(--admin-hover); }
+        .badge { padding: 0.3rem 0.8rem; border-radius: 30px; font-size: 0.8rem; font-weight: 600; display: inline-block; }
+        .badge-success { background: #dcfce7; color: #166534; }
+        .badge-warning { background: #fef9c3; color: #854d0e; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+        .badge-info { background: #dbeafe; color: #1e40af; }
+        .action-icons { display: flex; gap: 10px; }
+        .action-icons i { cursor: pointer; color: var(--text-secondary); transition: color 0.3s; font-size: 1.1rem; }
+        .action-icons i:hover { color: var(--kyu-green); }
+        .action-icons .delete:hover { color: var(--danger); }
+        .filter-bar { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; padding: 1rem; background: #f8fafc; border-radius: 16px; }
+        .filter-group { display: flex; align-items: center; gap: 0.5rem; }
+        .filter-group label { font-weight: 600; color: var(--text-secondary); }
+        .filter-group select, .filter-group input { padding: 0.5rem 1rem; border: 2px solid var(--border-light); border-radius: 30px; outline: none; min-width: 150px; }
+        .filter-group input:focus { border-color: var(--kyu-green); }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 3000; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; border-radius: 30px; padding: 2rem; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .modal-header h3 { color: var(--text-primary); }
+        .modal-close { cursor: pointer; font-size: 1.5rem; color: var(--text-secondary); }
+        .modal-close:hover { color: var(--danger); }
+        .modal-body { margin-bottom: 1.5rem; }
+        .modal-footer { display: flex; gap: 1rem; justify-content: flex-end; }
+        .loading-row { text-align: center; padding: 2rem; color: var(--text-secondary); }
+        .pagination { display: flex; justify-content: center; gap: 10px; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="top-nav">
+        <div class="logo">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
+            <span>KyU Hostels</span>
+        </div>
+        <div class="top-nav-title">
+            <h1>Owner Management</h1>
+            <p>Manage all hostel owners</p>
+        </div>
+        <div class="admin-profile">
+            <div class="notifications" id="notificationsBell">
+                <i class="fas fa-bell"></i>
+                <span class="badge" id="notificationBadge">0</span>
+            </div>
+            <div class="admin-info" id="adminMenu">
+                <div class="admin-avatar" id="adminAvatar">A</div>
+                <div class="admin-details">
+                    <div class="name" id="adminName">Admin</div>
+                    <div class="role">Administrator</div>
+                </div>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="panel">
+            <div class="panel-header">
+                <h2>Owners</h2>
+                <div class="panel-actions">
+                    <select id="approvalFilter" class="btn btn-outline">
+                        <option value="all">All Owners</option>
+                        <option value="approved">Approved</option>
+                        <option value="pending">Pending Approval</option>
+                    </select>
+                    <select id="verifiedFilter" class="btn btn-outline">
+                        <option value="all">All</option>
+                        <option value="true">Verified</option>
+                        <option value="false">Unverified</option>
+                    </select>
+                    <input type="text" id="searchInput" placeholder="Search..." class="btn btn-outline" style="width:200px;">
+                    <button class="btn btn-primary" id="searchBtn"><i class="fas fa-search"></i> Search</button>
+                    <button class="btn btn-outline" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table id="ownersTable">
+                    <thead>
+                        <tr>
+                            <th>Business</th>
+                            <th>Contact</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Approval</th>
+                            <th>Verified</th>
+                            <th>Hostels</th>
+                            <th>Fraud</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ownersBody">
+                        <tr><td colspan="9" class="loading-row">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination">
+                <button class="btn btn-outline" id="prevPage" disabled>Previous</button>
+                <span id="pageInfo">Page 1</span>
+                <button class="btn btn-outline" id="nextPage">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Detail Modal -->
+    <div class="modal" id="userModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Owner Details</h3>
+                <span class="modal-close" onclick="closeModal('userModal')">&times;</span>
+            </div>
+            <div class="modal-body" id="userModalBody">Loading...</div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('userModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirm Action</h3>
+                <span class="modal-close" onclick="closeModal('confirmModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">Are you sure?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('confirmModal')">Cancel</button>
+                <button class="btn btn-danger" id="confirmActionBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fraud Score Update Modal -->
+    <div class="modal" id="fraudModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Update Fraud Score</h3>
+                <span class="modal-close" onclick="closeModal('fraudModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <input type="number" id="fraudScoreInput" min="0" max="100" placeholder="Enter score (0-100)" style="width:100%; padding:0.8rem; border:2px solid var(--border-light); border-radius:12px;">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('fraudModal')">Cancel</button>
+                <button class="btn btn-primary" id="saveFraudBtn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000/api/accounts/admin';
+        const token = sessionStorage.getItem('accessToken');
+        if (!token) window.location.href = 'login.html';
+
+        let currentPage = 1;
+        let totalPages = 1;
+        let currentApproval = 'all';
+        let currentVerified = 'all';
+        let currentSearch = '';
+        let ownersData = [];
+        let currentUserId = null;
+
+        function formatDate(date) {
+            return new Date(date).toLocaleString();
+        }
+
+        function showMessage(text, type) {
+            alert(text);
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        async function apiFetch(url, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${url}`, {
+                    ...options,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+                if (response.status === 401) {
+                    sessionStorage.removeItem('accessToken');
+                    window.location.href = 'login.html';
+                    return null;
+                }
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({}));
+                    throw new Error(error.message || 'API request failed');
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+
+        async function loadOwners(page = 1) {
+            const tbody = document.getElementById('ownersBody');
+            tbody.innerHTML = '<tr><td colspan="9" class="loading-row">Loading...</td></tr>';
+            try {
+                let url = `/owners/?approval=${currentApproval}&verified=${currentVerified}&search=${encodeURIComponent(currentSearch)}`;
+                const data = await apiFetch(url);
+                if (!data) return;
+
+                ownersData = data; // assume full list, paginate client-side
+                const pageSize = 10;
+                const start = (page - 1) * pageSize;
+                const paginated = data.slice(start, start + pageSize);
+                totalPages = Math.ceil(data.length / pageSize);
+                document.getElementById('pageInfo').textContent = `Page ${page} of ${totalPages}`;
+                document.getElementById('prevPage').disabled = page === 1;
+                document.getElementById('nextPage').disabled = page === totalPages;
+
+                if (paginated.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="9" class="text-center">No owners found</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = paginated.map(owner => {
+                    const profile = owner.owner_profile || {};
+                    const fraudClass = profile.fraud_score > 70 ? 'badge-danger' : profile.fraud_score > 40 ? 'badge-warning' : 'badge-success';
+                    return `
+                    <tr>
+                        <td>${profile.hostel_name || 'N/A'}</td>
+                        <td>${owner.full_name}</td>
+                        <td>${owner.email}</td>
+                        <td>${profile.primary_phone || 'N/A'}</td>
+                        <td><span class="badge ${profile.is_approved ? 'badge-success' : 'badge-warning'}">${profile.is_approved ? 'Approved' : 'Pending'}</span></td>
+                        <td><span class="badge ${profile.verified_badge ? 'badge-success' : 'badge-info'}">${profile.verified_badge ? 'Verified' : 'Unverified'}</span></td>
+                        <td>${profile.hostel_count || 0}</td>
+                        <td><span class="badge ${fraudClass}">${profile.fraud_score || 0}</span></td>
+                        <td class="action-icons">
+                            <i class="fas fa-eye" onclick="viewOwner('${owner.id}')" title="View"></i>
+                            ${!profile.is_approved ? `<i class="fas fa-check-circle" onclick="approveOwner('${owner.id}')" title="Approve"></i>` : ''}
+                            <i class="fas fa-certificate" onclick="toggleVerified('${owner.id}')" title="Toggle Verified Badge"></i>
+                            <i class="fas ${owner.is_active ? 'fa-ban' : 'fa-check-circle'}" onclick="toggleStatus('${owner.id}')" title="${owner.is_active ? 'Lock' : 'Unlock'}"></i>
+                            <i class="fas fa-chart-line" onclick="showFraudModal('${owner.id}')" title="Update Fraud Score"></i>
+                            <i class="fas fa-trash delete" onclick="deleteOwner('${owner.id}')" title="Delete"></i>
+                        </td>
+                    </tr>
+                `}).join('');
+            } catch (error) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center text-danger">Error loading owners</td></tr>';
+            }
+        }
+
+        window.viewOwner = async (id) => {
+            try {
+                const owner = ownersData.find(o => o.id === id);
+                const modalBody = document.getElementById('userModalBody');
+                modalBody.innerHTML = `
+                    <p><strong>Name:</strong> ${owner.full_name}</p>
+                    <p><strong>Email:</strong> ${owner.email}</p>
+                    <p><strong>Business:</strong> ${owner.owner_profile?.hostel_name || 'N/A'}</p>
+                    <p><strong>Phone:</strong> ${owner.owner_profile?.primary_phone || 'N/A'}</p>
+                    <p><strong>Address:</strong> ${owner.owner_profile?.specific_address || 'N/A'}</p>
+                    <p><strong>Approved:</strong> ${owner.owner_profile?.is_approved ? 'Yes' : 'No'}</p>
+                    <p><strong>Verified Badge:</strong> ${owner.owner_profile?.verified_badge ? 'Yes' : 'No'}</p>
+                    <p><strong>Fraud Score:</strong> ${owner.owner_profile?.fraud_score || 0}</p>
+                    <p><strong>Joined:</strong> ${formatDate(owner.date_joined)}</p>
+                    <p><strong>Last Login:</strong> ${owner.last_login ? formatDate(owner.last_login) : 'Never'}</p>
+                `;
+                openModal('userModal');
+            } catch (error) {
+                showMessage('Failed to load details', 'error');
+            }
+        };
+
+        window.approveOwner = async (id) => {
+            if (!confirm('Approve this owner?')) return;
+            try {
+                await apiFetch(`/owners/${id}/approve/`, { method: 'POST' });
+                loadOwners(currentPage);
+                showMessage('Owner approved', 'success');
+            } catch (error) {
+                showMessage('Failed to approve', 'error');
+            }
+        };
+
+        window.toggleVerified = async (id) => {
+            try {
+                await apiFetch(`/owners/${id}/toggle-verified/`, { method: 'POST' });
+                loadOwners(currentPage);
+                showMessage('Verified badge toggled', 'success');
+            } catch (error) {
+                showMessage('Failed to toggle', 'error');
+            }
+        };
+
+        window.toggleStatus = async (id) => {
+            if (!confirm('Toggle user status?')) return;
+            try {
+                await apiFetch(`/users/${id}/toggle-status/`, { method: 'POST' });
+                loadOwners(currentPage);
+                showMessage('Status updated', 'success');
+            } catch (error) {
+                showMessage('Failed to update status', 'error');
+            }
+        };
+
+        window.deleteOwner = async (id) => {
+            if (!confirm('Delete this owner? This action cannot be undone.')) return;
+            try {
+                await apiFetch(`/users/${id}/delete/`, { method: 'DELETE' });
+                loadOwners(currentPage);
+                showMessage('Owner deleted', 'success');
+            } catch (error) {
+                showMessage('Failed to delete', 'error');
+            }
+        };
+
+        window.showFraudModal = (id) => {
+            currentUserId = id;
+            document.getElementById('fraudScoreInput').value = '';
+            openModal('fraudModal');
+        };
+
+        document.getElementById('saveFraudBtn').addEventListener('click', async () => {
+            const score = document.getElementById('fraudScoreInput').value;
+            if (!score || score < 0 || score > 100) {
+                alert('Please enter a valid score between 0 and 100');
+                return;
+            }
+            try {
+                await apiFetch(`/users/${currentUserId}/update-fraud-score/`, {
+                    method: 'POST',
+                    body: JSON.stringify({ fraud_score: parseInt(score) })
+                });
+                closeModal('fraudModal');
+                loadOwners(currentPage);
+                showMessage('Fraud score updated', 'success');
+            } catch (error) {
+                showMessage('Failed to update fraud score', 'error');
+            }
+        });
+
+        document.getElementById('approvalFilter').addEventListener('change', (e) => {
+            currentApproval = e.target.value;
+            currentPage = 1;
+            loadOwners(1);
+        });
+
+        document.getElementById('verifiedFilter').addEventListener('change', (e) => {
+            currentVerified = e.target.value;
+            currentPage = 1;
+            loadOwners(1);
+        });
+
+        document.getElementById('searchBtn').addEventListener('click', () => {
+            currentSearch = document.getElementById('searchInput').value;
+            currentPage = 1;
+            loadOwners(1);
+        });
+
+        document.getElementById('refreshBtn').addEventListener('click', () => {
+            currentSearch = '';
+            document.getElementById('searchInput').value = '';
+            currentApproval = 'all';
+            document.getElementById('approvalFilter').value = 'all';
+            currentVerified = 'all';
+            document.getElementById('verifiedFilter').value = 'all';
+            currentPage = 1;
+            loadOwners(1);
+        });
+
+        document.getElementById('prevPage').addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                loadOwners(currentPage);
+            }
+        });
+
+        document.getElementById('nextPage').addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                loadOwners(currentPage);
+            }
+        });
+
+        async function loadAdminProfile() {
+            try {
+                const data = await apiFetch('/auth/profile/');
+                if (data) {
+                    document.getElementById('adminName').textContent = data.full_name;
+                    document.getElementById('adminAvatar').textContent = (data.full_name || 'A').charAt(0).toUpperCase();
+                }
+            } catch (error) {}
+        }
+
+        async function loadNotificationCount() {
+            try {
+                const data = await apiFetch('/dashboard/stats/');
+                if (data?.notifications?.unread > 0) {
+                    document.getElementById('notificationBadge').textContent = data.notifications.unread;
+                    document.getElementById('notificationBadge').style.display = 'flex';
+                } else {
+                    document.getElementById('notificationBadge').style.display = 'none';
+                }
+            } catch (error) {}
+        }
+
+        loadAdminProfile();
+        loadNotificationCount();
+        loadOwners(1);
+        setInterval(loadNotificationCount, 30000);
+    </script>
+</body>
+</html>

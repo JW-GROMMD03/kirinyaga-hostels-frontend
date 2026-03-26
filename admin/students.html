@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management - Kirinyaga Hostels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Copy styles from dashboard.html or create a shared CSS file */
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
+        :root { --kyu-green: #006747; --kyu-gold: #FFD700; --admin-dark: #0f172a; --admin-sidebar: #1e293b; --admin-card: #ffffff; --admin-hover: #f1f5f9; --danger: #dc2626; --success: #16a34a; --warning: #ca8a04; --info: #2563eb; --text-primary: #0f172a; --text-secondary: #475569; --border-light: #e2e8f0; }
+        body { background: #f8fafc; min-height: 100vh; }
+        .top-nav { background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.1); padding: 1rem 2rem; display: flex; align-items: center; gap: 20px; border-bottom: 3px solid var(--kyu-gold); }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo img { height: 40px; }
+        .logo span { font-size: 1.3rem; font-weight: 700; color: var(--kyu-green); }
+        .top-nav-title { flex: 1; }
+        .top-nav-title h1 { font-size: 1.3rem; color: var(--text-primary); }
+        .top-nav-title p { font-size: 0.9rem; color: var(--text-secondary); }
+        .admin-profile { display: flex; align-items: center; gap: 20px; }
+        .notifications { position: relative; cursor: pointer; }
+        .notifications .badge { position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; }
+        .admin-info { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 5px 10px; border-radius: 40px; }
+        .admin-info:hover { background: var(--admin-hover); }
+        .admin-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--kyu-green); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+        .admin-details .name { font-weight: 600; color: var(--text-primary); }
+        .admin-details .role { font-size: 0.8rem; color: var(--text-secondary); }
+        .main-content { padding: 2rem; }
+        .panel { background: white; border-radius: 20px; padding: 1.5rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+        .panel-header h2 { font-size: 1.3rem; color: var(--text-primary); }
+        .panel-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn { padding: 0.6rem 1.2rem; border-radius: 40px; border: none; font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; }
+        .btn-primary { background: var(--kyu-green); color: white; }
+        .btn-primary:hover { background: #004d33; transform: translateY(-2px); }
+        .btn-outline { background: transparent; border: 2px solid var(--kyu-green); color: var(--kyu-green); }
+        .btn-outline:hover { background: var(--kyu-green); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #b91c1c; }
+        .table-container { overflow-x: auto; border-radius: 16px; border: 1px solid var(--border-light); }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 1rem; background: #f8fafc; color: var(--text-secondary); font-weight: 600; font-size: 0.9rem; border-bottom: 2px solid var(--border-light); }
+        td { padding: 1rem; border-bottom: 1px solid var(--border-light); }
+        tr:hover td { background: var(--admin-hover); }
+        .badge { padding: 0.3rem 0.8rem; border-radius: 30px; font-size: 0.8rem; font-weight: 600; display: inline-block; }
+        .badge-success { background: #dcfce7; color: #166534; }
+        .badge-warning { background: #fef9c3; color: #854d0e; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+        .badge-info { background: #dbeafe; color: #1e40af; }
+        .action-icons { display: flex; gap: 10px; }
+        .action-icons i { cursor: pointer; color: var(--text-secondary); transition: color 0.3s; font-size: 1.1rem; }
+        .action-icons i:hover { color: var(--kyu-green); }
+        .action-icons .delete:hover { color: var(--danger); }
+        .filter-bar { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; padding: 1rem; background: #f8fafc; border-radius: 16px; }
+        .filter-group { display: flex; align-items: center; gap: 0.5rem; }
+        .filter-group label { font-weight: 600; color: var(--text-secondary); }
+        .filter-group select, .filter-group input { padding: 0.5rem 1rem; border: 2px solid var(--border-light); border-radius: 30px; outline: none; min-width: 150px; }
+        .filter-group input:focus { border-color: var(--kyu-green); }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 3000; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; border-radius: 30px; padding: 2rem; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .modal-header h3 { color: var(--text-primary); }
+        .modal-close { cursor: pointer; font-size: 1.5rem; color: var(--text-secondary); }
+        .modal-close:hover { color: var(--danger); }
+        .modal-body { margin-bottom: 1.5rem; }
+        .modal-body p { margin-bottom: 0.5rem; }
+        .modal-footer { display: flex; gap: 1rem; justify-content: flex-end; }
+        .loading-row { text-align: center; padding: 2rem; color: var(--text-secondary); }
+    </style>
+</head>
+<body>
+    <div class="top-nav">
+        <div class="logo">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
+            <span>KyU Hostels</span>
+        </div>
+        <div class="top-nav-title">
+            <h1>Student Management</h1>
+            <p>Manage all registered students</p>
+        </div>
+        <div class="admin-profile">
+            <div class="notifications" id="notificationsBell">
+                <i class="fas fa-bell"></i>
+                <span class="badge" id="notificationBadge">0</span>
+            </div>
+            <div class="admin-info" id="adminMenu">
+                <div class="admin-avatar" id="adminAvatar">A</div>
+                <div class="admin-details">
+                    <div class="name" id="adminName">Admin</div>
+                    <div class="role">Administrator</div>
+                </div>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="panel">
+            <div class="panel-header">
+                <h2>Students</h2>
+                <div class="panel-actions">
+                    <select id="statusFilter" class="btn btn-outline">
+                        <option value="all">All Students</option>
+                        <option value="active">Active</option>
+                        <option value="locked">Locked</option>
+                        <option value="verified">Verified</option>
+                        <option value="unverified">Unverified</option>
+                    </select>
+                    <input type="text" id="searchInput" placeholder="Search..." class="btn btn-outline" style="width:200px;">
+                    <button class="btn btn-primary" id="searchBtn"><i class="fas fa-search"></i> Search</button>
+                    <button class="btn btn-outline" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table id="studentsTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Reg Number</th>
+                            <th>Verified</th>
+                            <th>2FA</th>
+                            <th>Status</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentsBody">
+                        <tr><td colspan="9" class="loading-row">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="pagination" style="display: flex; justify-content: center; gap: 10px; margin-top: 1rem;">
+                <button class="btn btn-outline" id="prevPage" disabled>Previous</button>
+                <span id="pageInfo">Page 1</span>
+                <button class="btn btn-outline" id="nextPage">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Detail Modal -->
+    <div class="modal" id="userModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Student Details</h3>
+                <span class="modal-close" onclick="closeModal('userModal')">&times;</span>
+            </div>
+            <div class="modal-body" id="userModalBody">Loading...</div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('userModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirm Action</h3>
+                <span class="modal-close" onclick="closeModal('confirmModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">Are you sure?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('confirmModal')">Cancel</button>
+                <button class="btn btn-danger" id="confirmActionBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000/api/accounts/admin';
+        const token = sessionStorage.getItem('accessToken');
+        if (!token) window.location.href = 'login.html';
+
+        let currentPage = 1;
+        let totalPages = 1;
+        let currentStatus = 'all';
+        let currentSearch = '';
+
+        function formatDate(date) {
+            return new Date(date).toLocaleString();
+        }
+
+        function showMessage(text, type) {
+            alert(text);
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        async function apiFetch(url, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${url}`, {
+                    ...options,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+                if (response.status === 401) {
+                    sessionStorage.removeItem('accessToken');
+                    window.location.href = 'login.html';
+                    return null;
+                }
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({}));
+                    throw new Error(error.message || 'API request failed');
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+
+        async function loadStudents(page = 1) {
+            const tbody = document.getElementById('studentsBody');
+            tbody.innerHTML = '<tr><td colspan="9" class="loading-row">Loading...</td></tr>';
+            try {
+                const data = await apiFetch(`/students/?status=${currentStatus}&search=${encodeURIComponent(currentSearch)}`);
+                if (!data) return;
+                // Since no pagination from backend, we'll paginate client-side
+                const pageSize = 10;
+                const start = (page - 1) * pageSize;
+                const paginated = data.slice(start, start + pageSize);
+                totalPages = Math.ceil(data.length / pageSize);
+                document.getElementById('pageInfo').textContent = `Page ${page} of ${totalPages}`;
+                document.getElementById('prevPage').disabled = page === 1;
+                document.getElementById('nextPage').disabled = page === totalPages;
+
+                if (paginated.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="9" class="text-center">No students found</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = paginated.map(student => `
+                    <tr>
+                        <td>${student.full_name}</td>
+                        <td>${student.email}</td>
+                        <td>${student.student_profile?.phone_number || 'N/A'}</td>
+                        <td>${student.student_profile?.registration_number || 'N/A'}</td>
+                        <td><span class="badge ${student.email_verified ? 'badge-success' : 'badge-warning'}">${student.email_verified ? 'Verified' : 'Pending'}</span></td>
+                        <td><span class="badge ${student.is_2fa_enabled ? 'badge-success' : 'badge-info'}">${student.is_2fa_enabled ? 'Enabled' : 'Disabled'}</span></td>
+                        <td><span class="badge ${student.is_active ? 'badge-success' : 'badge-danger'}">${student.is_active ? 'Active' : 'Locked'}</span></td>
+                        <td>${student.date_joined ? formatDate(student.date_joined) : 'N/A'}</td>
+                        <td class="action-icons">
+                            <i class="fas fa-eye" onclick="viewStudent('${student.id}')" title="View"></i>
+                            <i class="fas ${student.is_active ? 'fa-ban' : 'fa-check-circle'}" onclick="toggleStatus('${student.id}', 'student')" title="${student.is_active ? 'Lock' : 'Unlock'}"></i>
+                            <i class="fas fa-trash delete" onclick="deleteStudent('${student.id}')" title="Delete"></i>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center text-danger">Error loading students</td></tr>';
+            }
+        }
+
+        window.viewStudent = async (id) => {
+            try {
+                const data = await apiFetch(`/students/${id}/`);
+                if (!data) return;
+                const modalBody = document.getElementById('userModalBody');
+                modalBody.innerHTML = `
+                    <p><strong>Name:</strong> ${data.full_name}</p>
+                    <p><strong>Email:</strong> ${data.email}</p>
+                    <p><strong>Role:</strong> ${data.role}</p>
+                    <p><strong>Joined:</strong> ${formatDate(data.date_joined)}</p>
+                    <p><strong>Last Login:</strong> ${data.last_login ? formatDate(data.last_login) : 'Never'}</p>
+                    <p><strong>Email Verified:</strong> ${data.email_verified ? 'Yes' : 'No'}</p>
+                    <p><strong>2FA Enabled:</strong> ${data.is_2fa_enabled ? 'Yes' : 'No'}</p>
+                    <p><strong>Failed Attempts:</strong> ${data.failed_login_attempts}</p>
+                    <p><strong>Locked Until:</strong> ${data.locked_until ? formatDate(data.locked_until) : 'Not locked'}</p>
+                `;
+                openModal('userModal');
+            } catch (error) {
+                showMessage('Failed to load student details', 'error');
+            }
+        };
+
+        window.toggleStatus = async (id, role) => {
+            if (!confirm(`Are you sure you want to toggle this ${role}'s status?`)) return;
+            try {
+                await apiFetch(`/users/${id}/toggle-status/`, { method: 'POST' });
+                loadStudents(currentPage);
+                showMessage('Status updated', 'success');
+            } catch (error) {
+                showMessage('Failed to update status', 'error');
+            }
+        };
+
+        window.deleteStudent = async (id) => {
+            if (!confirm('Delete this student? This action cannot be undone.')) return;
+            try {
+                await apiFetch(`/users/${id}/delete/`, { method: 'DELETE' });
+                loadStudents(currentPage);
+                showMessage('Student deleted', 'success');
+            } catch (error) {
+                showMessage('Failed to delete student', 'error');
+            }
+        };
+
+        document.getElementById('statusFilter').addEventListener('change', (e) => {
+            currentStatus = e.target.value;
+            currentPage = 1;
+            loadStudents(1);
+        });
+
+        document.getElementById('searchBtn').addEventListener('click', () => {
+            currentSearch = document.getElementById('searchInput').value;
+            currentPage = 1;
+            loadStudents(1);
+        });
+
+        document.getElementById('refreshBtn').addEventListener('click', () => {
+            currentSearch = '';
+            document.getElementById('searchInput').value = '';
+            currentStatus = 'all';
+            document.getElementById('statusFilter').value = 'all';
+            currentPage = 1;
+            loadStudents(1);
+        });
+
+        document.getElementById('prevPage').addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                loadStudents(currentPage);
+            }
+        });
+
+        document.getElementById('nextPage').addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                loadStudents(currentPage);
+            }
+        });
+
+        // Load initial data
+        loadStudents(1);
+
+        // Load admin profile
+        async function loadAdminProfile() {
+            try {
+                const data = await apiFetch('/auth/profile/');
+                if (data) {
+                    document.getElementById('adminName').textContent = data.full_name;
+                    document.getElementById('adminAvatar').textContent = (data.full_name || 'A').charAt(0).toUpperCase();
+                }
+            } catch (error) {
+                console.error('Failed to load profile');
+            }
+        }
+        loadAdminProfile();
+
+        // Poll notifications
+        setInterval(async () => {
+            try {
+                const data = await apiFetch('/dashboard/stats/');
+                if (data?.notifications?.unread > 0) {
+                    document.getElementById('notificationBadge').textContent = data.notifications.unread;
+                    document.getElementById('notificationBadge').style.display = 'flex';
+                } else {
+                    document.getElementById('notificationBadge').style.display = 'none';
+                }
+            } catch (error) {}
+        }, 30000);
+    </script>
+</body>
+</html>

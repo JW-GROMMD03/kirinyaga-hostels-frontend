@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Kirinyaga Hostels</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
+        :root {
+            --kyu-green: #006747;
+            --kyu-gold: #FFD700;
+        }
+        body {
+            background: linear-gradient(145deg, #0b3b2a 0%, #1a4f3a 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .top-bar {
+            background: rgba(255,255,255,0.98);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            border-bottom: 3px solid var(--kyu-gold);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .logo img {
+            height: 50px;
+        }
+        .logo span {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--kyu-green);
+        }
+        .container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+        .settings-card {
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            padding: 3rem;
+            width: 100%;
+            max-width: 600px;
+        }
+        h2 {
+            color: var(--kyu-green);
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .section {
+            margin-bottom: 2.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .section h3 {
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--kyu-green);
+        }
+        .btn {
+            background: var(--kyu-green);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: #004d33;
+            transform: translateY(-2px);
+        }
+        .btn-danger {
+            background: #e53e3e;
+        }
+        .btn-danger:hover {
+            background: #c53030;
+        }
+        .message {
+            padding: 1rem;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+        .message.success {
+            background: #c6f6d5;
+            color: #22543d;
+            border-left: 5px solid #22543d;
+        }
+        .message.error {
+            background: #fed7d7;
+            color: #c53030;
+            border-left: 5px solid #c53030;
+        }
+        .spinner {
+            display: none;
+            width: 40px;
+            height: 40px;
+            margin: 1rem auto;
+            border: 4px solid rgba(0,0,0,0.1);
+            border-left-color: var(--kyu-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        footer {
+            background: #1a2e3a;
+            color: #e2e8f0;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="logo">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
+            <span>Kirinyaga Hostels</span>
+        </div>
+        <a href="dashboard.html" style="color: var(--kyu-green); text-decoration: none;">← Back to Dashboard</a>
+    </div>
+
+    <div class="container">
+        <div class="settings-card">
+            <h2>Account Settings</h2>
+            
+            <div id="message" class="message"></div>
+            
+            <div class="section">
+                <h3>Profile Information</h3>
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="fullName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="email" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="phone" required>
+                    </div>
+                    <button type="submit" class="btn">Update Profile</button>
+                </form>
+            </div>
+
+            <div class="section">
+                <h3>Change Password</h3>
+                <form id="passwordForm">
+                    <div class="form-group">
+                        <label>Current Password</label>
+                        <input type="password" id="currentPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label>New Password</label>
+                        <input type="password" id="newPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm New Password</label>
+                        <input type="password" id="confirmPassword" required>
+                    </div>
+                    <button type="submit" class="btn">Change Password</button>
+                </form>
+            </div>
+
+            <div class="section">
+                <h3>Notification Preferences</h3>
+                <form id="notifForm">
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="emailNotif" checked> Receive email notifications
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="smsNotif"> Receive SMS notifications
+                        </label>
+                    </div>
+                    <button type="submit" class="btn">Save Preferences</button>
+                </form>
+            </div>
+
+            <div class="section">
+                <h3>Danger Zone</h3>
+                <button class="btn btn-danger" id="deleteAccount">Delete Account</button>
+            </div>
+
+            <div class="spinner" id="spinner"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 Kirinyaga University Hostels. All rights reserved.</p>
+    </footer>
+
+    <script>
+        (function() {
+            const API_BASE = 'http://127.0.0.1:8000/api';
+            const token = sessionStorage.getItem('accessToken');
+            if (!token) window.location.href = 'login.html';
+
+            const messageDiv = document.getElementById('message');
+            const spinner = document.getElementById('spinner');
+
+            function showMessage(text, type) {
+                messageDiv.textContent = text;
+                messageDiv.className = `message ${type}`;
+                messageDiv.style.display = 'block';
+                setTimeout(() => messageDiv.style.display = 'none', 5000);
+            }
+
+            function setLoading(isLoading) {
+                spinner.style.display = isLoading ? 'block' : 'none';
+            }
+
+            // Load profile
+            async function loadProfile() {
+                try {
+                    const res = await fetch(`${API_BASE}/auth/profile/`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const data = await res.json();
+                    document.getElementById('fullName').value = data.full_name;
+                    document.getElementById('email').value = data.email;
+                    if (data.owner_profile) {
+                        document.getElementById('phone').value = data.owner_profile.primary_phone;
+                    }
+                } catch (e) {
+                    console.error('Failed to load profile', e);
+                }
+            }
+
+            // Update profile
+            document.getElementById('profileForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                
+                try {
+                    const res = await fetch(`${API_BASE}/auth/profile/`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            full_name: document.getElementById('fullName').value,
+                            phone_number: document.getElementById('phone').value
+                        })
+                    });
+                    
+                    if (res.ok) {
+                        showMessage('Profile updated successfully!', 'success');
+                    } else {
+                        showMessage('Failed to update profile', 'error');
+                    }
+                } catch (e) {
+                    showMessage('Network error', 'error');
+                } finally {
+                    setLoading(false);
+                }
+            });
+
+            // Change password
+            document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const newPass = document.getElementById('newPassword').value;
+                const confirmPass = document.getElementById('confirmPassword').value;
+                
+                if (newPass !== confirmPass) {
+                    showMessage('New passwords do not match', 'error');
+                    return;
+                }
+                
+                setLoading(true);
+                
+                try {
+                    const res = await fetch(`${API_BASE}/auth/password-reset/confirm/`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            old_password: document.getElementById('currentPassword').value,
+                            new_password: newPass
+                        })
+                    });
+                    
+                    if (res.ok) {
+                        showMessage('Password changed successfully!', 'success');
+                        document.getElementById('passwordForm').reset();
+                    } else {
+                        showMessage('Failed to change password', 'error');
+                    }
+                } catch (e) {
+                    showMessage('Network error', 'error');
+                } finally {
+                    setLoading(false);
+                }
+            });
+
+            // Save notification preferences
+            document.getElementById('notifForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                
+                try {
+                    const res = await fetch(`${API_BASE}/auth/notifications/`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            email: document.getElementById('emailNotif').checked,
+                            sms: document.getElementById('smsNotif').checked
+                        })
+                    });
+                    
+                    if (res.ok) {
+                        showMessage('Preferences saved!', 'success');
+                    } else {
+                        showMessage('Failed to save preferences', 'error');
+                    }
+                } catch (e) {
+                    showMessage('Network error', 'error');
+                } finally {
+                    setLoading(false);
+                }
+            });
+
+            // Delete account
+            document.getElementById('deleteAccount').addEventListener('click', async () => {
+                if (!confirm('Are you sure you want to delete your account? This action cannot be undone.')) return;
+                
+                setLoading(true);
+                
+                try {
+                    const res = await fetch(`${API_BASE}/auth/delete-account/`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    
+                    if (res.ok) {
+                        sessionStorage.removeItem('accessToken');
+                        window.location.href = 'login.html';
+                    } else {
+                        showMessage('Failed to delete account', 'error');
+                        setLoading(false);
+                    }
+                } catch (e) {
+                    showMessage('Network error', 'error');
+                    setLoading(false);
+                }
+            });
+
+            loadProfile();
+        })();
+    </script>
+</body>
+</html>

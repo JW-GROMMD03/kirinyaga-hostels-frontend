@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Kirinyaga Hostels</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Roboto,sans-serif; }
+        :root { --kyu-green:#006747; --kyu-gold:#FFD700; }
+        body { background:#f8f9fa; }
+        header { background:white; box-shadow:0 4px 20px rgba(0,0,0,0.1); padding:1rem 2rem; display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid var(--kyu-gold); }
+        .logo { display:flex; align-items:center; gap:15px; }
+        .logo img { height:50px; }
+        .logo span { font-size:1.5rem; font-weight:700; color:var(--kyu-green); }
+        .container { max-width:600px; margin:2rem auto; padding:0 2rem; }
+        .settings-card { background:white; border-radius:30px; padding:2rem; box-shadow:0 10px 30px rgba(0,0,0,0.05); }
+        h1 { color:var(--kyu-green); margin-bottom:2rem; }
+        .form-group { margin-bottom:1.5rem; }
+        label { display:block; font-weight:600; margin-bottom:0.5rem; }
+        input { width:100%; padding:1rem; border:2px solid #e2e8f0; border-radius:16px; font-size:1rem; }
+        input:focus { outline:none; border-color:var(--kyu-green); }
+        .btn-save { background:var(--kyu-green); color:white; border:none; padding:1rem 2rem; border-radius:40px; font-size:1rem; font-weight:600; cursor:pointer; width:100%; }
+        .message { padding:1rem; border-radius:16px; margin-bottom:1.5rem; display:none; }
+        .message.success { background:#c6f6d5; color:#22543d; }
+        .message.error { background:#fed7d7; color:#c53030; }
+        footer { background:#1a2e3a; color:#e2e8f0; padding:2rem; text-align:center; margin-top:3rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
+            <span>Kirinyaga Hostels</span>
+        </div>
+        <a href="dashboard.html" style="color:var(--kyu-green); text-decoration:none;">← Back to Dashboard</a>
+    </header>
+    <div class="container">
+        <div class="settings-card">
+            <h1>Account Settings</h1>
+            <div id="message" class="message"></div>
+            <form id="profileForm">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="fullName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="email" readonly disabled>
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="phone" required>
+                </div>
+                <div class="form-group">
+                    <label>Registration Number</label>
+                    <input type="text" id="regNumber" readonly disabled>
+                </div>
+                <button type="submit" class="btn-save">Update Profile</button>
+            </form>
+            <hr style="margin:2rem 0;">
+            <h2>Change Password</h2>
+            <form id="passwordForm">
+                <div class="form-group">
+                    <label>Current Password</label>
+                    <input type="password" id="currentPassword" required>
+                </div>
+                <div class="form-group">
+                    <label>New Password</label>
+                    <input type="password" id="newPassword" required>
+                </div>
+                <div class="form-group">
+                    <label>Confirm New Password</label>
+                    <input type="password" id="confirmPassword" required>
+                </div>
+                <button type="submit" class="btn-save">Change Password</button>
+            </form>
+        </div>
+    </div>
+    <footer>
+        <p>© 2025 Kirinyaga University Hostels</p>
+    </footer>
+    <script>
+        (function() {
+            const API_BASE = 'http://127.0.0.1:8000/api';
+            const accessToken = sessionStorage.getItem('accessToken');
+            if (!accessToken) window.location.href = 'login.html';
+
+            const messageDiv = document.getElementById('message');
+
+            function showMessage(text, type) {
+                messageDiv.textContent = text;
+                messageDiv.className = `message ${type}`;
+                messageDiv.style.display = 'block';
+                setTimeout(() => messageDiv.style.display = 'none', 5000);
+            }
+
+            // Load profile
+            async function loadProfile() {
+                try {
+                    const res = await fetch(`${API_BASE}/auth/profile/`, {
+                        headers: { 'Authorization': `Bearer ${accessToken}` }
+                    });
+                    const data = await res.json();
+                    document.getElementById('fullName').value = data.full_name;
+                    document.getElementById('email').value = data.email;
+                    if (data.student_profile) {
+                        document.getElementById('phone').value = data.student_profile.phone_number;
+                        document.getElementById('regNumber').value = data.student_profile.registration_number;
+                    }
+                } catch (e) {
+                    showMessage('Failed to load profile', 'error');
+                }
+            }
+            loadProfile();
+
+            // Update profile
+            document.getElementById('profileForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const fullName = document.getElementById('fullName').value;
+                const phone = document.getElementById('phone').value;
+                try {
+                    const res = await fetch(`${API_BASE}/auth/profile/`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ full_name: fullName, phone_number: phone })
+                    });
+                    if (res.ok) {
+                        showMessage('Profile updated successfully', 'success');
+                    } else {
+                        const err = await res.json();
+                        showMessage('Error: ' + (err.detail || 'Update failed'), 'error');
+                    }
+                } catch (e) {
+                    showMessage('Network error', 'error');
+                }
+            });
+
+            // Change password
+            document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const current = document.getElementById('currentPassword').value;
+                const newPass = document.getElementById('newPassword').value;
+                const confirm = document.getElementById('confirmPassword').value;
+                if (newPass !== confirm) {
+                    showMessage('New passwords do not match', 'error');
+                    return;
+                }
+                try {
+                    const res = await fetch(`${API_BASE}/auth/change-password/`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ old_password: current, new_password: newPass })
+                    });
+                    if (res.ok) {
+                        showMessage('Password changed successfully', 'success');
+                        document.getElementById('passwordForm').reset();
+                    } else {
+                        const err = await res.json();
+                        showMessage('Error: ' + (err.old_password || err.new_password || 'Change failed'), 'error');
+                    }
+                } catch (e) {
+                    showMessage('Network error', 'error');
+                }
+            });
+        })();
+    </script>
+</body>
+</html>
