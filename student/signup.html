@@ -368,6 +368,11 @@
 
     <script>
         (function() {
+            // ============================================
+            // BACKEND API CONFIGURATION
+            // ============================================
+            const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
+            
             const form = document.getElementById('signupForm');
             const message = document.getElementById('message');
             const submitBtn = document.getElementById('submitBtn');
@@ -449,10 +454,23 @@
                     return;
                 }
 
+                // Validate password length
+                if (formData.password.length < 8) {
+                    showFieldError('password', 'Password must be at least 8 characters');
+                    return;
+                }
+
                 // Validate phone format
                 const phonePattern = /^(?:\+254|0)[17]\d{8}$/;
                 if (!phonePattern.test(formData.phone_number)) {
-                    showFieldError('phone', 'Enter a valid Kenyan phone number');
+                    showFieldError('phone', 'Enter a valid Kenyan phone number (e.g., 0712345678 or +254712345678)');
+                    return;
+                }
+
+                // Validate email format
+                const emailPattern = /^[^\s@]+@([^\s@]+\.)+[^\s@]+$/;
+                if (!emailPattern.test(formData.email)) {
+                    showFieldError('email', 'Enter a valid email address');
                     return;
                 }
 
@@ -460,7 +478,10 @@
                 setLoading(true);
 
                 try {
-                    const response = await fetch('http://localhost:8000/api/auth/signup/student/', {
+                    console.log('Sending signup request to:', `${API_BASE}/auth/signup/student/`);
+                    console.log('Form data:', { ...formData, password: '***' });
+                    
+                    const response = await fetch(`${API_BASE}/auth/signup/student/`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -469,16 +490,17 @@
                     });
 
                     const data = await response.json();
+                    console.log('Response:', data);
 
                     if (!response.ok) {
                         // Handle field errors
-                        if (data.email) showFieldError('email', data.email[0]);
-                        if (data.full_name) showFieldError('fullName', data.full_name[0]);
-                        if (data.registration_number) showFieldError('regNumber', data.registration_number[0]);
-                        if (data.phone_number) showFieldError('phone', data.phone_number[0]);
-                        if (data.password) showFieldError('password', data.password[0]);
-                        if (data.password_confirm) showFieldError('confirmPassword', data.password_confirm[0]);
-                        if (data.non_field_errors) showError(data.non_field_errors[0]);
+                        if (data.email) showFieldError('email', Array.isArray(data.email) ? data.email[0] : data.email);
+                        if (data.full_name) showFieldError('fullName', Array.isArray(data.full_name) ? data.full_name[0] : data.full_name);
+                        if (data.registration_number) showFieldError('regNumber', Array.isArray(data.registration_number) ? data.registration_number[0] : data.registration_number);
+                        if (data.phone_number) showFieldError('phone', Array.isArray(data.phone_number) ? data.phone_number[0] : data.phone_number);
+                        if (data.password) showFieldError('password', Array.isArray(data.password) ? data.password[0] : data.password);
+                        if (data.password_confirm) showFieldError('confirmPassword', Array.isArray(data.password_confirm) ? data.password_confirm[0] : data.password_confirm);
+                        if (data.non_field_errors) showError(Array.isArray(data.non_field_errors) ? data.non_field_errors[0] : data.non_field_errors);
                         if (data.message) showError(data.message);
                         
                         setLoading(false);
@@ -490,6 +512,8 @@
                     
                     // Reset form
                     form.reset();
+                    strengthBar.style.width = '0%';
+                    strengthText.textContent = '';
                     
                     // Redirect to login after 3 seconds
                     setTimeout(() => {
@@ -498,7 +522,7 @@
 
                 } catch (error) {
                     console.error('Signup error:', error);
-                    showError('Network error. Please check your connection and try again.');
+                    showError('Network error. Unable to connect to the server. Please check your internet connection and try again.');
                     setLoading(false);
                 }
             });
