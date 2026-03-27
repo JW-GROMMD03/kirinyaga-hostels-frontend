@@ -196,30 +196,6 @@
             outline: none;
         }
 
-        /* Password strength meter (hidden by default) */
-        .password-strength {
-            margin-top: 8px;
-            height: 6px;
-            background: #e2e8f0;
-            border-radius: 10px;
-            overflow: hidden;
-            display: none;
-        }
-
-        .strength-bar {
-            height: 100%;
-            width: 0%;
-            background: #f56565;
-            transition: width 0.3s, background 0.3s;
-        }
-
-        .strength-text {
-            font-size: 0.8rem;
-            margin-top: 4px;
-            color: #718096;
-            display: none;
-        }
-
         .remember-forgot {
             display: flex;
             justify-content: space-between;
@@ -555,6 +531,9 @@
             const errorDiv = document.getElementById('error-message');
             const successDiv = document.getElementById('success-message');
 
+            // ============================================
+            // CORRECT API ENDPOINT FOR STUDENT LOGIN
+            // ============================================
             const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
 
             function hideError() {
@@ -678,16 +657,20 @@
 
                 const payload = {
                     email: email,
-                    password: password,
-                    remember: remember
+                    password: password
                 };
+
+                if (remember) {
+                    payload.remember = true;
+                }
 
                 if (otpGroup.style.display === 'block' && otpToken.length === 6) {
                     payload.otp_token = otpToken;
                 }
 
                 try {
-                    const response = await fetch(`${API_BASE}/login/`, {
+                    // CORRECT ENDPOINT: /api/auth/student/login/
+                    const response = await fetch(`${API_BASE}/auth/student/login/`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         credentials: 'include',
@@ -700,7 +683,7 @@
                         if (data.non_field_errors) {
                             const errorMsg = data.non_field_errors[0];
                             // If backend tells us to request OTP, show OTP field
-                            if (errorMsg.includes('OTP sent to your email')) {
+                            if (errorMsg && (errorMsg.includes('OTP') || errorMsg.includes('verification'))) {
                                 otpGroup.style.display = 'block';
                                 showError('Verification code sent to your email. Please enter it below.');
                                 setLoading(false);
@@ -709,9 +692,11 @@
                                 showError(errorMsg);
                             }
                         } else if (data.email) {
-                            showError('Email: ' + data.email[0]);
+                            showError('Email: ' + (Array.isArray(data.email) ? data.email[0] : data.email));
                         } else if (data.password) {
-                            showError('Password: ' + data.password[0]);
+                            showError('Password: ' + (Array.isArray(data.password) ? data.password[0] : data.password));
+                        } else if (data.detail) {
+                            showError(data.detail);
                         } else {
                             showError('Login failed. Please try again.');
                         }
@@ -722,10 +707,19 @@
                     // Login successful
                     const { access, refresh, role, requires_2fa_setup } = data;
 
-                    window.accessToken = access;
-                    sessionStorage.setItem('accessToken', access);
+                    // Store tokens
+                    if (access) {
+                        localStorage.setItem('accessToken', access);
+                        sessionStorage.setItem('accessToken', access);
+                    }
                     if (refresh) {
+                        localStorage.setItem('refreshToken', refresh);
                         sessionStorage.setItem('refreshToken', refresh);
+                    }
+                    
+                    // Store user role
+                    if (role) {
+                        localStorage.setItem('userRole', role);
                     }
 
                     showSuccess('Login successful! Redirecting...');
@@ -738,15 +732,7 @@
                     }
 
                     setTimeout(() => {
-                        if (role === 'student') {
-                            window.location.href = 'dashboard.html';
-                        } else if (role === 'owner') {
-                            window.location.href = '../owner/dashboard.html';
-                        } else if (role === 'admin') {
-                            window.location.href = '../admin/dashboard.html';
-                        } else {
-                            window.location.href = '../index.html';
-                        }
+                        window.location.href = 'dashboard.html';
                     }, 1500);
 
                 } catch (error) {
@@ -760,6 +746,7 @@
                 }
             });
 
+            // Remember me functionality
             try {
                 const rememberedEmail = localStorage.getItem('rememberedEmail');
                 if (rememberedEmail) {
@@ -780,6 +767,7 @@
                 }
             });
 
+            // Demo credentials for local testing only
             if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                 const demoDiv = document.createElement('div');
                 demoDiv.style.marginTop = '15px';
@@ -793,7 +781,7 @@
                 document.querySelector('.login-card').appendChild(demoDiv);
             }
 
-            console.log('Login page loaded - secure authentication with email OTP');
+            console.log('Student login page loaded - API endpoint: /api/auth/student/login/');
         })();
     </script>
 </body>
