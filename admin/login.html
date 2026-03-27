@@ -200,6 +200,14 @@
             margin-bottom: 1.5rem;
             display: none;
         }
+        .success-message {
+            background: #c6f6d5;
+            color: #22543d;
+            padding: 1rem;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
         .security-note {
             text-align: center;
             margin-top: 2rem;
@@ -241,21 +249,22 @@
             </div>
 
             <div id="error-message" class="error-message"></div>
+            <div id="success-message" class="success-message"></div>
 
             <form id="login-form">
                 <div class="form-group">
                     <label>Email Address</label>
-                    <input type="email" id="email" placeholder="admin@kirinyagahostels.com" required>
+                    <input type="email" id="email" placeholder="admin@kirinyagahostels.com" required autocomplete="email">
                 </div>
 
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" id="password" placeholder="Enter your password" required>
+                    <input type="password" id="password" placeholder="Enter your password" required autocomplete="current-password">
                 </div>
 
                 <!-- OTP Field (hidden initially) -->
                 <div class="form-group" id="otp-group" style="display: none;">
-                    <label>Google Authenticator Code</label>
+                    <label>Verification Code</label>
                     <div class="otp-group">
                         <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
                         <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
@@ -265,6 +274,7 @@
                         <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
                     </div>
                     <input type="hidden" id="otp">
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 0.5rem;">Enter the 6-digit code sent to your email</p>
                 </div>
 
                 <div class="remember-forgot">
@@ -292,7 +302,11 @@
 
     <script>
         (function() {
+            // ============================================
+            // BACKEND API CONFIGURATION
+            // ============================================
             const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
+            
             const form = document.getElementById('login-form');
             const email = document.getElementById('email');
             const password = document.getElementById('password');
@@ -303,11 +317,49 @@
             const loginBtn = document.getElementById('login-btn');
             const spinner = document.getElementById('spinner');
             const errorDiv = document.getElementById('error-message');
+            const successDiv = document.getElementById('success-message');
+
+            function hideMessages() {
+                errorDiv.style.display = 'none';
+                successDiv.style.display = 'none';
+                errorDiv.textContent = '';
+                successDiv.textContent = '';
+            }
+
+            function showError(message) {
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+                successDiv.style.display = 'none';
+                setTimeout(() => {
+                    if (errorDiv.style.display === 'block') {
+                        errorDiv.style.display = 'none';
+                    }
+                }, 5000);
+            }
+
+            function showSuccess(message) {
+                successDiv.textContent = message;
+                successDiv.style.display = 'block';
+                errorDiv.style.display = 'none';
+                setTimeout(() => {
+                    if (successDiv.style.display === 'block') {
+                        successDiv.style.display = 'none';
+                    }
+                }, 3000);
+            }
 
             function getOtp() {
                 return Array.from(otpInputs).map(i => i.value).join('');
             }
 
+            function clearOtp() {
+                otpInputs.forEach(input => {
+                    input.value = '';
+                });
+                otpHidden.value = '';
+            }
+
+            // OTP input navigation
             otpInputs.forEach((input, idx) => {
                 input.addEventListener('input', (e) => {
                     e.target.value = e.target.value.replace(/[^0-9]/g, '');
@@ -334,27 +386,79 @@
                 });
             });
 
+            // Reset OTP when email/password changes
+            email.addEventListener('input', () => {
+                if (otpGroup.style.display === 'block') {
+                    otpGroup.style.display = 'none';
+                    clearOtp();
+                }
+                hideMessages();
+            });
+            
+            password.addEventListener('input', () => {
+                if (otpGroup.style.display === 'block') {
+                    otpGroup.style.display = 'none';
+                    clearOtp();
+                }
+                hideMessages();
+            });
+
+            function setLoading(isLoading) {
+                loginBtn.disabled = isLoading;
+                spinner.style.display = isLoading ? 'block' : 'none';
+                loginBtn.style.opacity = isLoading ? '0.7' : '1';
+                loginBtn.textContent = isLoading ? 'Logging in...' : 'Log In to Admin';
+            }
+
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
 
+                const emailValue = email.value.trim();
+                const passwordValue = password.value;
+                const rememberValue = remember.checked;
+                const otpValue = getOtp();
+
+                // Basic validation
+                if (!emailValue || !passwordValue) {
+                    showError('Please enter both email and password');
+                    return;
+                }
+
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(emailValue)) {
+                    showError('Please enter a valid email address');
+                    return;
+                }
+
+                if (otpGroup.style.display === 'block') {
+                    if (otpValue.length !== 6) {
+                        showError('Please enter the 6-digit verification code');
+                        return;
+                    }
+                }
+
+                setLoading(true);
+                hideMessages();
+
                 const payload = {
-                    email: email.value,
-                    password: password.value,
-                    remember: remember.checked
+                    email: emailValue,
+                    password: passwordValue,
+                    remember: rememberValue
                 };
 
                 if (otpGroup.style.display === 'block') {
-                    payload.otp_token = getOtp();
+                    payload.otp_token = otpValue;
                 }
 
-                loginBtn.disabled = true;
-                spinner.style.display = 'block';
-                errorDiv.style.display = 'none';
+                console.log('Attempting admin login to:', `${API_BASE}/auth/admin/login/`);
 
                 try {
                     const res = await fetch(`${API_BASE}/auth/admin/login/`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
                         credentials: 'include',
                         body: JSON.stringify(payload)
                     });
@@ -362,56 +466,121 @@
                     const data = await res.json();
 
                     if (!res.ok) {
-                        if (data.non_field_errors) {
-                            const msg = data.non_field_errors[0];
-                            if (msg.includes('OTP sent')) {
-                                otpGroup.style.display = 'block';
-                                errorDiv.textContent = 'OTP sent to your email. Please enter it below.';
-                                errorDiv.style.display = 'block';
-                            } else {
-                                errorDiv.textContent = msg;
-                                errorDiv.style.display = 'block';
-                            }
+                        // Handle different error formats
+                        let errorMessage = '';
+                        
+                        if (data.non_field_errors && data.non_field_errors.length > 0) {
+                            errorMessage = data.non_field_errors[0];
+                        } else if (data.error) {
+                            errorMessage = data.error;
+                        } else if (data.detail) {
+                            errorMessage = data.detail;
+                        } else if (data.message) {
+                            errorMessage = data.message;
+                        } else if (typeof data === 'string') {
+                            errorMessage = data;
                         } else {
-                            errorDiv.textContent = 'Login failed. Please try again.';
-                            errorDiv.style.display = 'block';
+                            errorMessage = 'Login failed. Please check your credentials.';
                         }
-                        loginBtn.disabled = false;
-                        spinner.style.display = 'none';
+                        
+                        // Check if OTP is required
+                        if (errorMessage.toLowerCase().includes('otp') || 
+                            errorMessage.toLowerCase().includes('verification') ||
+                            errorMessage.toLowerCase().includes('2fa')) {
+                            otpGroup.style.display = 'block';
+                            showError('Verification code required. Please check your email.');
+                        } else {
+                            showError(errorMessage);
+                        }
+                        
+                        setLoading(false);
                         return;
                     }
 
-                    // Store token with correct key name for dashboard to use
-                    sessionStorage.setItem('token', data.access);
-                    
-                    // Store user info if available
-                    if (data.user) {
-                        sessionStorage.setItem('user', JSON.stringify(data.user));
-                    }
-                    
-                    // Store refresh token if needed
-                    if (data.refresh) {
-                        sessionStorage.setItem('refreshToken', data.refresh);
-                    }
-                    
-                    // Store remember me preference
-                    if (remember.checked) {
-                        localStorage.setItem('token', data.access);
-                        if (data.user) {
-                            localStorage.setItem('user', JSON.stringify(data.user));
+                    // Login successful
+                    const { access, refresh, role, requires_2fa_setup, user } = data;
+
+                    // Store tokens
+                    if (access) {
+                        sessionStorage.setItem('accessToken', access);
+                        sessionStorage.setItem('token', access);
+                        if (rememberValue) {
+                            localStorage.setItem('accessToken', access);
+                            localStorage.setItem('token', access);
                         }
                     }
                     
+                    if (refresh) {
+                        sessionStorage.setItem('refreshToken', refresh);
+                        if (rememberValue) {
+                            localStorage.setItem('refreshToken', refresh);
+                        }
+                    }
+                    
+                    // Store user info
+                    if (user) {
+                        sessionStorage.setItem('user', JSON.stringify(user));
+                        if (rememberValue) {
+                            localStorage.setItem('user', JSON.stringify(user));
+                        }
+                    }
+                    
+                    if (role) {
+                        sessionStorage.setItem('userRole', role);
+                        localStorage.setItem('userRole', role);
+                    }
+
+                    showSuccess('Login successful! Redirecting to dashboard...');
+
+                    // Check if 2FA setup is required
+                    if (requires_2fa_setup) {
+                        setTimeout(() => {
+                            window.location.href = '2fa-setup.html';
+                        }, 1500);
+                        return;
+                    }
+
                     // Redirect to admin dashboard
-                    window.location.href = '/admin/dashboard.html';
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
+
                 } catch (err) {
                     console.error('Login error:', err);
-                    errorDiv.textContent = 'Network error. Unable to connect to server.';
-                    errorDiv.style.display = 'block';
-                    loginBtn.disabled = false;
-                    spinner.style.display = 'none';
+                    
+                    if (!navigator.onLine) {
+                        showError('You are offline. Please check your internet connection.');
+                    } else if (err.message === 'Failed to fetch') {
+                        showError('Unable to connect to server. Please check if the backend is running.');
+                    } else {
+                        showError('Network error. Please try again later.');
+                    }
+                    setLoading(false);
                 }
             });
+
+            // Remember me functionality
+            try {
+                const rememberedEmail = localStorage.getItem('rememberedEmail');
+                if (rememberedEmail) {
+                    email.value = rememberedEmail;
+                    remember.checked = true;
+                }
+            } catch (e) {}
+
+            form.addEventListener('submit', function() {
+                if (remember.checked) {
+                    try {
+                        localStorage.setItem('rememberedEmail', email.value.trim());
+                    } catch (e) {}
+                } else {
+                    try {
+                        localStorage.removeItem('rememberedEmail');
+                    } catch (e) {}
+                }
+            });
+
+            console.log('Admin login page loaded - API endpoint:', `${API_BASE}/auth/admin/login/`);
         })();
     </script>
 </body>
