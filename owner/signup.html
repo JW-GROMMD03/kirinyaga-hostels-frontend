@@ -356,7 +356,7 @@
                 successDiv.style.display = 'none';
 
                 try {
-                    const res = await fetch(`${API_BASE}/signup/owner/`, {
+                    const res = await fetch(`${API_BASE}/auth/signup/owner/`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)

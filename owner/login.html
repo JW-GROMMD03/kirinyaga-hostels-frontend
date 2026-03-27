@@ -272,7 +272,11 @@
 
     <script>
         (function() {
+            // ============================================
+            // BACKEND API CONFIGURATION
+            // ============================================
             const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
+            
             const form = document.getElementById('login-form');
             const email = document.getElementById('email');
             const password = document.getElementById('password');
@@ -324,6 +328,11 @@
                 };
 
                 if (otpGroup.style.display === 'block') {
+                    if (getOtp().length !== 6) {
+                        errorDiv.textContent = 'Please enter the 6-digit verification code';
+                        errorDiv.style.display = 'block';
+                        return;
+                    }
                     payload.otp_token = getOtp();
                 }
 
@@ -332,7 +341,8 @@
                 errorDiv.style.display = 'none';
 
                 try {
-                    const res = await fetch(`${API_BASE}/login/`, {
+                    // CORRECT ENDPOINT: /api/auth/owner/login/
+                    const res = await fetch(`${API_BASE}/auth/owner/login/`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         credentials: 'include',
@@ -344,14 +354,23 @@
                     if (!res.ok) {
                         if (data.non_field_errors) {
                             const msg = data.non_field_errors[0];
-                            if (msg.includes('OTP sent')) {
+                            if (msg && (msg.includes('OTP') || msg.includes('verification'))) {
                                 otpGroup.style.display = 'block';
-                                errorDiv.textContent = 'OTP sent to your email. Please enter it below.';
+                                errorDiv.textContent = 'Verification code sent to your email. Please enter it below.';
                                 errorDiv.style.display = 'block';
                             } else {
                                 errorDiv.textContent = msg;
                                 errorDiv.style.display = 'block';
                             }
+                        } else if (data.error) {
+                            errorDiv.textContent = data.error;
+                            errorDiv.style.display = 'block';
+                        } else if (data.email) {
+                            errorDiv.textContent = 'Email: ' + (Array.isArray(data.email) ? data.email[0] : data.email);
+                            errorDiv.style.display = 'block';
+                        } else if (data.password) {
+                            errorDiv.textContent = 'Password: ' + (Array.isArray(data.password) ? data.password[0] : data.password);
+                            errorDiv.style.display = 'block';
                         } else {
                             errorDiv.textContent = 'Login failed. Please try again.';
                             errorDiv.style.display = 'block';
@@ -361,10 +380,31 @@
                         return;
                     }
 
-                    sessionStorage.setItem('accessToken', data.access);
+                    // Store tokens
+                    if (data.access) {
+                        sessionStorage.setItem('accessToken', data.access);
+                        if (remember.checked) {
+                            localStorage.setItem('accessToken', data.access);
+                        }
+                    }
+                    if (data.refresh) {
+                        sessionStorage.setItem('refreshToken', data.refresh);
+                        if (remember.checked) {
+                            localStorage.setItem('refreshToken', data.refresh);
+                        }
+                    }
+                    
+                    // Store user info
+                    if (data.role) {
+                        sessionStorage.setItem('userRole', data.role);
+                        localStorage.setItem('userRole', data.role);
+                    }
+                    
+                    console.log('Owner login successful, redirecting to dashboard...');
                     window.location.href = 'dashboard.html';
                 } catch (err) {
-                    errorDiv.textContent = 'Network error. Unable to connect to server.';
+                    console.error('Login error:', err);
+                    errorDiv.textContent = 'Network error. Unable to connect to server. Please check your connection.';
                     errorDiv.style.display = 'block';
                     loginBtn.disabled = false;
                     spinner.style.display = 'none';
