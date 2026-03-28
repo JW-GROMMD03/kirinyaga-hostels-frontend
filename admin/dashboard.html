@@ -1216,12 +1216,12 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
             tbody.innerHTML = items.map(b => `
                 <tr>
                     <td>${b.id?.substring(0, 8) || 'N/A'}</td>
-                    <td>${escapeHtml(b.user_email || b.user?.email || 'N/A')}</td>
+                    <td>${escapeHtml(b.user_email || b.student_email || 'N/A')}</td>
                     <td>${escapeHtml(b.hostel_name || b.hostel?.name || 'N/A')}</td>
-                    <td>${formatDate(b.check_in)}</td>
+                    <td>${formatDate(b.check_in || b.move_in_date)}</td>
                     <td>${formatDate(b.check_out)}</td>
                     <td><span class="badge ${b.status === 'confirmed' ? 'badge-success' : b.status === 'pending' ? 'badge-warning' : 'badge-danger'}">${b.status || 'N/A'}</span></td>
-                    <td>${formatCurrency(b.total_amount || 0)}</td>
+                    <td>${formatCurrency(b.total_amount || b.hostel?.price)}</td>
                     <td>${formatDate(b.created_at)}</td>
                 </tr>
             `).join('');
@@ -1406,12 +1406,12 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
             if (!tbody) return;
             
             if (items.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="10" class="loading-row">No hostels found</td></tr>';
+                tbody.innerHTML = '<td><td colspan="10" class="loading-row">No hostels found</td> </tr>';
                 return;
             }
             
             tbody.innerHTML = items.map(h => `
-                <tr>
+                 <tr>
                     <td>${escapeHtml(h.name || 'N/A')}</td>
                     <td>${escapeHtml(h.owner_name || h.owner?.email || 'Unknown')}</td>
                     <td>${escapeHtml(h.address || 'N/A')}</td>
@@ -1427,7 +1427,7 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
                         <i class="fas fa-star" onclick="toggleFeatured('${h.id}')" title="Toggle Featured"></i>
                         <i class="fas fa-trash delete" onclick="deleteHostel('${h.id}')" title="Delete"></i>
                     </td>
-                </tr>
+                 </tr>
             `).join('');
         } catch(e) { 
             console.error('Load hostels error:', e);
@@ -1442,7 +1442,7 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
             const tbody = document.getElementById('featuredHostelsBody');
             if (!tbody) return;
             tbody.innerHTML = items.map(h => `
-                <tr>
+                 <tr>
                     <td>${escapeHtml(h.name)}</td>
                     <td>${escapeHtml(h.owner_name || 'Unknown')}</td>
                     <td>${escapeHtml(h.address)}</td>
@@ -1450,7 +1450,7 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
                     <td>${h.avg_rating ? h.avg_rating.toFixed(1) + ' ★' : 'No ratings'}</td>
                     <td>${h.total_bookings || 0}</td>
                     <td class="action-icons"><i class="fas fa-eye" onclick="viewHostel('${h.id}')"></i><i class="fas fa-star" onclick="toggleFeatured('${h.id}')"></i></td>
-                </tr>
+                 </tr>
             `).join('');
         } catch(e) { console.error(e); }
     }
@@ -1464,13 +1464,13 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
             const tbody = document.getElementById('auditBody');
             if (!tbody) return;
             tbody.innerHTML = items.map(l => `
-                <tr>
+                 <tr>
                     <td>${formatDate(l.timestamp)}</td>
                     <td>${escapeHtml(l.user)}</td>
                     <td>${escapeHtml(l.action)}</td>
                     <td>${escapeHtml(JSON.stringify(l.details).substring(0,80))}...</td>
                     <td>${l.ip_address || 'N/A'}</td>
-                </tr>
+                 </tr>
             `).join('');
         } catch(e) { console.error(e); }
     }
@@ -1484,14 +1484,14 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
             const tbody = document.getElementById('fraudBody');
             if (!tbody) return;
             tbody.innerHTML = highRisk.map(u => `
-                <tr>
+                 <tr>
                     <td>${escapeHtml(u.email)}</td>
                     <td>${u.role}</td>
                     <td><span class="badge ${u.fraud_score > 70 ? 'badge-danger' : 'badge-warning'}">${u.fraud_score || 0}</span></td>
                     <td>${u.failed_login_attempts || 0}</td>
                     <td>${u.locked_until ? formatDate(u.locked_until) : 'Not locked'}</td>
                     <td class="action-icons"><i class="fas fa-unlock" onclick="unlockUser('${u.id}')"></i>${u.role === 'owner' ? `<i class="fas fa-chart-line" onclick="updateFraudScore('${u.id}')"></i>` : ''}</td>
-                </tr>
+                 </tr>
             `).join('');
         } catch(e) { console.error(e); }
     }
@@ -1502,13 +1502,13 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
             const tbody = document.getElementById('sessionsBody');
             if (!tbody) return;
             tbody.innerHTML = (data.sessions || []).map(s => `
-                <tr>
+                 <tr>
                     <td>${escapeHtml(s.user)}</td>
                     <td><code>${s.session_token.substring(0,16)}...</code></td>
                     <td>${formatDate(s.expires)}</td>
                     <td>${s.ip || 'N/A'}</td>
                     <td>${s.user_agent || 'Unknown'}</td>
-                </tr>
+                 </tr>
             `).join('');
         } catch(e) { console.error(e); }
     }
@@ -1564,18 +1564,20 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
     // ============================================
     async function loadAdminProfile() {
         try {
-            const data = await apiFetch('/profile/update/');
+            // FIXED: Changed from /profile/update/ to /profile/
+            const data = await apiFetch('/profile/');
             if (data) {
                 document.getElementById('adminName').textContent = data.full_name;
                 document.getElementById('adminAvatar').textContent = getInitials(data.full_name);
                 currentUserId = data.id;
             }
-        } catch(e) { console.error(e); }
+        } catch(e) { console.error('Profile load error:', e); }
     }
     
     async function loadAdminProfileForEdit() {
         try {
-            const data = await apiFetch('/auth/profile/update/');
+            // FIXED: Changed from /profile/update/ to /profile/
+            const data = await apiFetch('/profile/');
             if (data) {
                 document.getElementById('profileFullName').value = data.full_name;
                 document.getElementById('profileEmail').value = data.email;
@@ -1597,6 +1599,7 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
             const payload = { full_name: fullName, email: email };
             if (currentPassword) payload.current_password = currentPassword;
             if (newPassword) payload.new_password = newPassword;
+            // FIXED: Changed from /profile/update/ to /profile/update/ with PUT
             await apiFetch('/profile/update/', { method: 'PUT', body: JSON.stringify(payload) });
             showToast('Profile updated successfully', 'success');
             closeModal('profileEditModal');
@@ -1793,7 +1796,11 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
         try {
             const data = await apiFetch('/sms/balance/');
             if (data && data.balance !== undefined) document.getElementById('smsBalance').innerHTML = data.balance;
-        } catch(e) { document.getElementById('smsBalance').innerHTML = 'Error'; }
+            else document.getElementById('smsBalance').innerHTML = '0';
+        } catch(e) { 
+            console.error('SMS balance error:', e);
+            document.getElementById('smsBalance').innerHTML = '0'; 
+        }
     };
     
     window.dismissAnnouncement = function() {
