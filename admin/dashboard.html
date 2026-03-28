@@ -10,13 +10,8 @@
     <style>
 /* ============================================
    Kirinyaga Hostels Admin Dashboard - Complete CSS
-   Author: Admin
-   Date: 2025
    ============================================ */
 
-/* ============================================
-   CORE VARIABLES - Light mode default
-   ============================================ */
 :root {
     --kyu-green: #006747;
     --kyu-green-dark: #004d33;
@@ -53,9 +48,6 @@
     --radius-2xl: 2rem;
 }
 
-/* ============================================
-   DARK MODE VARIABLES
-   ============================================ */
 body.dark-mode {
     --kyu-green: #2ecc71;
     --kyu-green-dark: #27ae60;
@@ -79,19 +71,8 @@ body.dark-mode {
     --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.4);
 }
 
-/* ============================================
-   RESET & BASE STYLES
-   ============================================ */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-html {
-    scroll-behavior: smooth;
-}
-
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
     background: var(--bg-light);
@@ -101,33 +82,13 @@ body {
     line-height: 1.5;
 }
 
-/* ============================================
-   TYPOGRAPHY
-   ============================================ */
-h1, h2, h3, h4, h5, h6 {
-    font-weight: 600;
-    line-height: 1.25;
-    color: var(--text-primary);
-}
-
+h1, h2, h3, h4, h5, h6 { font-weight: 600; line-height: 1.25; color: var(--text-primary); }
 h1 { font-size: 2rem; }
 h2 { font-size: 1.5rem; }
 h3 { font-size: 1.25rem; }
-h4 { font-size: 1.125rem; }
+a { color: var(--kyu-green); text-decoration: none; transition: color 0.2s; }
+a:hover { color: var(--kyu-green-dark); }
 
-a {
-    color: var(--kyu-green);
-    text-decoration: none;
-    transition: color 0.2s;
-}
-
-a:hover {
-    color: var(--kyu-green-dark);
-}
-
-/* ============================================
-   ANNOUNCEMENT BANNER
-   ============================================ */
 .announcement-banner {
     background: linear-gradient(135deg, var(--header-gradient-start), var(--header-gradient-end));
     color: white;
@@ -138,12 +99,7 @@ a:hover {
     z-index: 1001;
     font-size: 0.9rem;
 }
-
-.announcement-banner.active {
-    display: block;
-    animation: slideDown 0.3s ease;
-}
-
+.announcement-banner.active { display: block; animation: slideDown 0.3s ease; }
 .announcement-banner .close-banner {
     position: absolute;
     right: 20px;
@@ -152,7 +108,6 @@ a:hover {
     cursor: pointer;
     font-size: 1.2rem;
     opacity: 0.8;
-    transition: opacity 0.2s;
     width: 30px;
     height: 30px;
     display: flex;
@@ -160,25 +115,8 @@ a:hover {
     justify-content: center;
     border-radius: 50%;
 }
+.announcement-banner .close-banner:hover { opacity: 1; background: rgba(255,255,255,0.2); }
 
-.announcement-banner .close-banner:hover {
-    opacity: 1;
-    background: rgba(255,255,255,0.2);
-}
-
-.announcement-banner a {
-    color: var(--kyu-gold);
-    text-decoration: underline;
-    margin-left: 8px;
-}
-
-.announcement-banner a:hover {
-    color: white;
-}
-
-/* ============================================
-   TOP NAVIGATION BAR
-   ============================================ */
 .top-nav {
     background: var(--top-nav-bg);
     box-shadow: var(--shadow-md);
@@ -190,9 +128,7 @@ a:hover {
     top: 0;
     z-index: 1000;
     border-bottom: 3px solid var(--kyu-gold);
-    transition: background 0.3s ease;
 }
-
 .menu-toggle {
     font-size: 1.5rem;
     cursor: pointer;
@@ -205,68 +141,18 @@ a:hover {
     border-radius: 50%;
     transition: all 0.3s;
 }
+.menu-toggle:hover { background: var(--bg-light); transform: scale(1.05); }
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo img { height: 40px; width: auto; }
+.logo span { font-size: 1.3rem; font-weight: 700; color: var(--kyu-green); }
+.top-nav-title { flex: 1; }
+.top-nav-title h1 { font-size: 1.3rem; margin: 0; }
+.top-nav-title p { font-size: 0.9rem; color: var(--text-secondary); margin: 0; }
 
-.menu-toggle:hover {
-    background: var(--bg-light);
-    transform: scale(1.05);
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.logo img {
-    height: 40px;
-    width: auto;
-}
-
-.logo span {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: var(--kyu-green);
-}
-
-.top-nav-title {
-    flex: 1;
-}
-
-.top-nav-title h1 {
-    font-size: 1.3rem;
-    margin: 0;
-}
-
-.top-nav-title p {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    margin: 0;
-}
-
-/* ============================================
-   ADMIN PROFILE SECTION
-   ============================================ */
-.admin-profile {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.notifications {
-    position: relative;
-    cursor: pointer;
-}
-
-.notifications i {
-    font-size: 1.3rem;
-    color: var(--text-secondary);
-    transition: color 0.2s;
-}
-
-.notifications:hover i {
-    color: var(--kyu-green);
-}
-
+.admin-profile { display: flex; align-items: center; gap: 20px; }
+.notifications { position: relative; cursor: pointer; }
+.notifications i { font-size: 1.3rem; color: var(--text-secondary); transition: color 0.2s; }
+.notifications:hover i { color: var(--kyu-green); }
 .notifications .badge {
     position: absolute;
     top: -5px;
@@ -282,7 +168,6 @@ a:hover {
     justify-content: center;
     font-weight: 600;
 }
-
 .dark-mode-toggle {
     background: var(--bg-light);
     border: none;
@@ -297,12 +182,7 @@ a:hover {
     transition: all 0.3s;
     color: var(--text-primary);
 }
-
-.dark-mode-toggle:hover {
-    background: var(--border-light);
-    transform: rotate(15deg);
-}
-
+.dark-mode-toggle:hover { background: var(--border-light); transform: rotate(15deg); }
 .sms-balance-widget {
     background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
     border-radius: 12px;
@@ -313,31 +193,11 @@ a:hover {
     cursor: pointer;
     transition: transform 0.2s;
 }
-
-.sms-balance-widget:hover {
-    transform: translateY(-2px);
-}
-
-.sms-balance-widget i {
-    font-size: 1.2rem;
-    color: white;
-}
-
-.sms-balance-info {
-    color: white;
-}
-
-.sms-balance-info .balance {
-    font-size: 1rem;
-    font-weight: bold;
-    line-height: 1.2;
-}
-
-.sms-balance-info .label {
-    font-size: 0.65rem;
-    opacity: 0.8;
-}
-
+.sms-balance-widget:hover { transform: translateY(-2px); }
+.sms-balance-widget i { font-size: 1.2rem; color: white; }
+.sms-balance-info { color: white; }
+.sms-balance-info .balance { font-size: 1rem; font-weight: bold; line-height: 1.2; }
+.sms-balance-info .label { font-size: 0.65rem; opacity: 0.8; }
 .admin-info {
     display: flex;
     align-items: center;
@@ -347,11 +207,7 @@ a:hover {
     border-radius: 40px;
     transition: all 0.3s;
 }
-
-.admin-info:hover {
-    background: var(--bg-light);
-}
-
+.admin-info:hover { background: var(--bg-light); }
 .admin-avatar {
     width: 40px;
     height: 40px;
@@ -364,20 +220,9 @@ a:hover {
     font-weight: 600;
     font-size: 1rem;
 }
+.admin-details .name { font-weight: 600; color: var(--text-primary); }
+.admin-details .role { font-size: 0.8rem; color: var(--text-secondary); }
 
-.admin-details .name {
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.admin-details .role {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-}
-
-/* ============================================
-   SIDEBAR STYLES
-   ============================================ */
 .sidebar-overlay {
     position: fixed;
     top: 0;
@@ -389,11 +234,7 @@ a:hover {
     display: none;
     backdrop-filter: blur(4px);
 }
-
-.sidebar-overlay.active {
-    display: block;
-}
-
+.sidebar-overlay.active { display: block; }
 .sidebar {
     position: fixed;
     top: 0;
@@ -406,11 +247,7 @@ a:hover {
     transition: left 0.3s ease;
     overflow-y: auto;
 }
-
-.sidebar.open {
-    left: 0;
-}
-
+.sidebar.open { left: 0; }
 .sidebar-header {
     padding: 1.5rem;
     border-bottom: 1px solid var(--border-light);
@@ -420,23 +257,9 @@ a:hover {
     background: var(--kyu-green);
     color: white;
 }
-
-.sidebar-header img {
-    width: 40px;
-    height: 40px;
-    filter: brightness(0) invert(1);
-}
-
-.sidebar-header h2 {
-    font-size: 1.2rem;
-    margin: 0;
-}
-
-.sidebar-header span {
-    font-size: 0.8rem;
-    opacity: 0.9;
-}
-
+.sidebar-header img { width: 40px; height: 40px; filter: brightness(0) invert(1); }
+.sidebar-header h2 { font-size: 1.2rem; margin: 0; }
+.sidebar-header span { font-size: 0.8rem; opacity: 0.9; }
 .sidebar-close {
     margin-left: auto;
     cursor: pointer;
@@ -449,16 +272,8 @@ a:hover {
     border-radius: 50%;
     transition: background 0.2s;
 }
-
-.sidebar-close:hover {
-    background: rgba(255,255,255,0.2);
-}
-
-.sidebar-search {
-    padding: 1rem;
-    border-bottom: 1px solid var(--border-light);
-}
-
+.sidebar-close:hover { background: rgba(255,255,255,0.2); }
+.sidebar-search { padding: 1rem; border-bottom: 1px solid var(--border-light); }
 .sidebar-search input {
     width: 100%;
     padding: 0.8rem;
@@ -469,15 +284,8 @@ a:hover {
     color: var(--text-primary);
     transition: border-color 0.2s;
 }
-
-.sidebar-search input:focus {
-    border-color: var(--kyu-green);
-}
-
-.sidebar-menu {
-    padding: 1rem 0;
-}
-
+.sidebar-search input:focus { border-color: var(--kyu-green); }
+.sidebar-menu { padding: 1rem 0; }
 .menu-category {
     padding: 0.5rem 1.5rem;
     font-weight: 700;
@@ -487,7 +295,6 @@ a:hover {
     letter-spacing: 1px;
     background: var(--bg-light);
 }
-
 .menu-item {
     padding: 0.8rem 1.5rem;
     display: flex;
@@ -498,37 +305,17 @@ a:hover {
     transition: all 0.3s;
     border-left: 4px solid transparent;
 }
+.menu-item:hover { background: var(--bg-light); border-left-color: var(--kyu-gold); }
+.menu-item i { width: 24px; color: var(--kyu-green); font-size: 1.1rem; }
+.menu-item span { flex: 1; }
 
-.menu-item:hover {
-    background: var(--bg-light);
-    border-left-color: var(--kyu-gold);
-}
-
-.menu-item i {
-    width: 24px;
-    color: var(--kyu-green);
-    font-size: 1.1rem;
-}
-
-.menu-item span {
-    flex: 1;
-}
-
-/* ============================================
-   MAIN CONTENT & PANELS
-   ============================================ */
-.main-content {
-    padding: 2rem;
-    transition: padding 0.3s;
-}
-
+.main-content { padding: 2rem; transition: padding 0.3s; }
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2rem;
 }
-
 .stat-card {
     background: var(--card-bg);
     border-radius: var(--radius-xl);
@@ -541,13 +328,7 @@ a:hover {
     cursor: pointer;
     border: 1px solid var(--border-light);
 }
-
-.stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--kyu-gold);
-}
-
+.stat-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); border-color: var(--kyu-gold); }
 .stat-icon {
     width: 60px;
     height: 60px;
@@ -559,18 +340,8 @@ a:hover {
     justify-content: center;
     font-size: 1.8rem;
 }
-
-.stat-info h3 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    margin: 0;
-}
-
-.stat-info p {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    margin: 0;
-}
+.stat-info h3 { font-size: 1.8rem; font-weight: 700; margin: 0; }
+.stat-info p { color: var(--text-secondary); font-size: 0.9rem; margin: 0; }
 
 .panel {
     display: none;
@@ -581,17 +352,8 @@ a:hover {
     margin-bottom: 1.5rem;
     border: 1px solid var(--border-light);
 }
-
-.panel.active {
-    display: block;
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
+.panel.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .panel-header {
     display: flex;
     justify-content: space-between;
@@ -600,21 +362,9 @@ a:hover {
     flex-wrap: wrap;
     gap: 1rem;
 }
+.panel-header h2 { font-size: 1.3rem; margin: 0; }
+.panel-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
-.panel-header h2 {
-    font-size: 1.3rem;
-    margin: 0;
-}
-
-.panel-actions {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-/* ============================================
-   BUTTON STYLES
-   ============================================ */
 .btn {
     padding: 0.6rem 1.2rem;
     border-radius: 40px;
@@ -627,67 +377,17 @@ a:hover {
     align-items: center;
     gap: 8px;
 }
+.btn-primary { background: var(--kyu-green); color: white; }
+.btn-primary:hover { background: var(--kyu-green-dark); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.btn-outline { background: transparent; border: 2px solid var(--kyu-green); color: var(--kyu-green); }
+.btn-outline:hover { background: var(--kyu-green); color: white; transform: translateY(-2px); }
+.btn-danger { background: var(--danger); color: white; }
+.btn-danger:hover { background: var(--danger-dark); transform: translateY(-2px); }
+.btn-sm { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-.btn-primary {
-    background: var(--kyu-green);
-    color: white;
-}
-
-.btn-primary:hover {
-    background: var(--kyu-green-dark);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-}
-
-.btn-outline {
-    background: transparent;
-    border: 2px solid var(--kyu-green);
-    color: var(--kyu-green);
-}
-
-.btn-outline:hover {
-    background: var(--kyu-green);
-    color: white;
-    transform: translateY(-2px);
-}
-
-.btn-danger {
-    background: var(--danger);
-    color: white;
-}
-
-.btn-danger:hover {
-    background: var(--danger-dark);
-    transform: translateY(-2px);
-}
-
-.btn-sm {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.8rem;
-}
-
-.btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-}
-
-/* ============================================
-   TABLE STYLES
-   ============================================ */
-.table-container {
-    overflow-x: auto;
-    margin-bottom: 1rem;
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border-light);
-    background: var(--card-bg);
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
+.table-container { overflow-x: auto; margin-bottom: 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-light); background: var(--card-bg); }
+table { width: 100%; border-collapse: collapse; }
 th {
     text-align: left;
     padding: 1rem;
@@ -697,24 +397,10 @@ th {
     font-size: 0.85rem;
     border-bottom: 2px solid var(--border-light);
 }
+td { padding: 1rem; border-bottom: 1px solid var(--border-light); color: var(--text-primary); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--bg-light); }
 
-td {
-    padding: 1rem;
-    border-bottom: 1px solid var(--border-light);
-    color: var(--text-primary);
-}
-
-tr:last-child td {
-    border-bottom: none;
-}
-
-tr:hover td {
-    background: var(--bg-light);
-}
-
-/* ============================================
-   BADGE STYLES
-   ============================================ */
 .badge {
     padding: 0.3rem 0.8rem;
     border-radius: 30px;
@@ -722,102 +408,26 @@ tr:hover td {
     font-weight: 600;
     display: inline-block;
 }
+.badge-success { background: #dcfce7; color: #166534; }
+body.dark-mode .badge-success { background: #14532d; color: #86efac; }
+.badge-warning { background: #fef9c3; color: #854d0e; }
+body.dark-mode .badge-warning { background: #713f12; color: #fde047; }
+.badge-danger { background: #fee2e2; color: #991b1b; }
+body.dark-mode .badge-danger { background: #7f1a1a; color: #fecaca; }
+.badge-info { background: #dbeafe; color: #1e40af; }
+body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
 
-.badge-success {
-    background: #dcfce7;
-    color: #166534;
-}
+.action-icons { display: flex; gap: 12px; }
+.action-icons i { cursor: pointer; color: var(--text-secondary); transition: all 0.2s; font-size: 1.1rem; }
+.action-icons i:hover { color: var(--kyu-green); transform: scale(1.1); }
+.action-icons .delete:hover { color: var(--danger); }
 
-body.dark-mode .badge-success {
-    background: #14532d;
-    color: #86efac;
-}
+.chart-container { height: 300px; margin-bottom: 2rem; }
+.charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem; }
 
-.badge-warning {
-    background: #fef9c3;
-    color: #854d0e;
-}
-
-body.dark-mode .badge-warning {
-    background: #713f12;
-    color: #fde047;
-}
-
-.badge-danger {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
-body.dark-mode .badge-danger {
-    background: #7f1a1a;
-    color: #fecaca;
-}
-
-.badge-info {
-    background: #dbeafe;
-    color: #1e40af;
-}
-
-body.dark-mode .badge-info {
-    background: #1e3a8a;
-    color: #93c5fd;
-}
-
-/* ============================================
-   ACTION ICONS
-   ============================================ */
-.action-icons {
-    display: flex;
-    gap: 12px;
-}
-
-.action-icons i {
-    cursor: pointer;
-    color: var(--text-secondary);
-    transition: all 0.2s;
-    font-size: 1.1rem;
-}
-
-.action-icons i:hover {
-    color: var(--kyu-green);
-    transform: scale(1.1);
-}
-
-.action-icons .delete:hover {
-    color: var(--danger);
-}
-
-/* ============================================
-   CHARTS
-   ============================================ */
-.chart-container {
-    height: 300px;
-    margin-bottom: 2rem;
-}
-
-.charts-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 2rem;
-}
-
-/* ============================================
-   FORM STYLES
-   ============================================ */
-.form-group {
-    margin-bottom: 1.2rem;
-}
-
-.form-group label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: var(--text-primary);
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
+.form-group { margin-bottom: 1.2rem; }
+.form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary); }
+.form-group input, .form-group select, .form-group textarea {
     width: 100%;
     padding: 0.8rem;
     border: 2px solid var(--border-light);
@@ -827,24 +437,8 @@ body.dark-mode .badge-info {
     color: var(--text-primary);
     transition: border-color 0.2s;
 }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--kyu-green); }
 
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-    outline: none;
-    border-color: var(--kyu-green);
-}
-
-.form-group input:disabled,
-.form-group select:disabled,
-.form-group textarea:disabled {
-    background: var(--bg-light);
-    cursor: not-allowed;
-}
-
-/* ============================================
-   NOTIFICATION DROPDOWN
-   ============================================ */
 .notification-dropdown {
     position: absolute;
     top: 70px;
@@ -859,23 +453,8 @@ body.dark-mode .badge-info {
     overflow: hidden;
     border: 1px solid var(--border-light);
 }
-
-.notification-dropdown.active {
-    display: block;
-    animation: slideDown 0.2s ease;
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
+.notification-dropdown.active { display: block; animation: slideDown 0.2s ease; }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 .notification-header {
     padding: 1rem 1.2rem;
     border-bottom: 1px solid var(--border-light);
@@ -884,65 +463,16 @@ body.dark-mode .badge-info {
     align-items: center;
     background: var(--bg-light);
 }
+.notification-header h4 { font-size: 1rem; margin: 0; }
+.mark-all-read { font-size: 0.8rem; color: var(--kyu-green); cursor: pointer; font-weight: 500; }
+.notification-list { max-height: 420px; overflow-y: auto; }
+.notification-item { padding: 1rem 1.2rem; border-bottom: 1px solid var(--border-light); transition: background 0.2s; cursor: pointer; }
+.notification-item:hover { background: var(--bg-light); }
+.notification-item.unread { background: rgba(0,103,71,0.05); border-left: 3px solid var(--kyu-green); }
+.notification-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.3rem; }
+.notification-message { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.3rem; line-height: 1.4; }
+.notification-time { font-size: 0.7rem; color: var(--text-muted); }
 
-.notification-header h4 {
-    font-size: 1rem;
-    margin: 0;
-}
-
-.mark-all-read {
-    font-size: 0.8rem;
-    color: var(--kyu-green);
-    cursor: pointer;
-    font-weight: 500;
-}
-
-.mark-all-read:hover {
-    text-decoration: underline;
-}
-
-.notification-list {
-    max-height: 420px;
-    overflow-y: auto;
-}
-
-.notification-item {
-    padding: 1rem 1.2rem;
-    border-bottom: 1px solid var(--border-light);
-    transition: background 0.2s;
-    cursor: pointer;
-}
-
-.notification-item:hover {
-    background: var(--bg-light);
-}
-
-.notification-item.unread {
-    background: rgba(0,103,71,0.05);
-    border-left: 3px solid var(--kyu-green);
-}
-
-.notification-title {
-    font-weight: 600;
-    font-size: 0.9rem;
-    margin-bottom: 0.3rem;
-}
-
-.notification-message {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    margin-bottom: 0.3rem;
-    line-height: 1.4;
-}
-
-.notification-time {
-    font-size: 0.7rem;
-    color: var(--text-muted);
-}
-
-/* ============================================
-   MODAL STYLES
-   ============================================ */
 .modal {
     display: none;
     position: fixed;
@@ -956,11 +486,7 @@ body.dark-mode .badge-info {
     z-index: 3000;
     backdrop-filter: blur(4px);
 }
-
-.modal.active {
-    display: flex;
-}
-
+.modal.active { display: flex; }
 .modal-content {
     background: var(--card-bg);
     border-radius: var(--radius-2xl);
@@ -971,18 +497,7 @@ body.dark-mode .badge-info {
     overflow-y: auto;
     animation: modalSlideIn 0.3s ease;
 }
-
-@keyframes modalSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
+@keyframes modalSlideIn { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
 .modal-header {
     display: flex;
     justify-content: space-between;
@@ -991,12 +506,7 @@ body.dark-mode .badge-info {
     padding-bottom: 1rem;
     border-bottom: 2px solid var(--border-light);
 }
-
-.modal-header h3 {
-    margin: 0;
-    font-size: 1.4rem;
-}
-
+.modal-header h3 { margin: 0; font-size: 1.4rem; }
 .modal-close {
     cursor: pointer;
     font-size: 1.8rem;
@@ -1009,72 +519,13 @@ body.dark-mode .badge-info {
     justify-content: center;
     border-radius: 50%;
 }
+.modal-close:hover { color: var(--danger); background: var(--bg-light); }
+.modal-footer { display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-light); }
 
-.modal-close:hover {
-    color: var(--danger);
-    background: var(--bg-light);
-}
+.alert-success { background: #d4edda; color: #155724; padding: 0.75rem 1rem; border-radius: var(--radius-md); margin-top: 1rem; border-left: 4px solid #28a745; }
+.alert-danger { background: #f8d7da; color: #721c24; padding: 0.75rem 1rem; border-radius: var(--radius-md); margin-top: 1rem; border-left: 4px solid #dc3545; }
+.alert-info { background: #d1ecf1; color: #0c5460; padding: 0.75rem 1rem; border-radius: var(--radius-md); margin-top: 1rem; border-left: 4px solid #17a2b8; }
 
-.modal-footer {
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-    margin-top: 1.5rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-light);
-}
-
-/* ============================================
-   ALERT STYLES
-   ============================================ */
-.alert-success {
-    background: #d4edda;
-    color: #155724;
-    padding: 0.75rem 1rem;
-    border-radius: var(--radius-md);
-    margin-top: 1rem;
-    border-left: 4px solid #28a745;
-}
-
-body.dark-mode .alert-success {
-    background: #14532d;
-    color: #86efac;
-    border-left-color: #22c55e;
-}
-
-.alert-danger {
-    background: #f8d7da;
-    color: #721c24;
-    padding: 0.75rem 1rem;
-    border-radius: var(--radius-md);
-    margin-top: 1rem;
-    border-left: 4px solid #dc3545;
-}
-
-body.dark-mode .alert-danger {
-    background: #7f1a1a;
-    color: #fecaca;
-    border-left-color: #ef4444;
-}
-
-.alert-info {
-    background: #d1ecf1;
-    color: #0c5460;
-    padding: 0.75rem 1rem;
-    border-radius: var(--radius-md);
-    margin-top: 1rem;
-    border-left: 4px solid #17a2b8;
-}
-
-body.dark-mode .alert-info {
-    background: #1e3a8a;
-    color: #93c5fd;
-    border-left-color: #3b82f6;
-}
-
-/* ============================================
-   SPINNER & LOADING
-   ============================================ */
 .spinner {
     border: 4px solid rgba(0,0,0,0.1);
     border-left-color: var(--kyu-green);
@@ -1084,20 +535,9 @@ body.dark-mode .alert-info {
     animation: spin 1s linear infinite;
     margin: 2rem auto;
 }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-row { text-align: center; padding: 2rem; color: var(--text-secondary); }
 
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-.loading-row {
-    text-align: center;
-    padding: 2rem;
-    color: var(--text-secondary);
-}
-
-/* ============================================
-   TOAST NOTIFICATION
-   ============================================ */
 .toast-notification {
     position: fixed;
     top: 20px;
@@ -1113,101 +553,17 @@ body.dark-mode .alert-info {
     align-items: center;
     gap: 12px;
 }
+.toast-notification.success { background: #d4edda; border-left: 5px solid #28a745; color: #155724; }
+.toast-notification.error { background: #f8d7da; border-left: 5px solid #dc3545; color: #721c24; }
+.toast-notification.info { background: #d1ecf1; border-left: 5px solid #17a2b8; color: #0c5460; }
+.toast-notification i { font-size: 1.5rem; }
+.toast-notification .toast-content { flex: 1; }
+.toast-notification .toast-title { font-weight: 600; margin-bottom: 0.25rem; }
+.toast-notification .toast-message { font-size: 0.85rem; white-space: pre-line; }
+.toast-notification .toast-close { cursor: pointer; font-size: 1.2rem; opacity: 0.7; transition: opacity 0.2s; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+.toast-notification .toast-close:hover { opacity: 1; background: rgba(0,0,0,0.1); }
+@keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-.toast-notification.success {
-    background: #d4edda;
-    border-left: 5px solid #28a745;
-    color: #155724;
-}
-
-.toast-notification.error {
-    background: #f8d7da;
-    border-left: 5px solid #dc3545;
-    color: #721c24;
-}
-
-.toast-notification.info {
-    background: #d1ecf1;
-    border-left: 5px solid #17a2b8;
-    color: #0c5460;
-}
-
-body.dark-mode .toast-notification.success {
-    background: #14532d;
-    color: #86efac;
-}
-
-body.dark-mode .toast-notification.error {
-    background: #7f1a1a;
-    color: #fecaca;
-}
-
-body.dark-mode .toast-notification.info {
-    background: #1e3a8a;
-    color: #93c5fd;
-}
-
-.toast-notification i {
-    font-size: 1.5rem;
-}
-
-.toast-notification .toast-content {
-    flex: 1;
-}
-
-.toast-notification .toast-title {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-}
-
-.toast-notification .toast-message {
-    font-size: 0.85rem;
-    white-space: pre-line;
-}
-
-.toast-notification .toast-close {
-    cursor: pointer;
-    font-size: 1.2rem;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-}
-
-.toast-notification .toast-close:hover {
-    opacity: 1;
-    background: rgba(0,0,0,0.1);
-}
-
-@keyframes slideInRight {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-@keyframes fadeOut {
-    from {
-        opacity: 1;
-        visibility: visible;
-    }
-    to {
-        opacity: 0;
-        visibility: hidden;
-    }
-}
-
-/* ============================================
-   IMPERSONATION BADGE
-   ============================================ */
 .impersonation-badge {
     background: #f59e0b;
     color: #1e293b;
@@ -1224,7 +580,6 @@ body.dark-mode .toast-notification.info {
     z-index: 999;
     box-shadow: var(--shadow-md);
 }
-
 .impersonation-badge .stop-impersonation {
     background: rgba(0,0,0,0.2);
     border: none;
@@ -1235,14 +590,8 @@ body.dark-mode .toast-notification.info {
     font-size: 0.75rem;
     transition: background 0.2s;
 }
+.impersonation-badge .stop-impersonation:hover { background: rgba(0,0,0,0.4); }
 
-.impersonation-badge .stop-impersonation:hover {
-    background: rgba(0,0,0,0.4);
-}
-
-/* ============================================
-   SHORTCUTS HELP BUTTON
-   ============================================ */
 .shortcuts-help {
     position: fixed;
     bottom: 20px;
@@ -1260,48 +609,28 @@ body.dark-mode .toast-notification.info {
     gap: 8px;
     transition: all 0.2s;
 }
+.shortcuts-help:hover { background: var(--kyu-green); color: white; transform: scale(1.05); }
 
-.shortcuts-help:hover {
-    background: var(--kyu-green);
-    color: white;
-    transform: scale(1.05);
+@media (max-width: 1024px) { .main-content { padding: 1.5rem; } .charts-grid { grid-template-columns: 1fr; } }
+@media (max-width: 768px) {
+    .top-nav { flex-wrap: wrap; padding: 0.8rem 1rem; gap: 12px; }
+    .admin-details { display: none; }
+    .stats-grid { grid-template-columns: 1fr; gap: 1rem; }
+    .notification-dropdown { width: 95%; right: 2.5%; left: 2.5%; }
+    .toast-notification { left: 20px; right: 20px; min-width: auto; }
+    .sms-balance-widget { display: none; }
+    .panel-header { flex-direction: column; align-items: flex-start; }
+    .sidebar { width: 300px; }
+}
+@media (max-width: 480px) {
+    .main-content { padding: 1rem; }
+    .stat-card { padding: 1rem; }
+    .stat-icon { width: 45px; height: 45px; font-size: 1.3rem; }
+    .stat-info h3 { font-size: 1.3rem; }
+    .panel { padding: 1rem; }
 }
 
-.shortcuts-help .shortcut-key {
-    background: rgba(0,0,0,0.1);
-    padding: 2px 6px;
-    border-radius: 6px;
-    font-family: monospace;
-}
-
-.shortcuts-modal .shortcut-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border-light);
-}
-
-.shortcut-item:last-child {
-    border-bottom: none;
-}
-
-.shortcut-key {
-    background: var(--bg-light);
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-family: monospace;
-    font-weight: 600;
-    font-size: 0.8rem;
-}
-
-/* ============================================
-   PROFILE EDIT MODAL
-   ============================================ */
-.profile-avatar-upload {
-    text-align: center;
-    margin-bottom: 1.5rem;
-}
-
+/* Profile Avatar Preview */
 .profile-avatar-preview {
     width: 100px;
     height: 100px;
@@ -1317,190 +646,33 @@ body.dark-mode .toast-notification.info {
     box-shadow: var(--shadow-md);
 }
 
-/* ============================================
-   RESPONSIVE DESIGN
-   ============================================ */
-@media (max-width: 1024px) {
-    .main-content {
-        padding: 1.5rem;
-    }
-    
-    .charts-grid {
-        grid-template-columns: 1fr;
-    }
+/* Shortcuts Modal */
+.shortcut-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-light);
 }
-
-@media (max-width: 768px) {
-    .top-nav {
-        flex-wrap: wrap;
-        padding: 0.8rem 1rem;
-        gap: 12px;
-    }
-    
-    .admin-details {
-        display: none;
-    }
-    
-    .stats-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-    
-    .notification-dropdown {
-        width: 95%;
-        right: 2.5%;
-        left: 2.5%;
-    }
-    
-    .toast-notification {
-        left: 20px;
-        right: 20px;
-        min-width: auto;
-    }
-    
-    .sms-balance-widget {
-        display: none;
-    }
-    
-    .dark-mode-toggle {
-        order: -1;
-    }
-    
-    .panel-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .modal-content {
-        width: 95%;
-        padding: 1.5rem;
-    }
-    
-    .sidebar {
-        width: 300px;
-    }
-    
-    .table-container {
-        font-size: 0.85rem;
-    }
-    
-    th, td {
-        padding: 0.75rem;
-    }
+.shortcut-item:last-child {
+    border-bottom: none;
 }
-
-@media (max-width: 480px) {
-    .main-content {
-        padding: 1rem;
-    }
-    
-    .stat-card {
-        padding: 1rem;
-    }
-    
-    .stat-icon {
-        width: 45px;
-        height: 45px;
-        font-size: 1.3rem;
-    }
-    
-    .stat-info h3 {
-        font-size: 1.3rem;
-    }
-    
-    .btn {
-        padding: 0.5rem 1rem;
-        font-size: 0.8rem;
-    }
-    
-    .panel {
-        padding: 1rem;
-    }
-    
-    .notification-item {
-        padding: 0.8rem;
-    }
-    
-    .shortcuts-help {
-        bottom: 10px;
-        right: 10px;
-        padding: 6px 12px;
-        font-size: 0.7rem;
-    }
-    
-    .impersonation-badge {
-        bottom: 10px;
-        left: 10px;
-        padding: 6px 12px;
-        font-size: 0.7rem;
-    }
-}
-
-/* ============================================
-   UTILITY CLASSES
-   ============================================ */
-.text-center { text-align: center; }
-.text-right { text-align: right; }
-.text-left { text-align: left; }
-
-.mt-1 { margin-top: 0.5rem; }
-.mt-2 { margin-top: 1rem; }
-.mt-3 { margin-top: 1.5rem; }
-.mt-4 { margin-top: 2rem; }
-
-.mb-1 { margin-bottom: 0.5rem; }
-.mb-2 { margin-bottom: 1rem; }
-.mb-3 { margin-bottom: 1.5rem; }
-.mb-4 { margin-bottom: 2rem; }
-
-.ml-1 { margin-left: 0.5rem; }
-.ml-2 { margin-left: 1rem; }
-.mr-1 { margin-right: 0.5rem; }
-.mr-2 { margin-right: 1rem; }
-
-.p-1 { padding: 0.5rem; }
-.p-2 { padding: 1rem; }
-.p-3 { padding: 1.5rem; }
-.p-4 { padding: 2rem; }
-
-.d-flex { display: flex; }
-.flex-column { flex-direction: column; }
-.align-center { align-items: center; }
-.justify-between { justify-content: space-between; }
-.gap-1 { gap: 0.5rem; }
-.gap-2 { gap: 1rem; }
-.gap-3 { gap: 1.5rem; }
-
-.w-100 { width: 100%; }
-.cursor-pointer { cursor: pointer; }
-
-/* Scrollbar styling */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-::-webkit-scrollbar-track {
+.shortcut-key {
     background: var(--bg-light);
-    border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--border-medium);
-    border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--kyu-green);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-family: monospace;
+    font-weight: 600;
+    font-size: 0.8rem;
 }
     </style>
 </head>
 <body>
+
     <!-- Announcement Banner -->
-<div class="announcement-banner" id="announcementBanner">
-    <span id="announcementMessage">📢 Welcome to Kirinyaga Hostels Admin Dashboard!</span>
-    <span class="close-banner" onclick="dismissAnnouncement()">&times;</span>
-</div>
+    <div class="announcement-banner" id="announcementBanner">
+        <span id="announcementMessage">📢 Welcome to Kirinyaga Hostels Admin Dashboard!</span>
+        <span class="close-banner" onclick="dismissAnnouncement()">&times;</span>
+    </div>
 
     <div class="top-nav">
         <div class="menu-toggle" id="menuToggle">
@@ -1515,19 +687,16 @@ body.dark-mode .toast-notification.info {
             <p id="pageSubtitle">Welcome back, Admin</p>
         </div>
         <div class="admin-profile">
-            <!-- Dark Mode Toggle -->
-<button class="dark-mode-toggle" id="darkModeToggle" title="Toggle Dark Mode">
-    <i class="fas fa-moon"></i>
-</button>
-
-<!-- SMS Balance Widget -->
-<div class="sms-balance-widget" id="smsBalanceWidget" onclick="checkSmsBalance()">
-    <i class="fas fa-comment-dots"></i>
-    <div class="sms-balance-info">
-        <div class="balance" id="smsBalance">--</div>
-        <div class="label">SMS Credits</div>
-    </div>
-</div>
+            <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle Dark Mode">
+                <i class="fas fa-moon"></i>
+            </button>
+            <div class="sms-balance-widget" id="smsBalanceWidget" onclick="checkSmsBalance()">
+                <i class="fas fa-comment-dots"></i>
+                <div class="sms-balance-info">
+                    <div class="balance" id="smsBalance">--</div>
+                    <div class="label">SMS Credits</div>
+                </div>
+            </div>
             <div class="notifications" id="notificationsBell">
                 <i class="fas fa-bell"></i>
                 <span class="badge" id="notificationBadge">0</span>
@@ -1589,8 +758,8 @@ body.dark-mode .toast-notification.info {
                 <div class="table-container">
                     <table id="recentActivityTable">
                         <thead> <th>Time</th><th>User</th><th>Action</th><th>Details</th><th>IP Address</th> </thead>
-                        <tbody id="recentActivityBody"> <td colspan="5" class="loading-row">Loading...  </tbody>
-                        </table>
+                        <tbody id="recentActivityBody"> <td colspan="5" class="loading-row">Loading...</td> </tbody>
+                    </table>
                 </div>
                 <div class="charts-grid">
                     <div class="chart-container"><canvas id="userGrowthChart"></canvas></div>
@@ -1628,9 +797,71 @@ body.dark-mode .toast-notification.info {
         </div>
     </div>
 
+    <div class="modal" id="profileEditModal">
+        <div class="modal-content">
+            <div class="modal-header"><h3><i class="fas fa-user-edit"></i> Edit Profile</h3><span class="modal-close" onclick="closeModal('profileEditModal')">&times;</span></div>
+            <div class="modal-body">
+                <div class="profile-avatar-upload">
+                    <div class="profile-avatar-preview" id="profileAvatarPreview">A</div>
+                    <input type="file" id="profileAvatarUpload" accept="image/*" style="display: none;">
+                    <button class="btn btn-outline btn-sm" onclick="document.getElementById('profileAvatarUpload').click()">
+                        <i class="fas fa-camera"></i> Change Avatar
+                    </button>
+                </div>
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="profileFullName" placeholder="Your full name">
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="profileEmail" placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Current Password</label>
+                    <input type="password" id="profileCurrentPassword" placeholder="Enter current password to make changes">
+                </div>
+                <div class="form-group">
+                    <label>New Password (leave blank to keep current)</label>
+                    <input type="password" id="profileNewPassword" placeholder="New password">
+                </div>
+                <div class="form-group">
+                    <label>Confirm New Password</label>
+                    <input type="password" id="profileConfirmPassword" placeholder="Confirm new password">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('profileEditModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="updateAdminProfile()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="impersonateModal">
+        <div class="modal-content">
+            <div class="modal-header"><h3><i class="fas fa-user-secret"></i> Impersonate User</h3><span class="modal-close" onclick="closeModal('impersonateModal')">&times;</span></div>
+            <div class="modal-body">
+                <div class="alert-info" style="margin-bottom: 1rem;">
+                    <i class="fas fa-info-circle"></i> Impersonating allows you to view the dashboard as a specific user.
+                </div>
+                <div class="form-group">
+                    <label>User Email</label>
+                    <input type="email" id="impersonateEmail" placeholder="user@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Or User ID</label>
+                    <input type="text" id="impersonateUserId" placeholder="User UUID">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('impersonateModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="startImpersonation()">Impersonate</button>
+            </div>
+        </div>
+    </div>
+
     <div class="modal" id="settingsModal">
         <div class="modal-content">
-            <div class="modal-header"><h3>System Settings</h3><span class="modal-close" onclick="closeModal('settingsModal')">&times;</span></div>
+            <div class="modal-header"><h3><i class="fas fa-cog"></i> System Settings</h3><span class="modal-close" onclick="closeModal('settingsModal')">&times;</span></div>
             <div class="modal-body">
                 <div class="form-group"><label>Site Name</label><input type="text" id="siteName" value="Kirinyaga Hostels"></div>
                 <div class="form-group"><label>Admin Email</label><input type="email" id="adminEmail" value="admin@kirinyagahostels.com"></div>
@@ -1646,140 +877,36 @@ body.dark-mode .toast-notification.info {
         </div>
     </div>
 
-    <!-- Impersonation Badge -->
-<div class="impersonation-badge" id="impersonationBadge" style="display: none;">
-    <i class="fas fa-user-secret"></i>
-    <span>Impersonating: <span id="impersonatedUserName"></span></span>
-    <button class="stop-impersonation" onclick="stopImpersonation()">Stop</button>
-</div>
-
-<!-- Profile Edit Modal -->
-<div class="modal" id="profileEditModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3><i class="fas fa-user-edit"></i> Edit Profile</h3>
-            <span class="modal-close" onclick="closeModal('profileEditModal')">&times;</span>
-        </div>
-        <div class="modal-body">
-            <div class="profile-avatar-upload">
-                <div class="profile-avatar-preview" id="profileAvatarPreview">A</div>
-                <input type="file" id="profileAvatarUpload" accept="image/*" style="display: none;">
-                <button class="btn btn-outline btn-sm" onclick="document.getElementById('profileAvatarUpload').click()">
-                    <i class="fas fa-camera"></i> Change Avatar
-                </button>
+    <div class="modal" id="shortcutsModal">
+        <div class="modal-content shortcuts-modal">
+            <div class="modal-header"><h3><i class="fas fa-keyboard"></i> Keyboard Shortcuts</h3><span class="modal-close" onclick="closeModal('shortcutsModal')">&times;</span></div>
+            <div class="modal-body">
+                <div class="shortcut-item"><span>Toggle Dark Mode</span><span class="shortcut-key">Ctrl + D</span></div>
+                <div class="shortcut-item"><span>Refresh Dashboard</span><span class="shortcut-key">Ctrl + R</span></div>
+                <div class="shortcut-item"><span>Open Send Notification</span><span class="shortcut-key">Ctrl + N</span></div>
+                <div class="shortcut-item"><span>Open System Settings</span><span class="shortcut-key">Ctrl + S</span></div>
+                <div class="shortcut-item"><span>Close Modal / Panel</span><span class="shortcut-key">ESC</span></div>
+                <div class="shortcut-item"><span>Search in Sidebar</span><span class="shortcut-key">Ctrl + K</span></div>
+                <div class="shortcut-item"><span>Open Profile Settings</span><span class="shortcut-key">Ctrl + P</span></div>
             </div>
-            <div class="form-group">
-                <label>Full Name</label>
-                <input type="text" id="profileFullName" placeholder="Your full name">
-            </div>
-            <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" id="profileEmail" placeholder="your@email.com">
-            </div>
-            <div class="form-group">
-                <label>Current Password</label>
-                <input type="password" id="profileCurrentPassword" placeholder="Enter current password to make changes">
-            </div>
-            <div class="form-group">
-                <label>New Password (leave blank to keep current)</label>
-                <input type="password" id="profileNewPassword" placeholder="New password">
-            </div>
-            <div class="form-group">
-                <label>Confirm New Password</label>
-                <input type="password" id="profileConfirmPassword" placeholder="Confirm new password">
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-outline" onclick="closeModal('profileEditModal')">Cancel</button>
-            <button class="btn btn-primary" onclick="updateAdminProfile()">Save Changes</button>
+            <div class="modal-footer"><button class="btn btn-primary" onclick="closeModal('shortcutsModal')">Got it!</button></div>
         </div>
     </div>
-</div>
 
-<!-- Impersonate User Modal -->
-<div class="modal" id="impersonateModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3><i class="fas fa-user-secret"></i> Impersonate User</h3>
-            <span class="modal-close" onclick="closeModal('impersonateModal')">&times;</span>
-        </div>
-        <div class="modal-body">
-            <div class="alert-info" style="margin-bottom: 1rem;">
-                <i class="fas fa-info-circle"></i> Impersonating allows you to view the dashboard as a specific user. This is useful for debugging and support.
-            </div>
-            <div class="form-group">
-                <label>User Email</label>
-                <input type="email" id="impersonateEmail" placeholder="user@example.com">
-            </div>
-            <div class="form-group">
-                <label>Or User ID</label>
-                <input type="text" id="impersonateUserId" placeholder="User UUID">
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-outline" onclick="closeModal('impersonateModal')">Cancel</button>
-            <button class="btn btn-primary" onclick="startImpersonation()">Impersonate</button>
-        </div>
+    <div class="impersonation-badge" id="impersonationBadge" style="display: none;">
+        <i class="fas fa-user-secret"></i>
+        <span>Impersonating: <span id="impersonatedUserName"></span></span>
+        <button class="stop-impersonation" onclick="stopImpersonation()">Stop</button>
     </div>
-</div>
 
-<!-- Shortcuts Help Modal -->
-<div class="modal" id="shortcutsModal">
-    <div class="modal-content shortcuts-modal">
-        <div class="modal-header">
-            <h3><i class="fas fa-keyboard"></i> Keyboard Shortcuts</h3>
-            <span class="modal-close" onclick="closeModal('shortcutsModal')">&times;</span>
-        </div>
-        <div class="modal-body">
-            <div class="shortcut-item">
-                <span>Toggle Dark Mode</span>
-                <span class="shortcut-key">Ctrl + D</span>
-            </div>
-            <div class="shortcut-item">
-                <span>Refresh Dashboard</span>
-                <span class="shortcut-key">Ctrl + R</span>
-            </div>
-            <div class="shortcut-item">
-                <span>Open Send Notification</span>
-                <span class="shortcut-key">Ctrl + N</span>
-            </div>
-            <div class="shortcut-item">
-                <span>Open System Settings</span>
-                <span class="shortcut-key">Ctrl + S</span>
-            </div>
-            <div class="shortcut-item">
-                <span>Close Modal / Panel</span>
-                <span class="shortcut-key">ESC</span>
-            </div>
-            <div class="shortcut-item">
-                <span>Search in Sidebar</span>
-                <span class="shortcut-key">Ctrl + K</span>
-            </div>
-            <div class="shortcut-item">
-                <span>Open Profile Settings</span>
-                <span class="shortcut-key">Ctrl + P</span>
-            </div>
-            <div class="shortcut-item">
-                <span>Open Shortcuts Help</span>
-                <span class="shortcut-key">Ctrl + /</span>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-primary" onclick="closeModal('shortcutsModal')">Got it!</button>
-        </div>
+    <div class="shortcuts-help" id="shortcutsHelpBtn">
+        <i class="fas fa-keyboard"></i> Shortcuts <span class="shortcut-key">Ctrl+K</span>
     </div>
-</div>
 
-<!-- Shortcuts Help Button -->
-<div class="shortcuts-help" id="shortcutsHelpBtn">
-    <i class="fas fa-keyboard"></i> Shortcuts <span class="shortcut-key">Ctrl+K</span>
-</div>
-
-    <script>
-        /**
- * Kirinyaga Hostels Admin Dashboard - Complete JavaScript
- * Author: Admin
- * Date: 2025
+        <script>
+/**
+ * Kirinyaga Hostels Admin Dashboard - Enhanced JavaScript
+ * Features: Search by email/name/phone, Impersonation, Analytics, Full CRUD
  */
 
 (function() {
@@ -1788,9 +915,31 @@ body.dark-mode .toast-notification.info {
     // ============================================
     const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
     
+    // Global variables
+    let students = [], owners = [], hostels = [], auditLogs = [], notifications = [];
+    let currentUserId = null, charts = {}, confirmCallback = null;
+    let currentImpersonating = null;
+    const AUTO_DELETE_HOURS = 48;
+    
     // ============================================
-    // TOAST NOTIFICATION SYSTEM
+    // UTILITY FUNCTIONS
     // ============================================
+    function formatDate(d) { return new Date(d).toLocaleString(); }
+    function formatCurrency(amount) { return 'KSh ' + Number(amount).toLocaleString(); }
+    function getInitials(name) { return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2); }
+    function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+    
+    function openModal(id) { document.getElementById(id)?.classList.add('active'); }
+    function closeModal(id) { document.getElementById(id)?.classList.remove('active'); }
+    window.openModal = openModal;
+    window.closeModal = closeModal;
+    
+    function showConfirm(msg, cb) {
+        document.getElementById('confirmMessage').textContent = msg;
+        confirmCallback = cb;
+        openModal('confirmModal');
+    }
+    
     function showToast(message, type = 'success', title = '') {
         let toastContainer = document.getElementById('toast-container');
         if (!toastContainer) {
@@ -1802,355 +951,72 @@ body.dark-mode .toast-notification.info {
             toastContainer.style.zIndex = '10000';
             document.body.appendChild(toastContainer);
         }
-        
         const toast = document.createElement('div');
         toast.className = `toast-notification ${type}`;
-        
-        const icon = type === 'success' ? 'fa-check-circle' : 
-                     (type === 'error' ? 'fa-exclamation-triangle' : 'fa-info-circle');
-        const defaultTitle = type === 'success' ? 'Success!' : 
-                            (type === 'error' ? 'Error!' : 'Info');
-        
+        const icon = type === 'success' ? 'fa-check-circle' : (type === 'error' ? 'fa-exclamation-triangle' : 'fa-info-circle');
+        const defaultTitle = type === 'success' ? 'Success!' : (type === 'error' ? 'Error!' : 'Info');
         toast.innerHTML = `
             <i class="fas ${icon}"></i>
             <div class="toast-content">
                 <div class="toast-title">${title || defaultTitle}</div>
-                <div class="toast-message">${message}</div>
+                <div class="toast-message">${escapeHtml(message)}</div>
             </div>
             <i class="fas fa-times toast-close"></i>
         `;
-        
         toastContainer.appendChild(toast);
-        
         const closeBtn = toast.querySelector('.toast-close');
-        closeBtn.addEventListener('click', () => {
-            toast.style.animation = 'fadeOut 0.3s ease';
-            setTimeout(() => toast.remove(), 300);
-        });
-        
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.style.animation = 'fadeOut 0.3s ease';
-                setTimeout(() => toast.remove(), 300);
-            }
-        }, 5000);
+        closeBtn.addEventListener('click', () => { toast.style.animation = 'fadeOut 0.3s ease'; setTimeout(() => toast.remove(), 300); });
+        setTimeout(() => { if (toast.parentNode) { toast.style.animation = 'fadeOut 0.3s ease'; setTimeout(() => toast.remove(), 300); } }, 5000);
     }
-    
-    function showMessage(msg, type) { 
-        if (type === 'success') showToast(msg, 'success');
-        else if (type === 'error') showToast(msg, 'error');
-        else showToast(msg, 'info');
-    }
-    
-    // ============================================
-    // AUTHENTICATION CHECK
-    // ============================================
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-    if (!token) {
-        console.error('No authentication token found');
-        window.location.href = 'login.html';
-        return;
-    }
-    
-    try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        const exp = payload.exp;
-        const now = Math.floor(Date.now() / 1000);
-        if (exp < now) {
-            console.log('Token expired. Redirecting to login...');
-            localStorage.clear();
-            sessionStorage.clear();
-            window.location.href = 'login.html';
-            return;
-        }
-    } catch(e) {
-        console.error('Invalid token format:', e);
-    }
-    
-    // ============================================
-    // GLOBAL VARIABLES
-    // ============================================
-    let students = [], owners = [], hostels = [], auditLogs = [], notifications = [];
-    let currentUserId = null, charts = {}, confirmCallback = null;
-    const AUTO_DELETE_HOURS = 48;
-    
-    // ============================================
-    // DARK MODE FUNCTIONALITY
-    // ============================================
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-        document.body.classList.add('dark-mode');
-        updateDarkModeIcon(true);
-    }
-    
-    function updateDarkModeIcon(isDark) {
-        const toggleBtn = document.getElementById('darkModeToggle');
-        if (toggleBtn) {
-            if (isDark) {
-                toggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
-                toggleBtn.title = 'Switch to Light Mode';
-            } else {
-                toggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
-                toggleBtn.title = 'Switch to Dark Mode';
-            }
-        }
-    }
-    
-    function toggleDarkMode() {
-        const isDark = document.body.classList.toggle('dark-mode');
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        updateDarkModeIcon(isDark);
-        showToast(isDark ? 'Dark mode enabled' : 'Light mode enabled', 'info', 'Theme');
-    }
-    
-    // ============================================
-    // ANNOUNCEMENT BANNER
-    // ============================================
-    window.dismissAnnouncement = function() {
-        const banner = document.getElementById('announcementBanner');
-        if (banner) banner.classList.remove('active');
-        localStorage.setItem('announcement_dismissed', 'true');
-    };
-    
-    async function loadAnnouncement() {
-        try {
-            const data = await apiFetch('/announcements/active/');
-            if (data && data.message) {
-                document.getElementById('announcementMessage').innerHTML = data.message;
-                if (!localStorage.getItem('announcement_dismissed_' + data.id)) {
-                    document.getElementById('announcementBanner').classList.add('active');
-                }
-            }
-        } catch(e) {
-            // No announcement - keep default
-        }
-    }
-    
-    // ============================================
-    // SMS BALANCE CHECKER
-    // ============================================
-    window.checkSmsBalance = async function() {
-        try {
-            showToast('Checking SMS balance...', 'info', 'Please wait');
-            const data = await apiFetch('/sms/balance/');
-            if (data && data.balance !== undefined) {
-                document.getElementById('smsBalance').innerHTML = data.balance;
-                showToast(`SMS Balance: ${data.balance} ${data.currency || 'credits'}`, 'success', 'Twilio Balance');
-            } else {
-                document.getElementById('smsBalance').innerHTML = '0';
-                showToast('Could not fetch SMS balance', 'error', 'Error');
-            }
-        } catch(e) {
-            document.getElementById('smsBalance').innerHTML = 'Error';
-            console.error('SMS balance error:', e);
-        }
-    };
-    
-    // ============================================
-    // USER IMPERSONATION
-    // ============================================
-    window.startImpersonation = async function() {
-        const email = document.getElementById('impersonateEmail').value;
-        const userId = document.getElementById('impersonateUserId').value;
-        
-        if (!email && !userId) {
-            showToast('Please enter an email or user ID', 'error', 'Missing Info');
-            return;
-        }
-        
-        try {
-            const payload = { email, user_id: userId };
-            const data = await apiFetch('/impersonate/start/', { method: 'POST', body: JSON.stringify(payload) });
-            if (data && data.access_token) {
-                const currentToken = localStorage.getItem('token') || sessionStorage.getItem('token');
-                sessionStorage.setItem('original_token', currentToken);
-                sessionStorage.setItem('token', data.access_token);
-                sessionStorage.setItem('impersonating', data.user_email);
-                document.getElementById('impersonatedUserName').innerText = data.user_email;
-                document.getElementById('impersonationBadge').style.display = 'flex';
-                showToast(`Now impersonating ${data.user_email}`, 'success', 'Impersonation Started');
-                closeModal('impersonateModal');
-                setTimeout(() => window.location.reload(), 1000);
-            }
-        } catch(e) {
-            showToast(e.message, 'error', 'Impersonation Failed');
-        }
-    };
-    
-    window.stopImpersonation = async function() {
-        try {
-            const originalToken = sessionStorage.getItem('original_token');
-            if (originalToken) {
-                sessionStorage.setItem('token', originalToken);
-                sessionStorage.removeItem('original_token');
-                sessionStorage.removeItem('impersonating');
-                document.getElementById('impersonationBadge').style.display = 'none';
-                showToast('Back to admin account', 'success', 'Impersonation Stopped');
-                window.location.reload();
-            }
-        } catch(e) {
-            showToast('Failed to stop impersonation', 'error');
-        }
-    };
-    
-    if (sessionStorage.getItem('impersonating')) {
-        document.getElementById('impersonatedUserName').innerText = sessionStorage.getItem('impersonating');
-        document.getElementById('impersonationBadge').style.display = 'flex';
-    }
-    
-    // ============================================
-    // ADMIN PROFILE EDIT
-    // ============================================
-    async function loadAdminProfileForEdit() {
-        try {
-            const data = await apiFetch('/auth/profile/');
-            if (data) {
-                document.getElementById('profileFullName').value = data.full_name;
-                document.getElementById('profileEmail').value = data.email;
-                document.getElementById('profileAvatarPreview').innerText = getInitials(data.full_name);
-                document.getElementById('profileCurrentPassword').value = '';
-                document.getElementById('profileNewPassword').value = '';
-                document.getElementById('profileConfirmPassword').value = '';
-            }
-        } catch(e) {
-            showToast('Failed to load profile', 'error');
-        }
-    }
-    
-    window.updateAdminProfile = async function() {
-        const fullName = document.getElementById('profileFullName').value;
-        const email = document.getElementById('profileEmail').value;
-        const currentPassword = document.getElementById('profileCurrentPassword').value;
-        const newPassword = document.getElementById('profileNewPassword').value;
-        const confirmPassword = document.getElementById('profileConfirmPassword').value;
-        
-        if (!fullName || !email) {
-            showToast('Name and email are required', 'error');
-            return;
-        }
-        
-        if (newPassword && newPassword !== confirmPassword) {
-            showToast('New passwords do not match', 'error');
-            return;
-        }
-        
-        if (newPassword && !currentPassword) {
-            showToast('Current password is required to change password', 'error');
-            return;
-        }
-        
-        try {
-            const payload = { full_name: fullName, email: email };
-            if (currentPassword) payload.current_password = currentPassword;
-            if (newPassword) payload.new_password = newPassword;
-            
-            const data = await apiFetch('/auth/profile/update/', { method: 'PUT', body: JSON.stringify(payload) });
-            showToast('Profile updated successfully', 'success');
-            closeModal('profileEditModal');
-            document.getElementById('adminName').textContent = fullName;
-            document.getElementById('adminAvatar').textContent = getInitials(fullName);
-        } catch(e) {
-            showToast(e.message, 'error', 'Update Failed');
-        }
-    };
-    
-    // ============================================
-    // KEYBOARD SHORTCUTS
-    // ============================================
-    document.addEventListener('keydown', function(e) {
-        if (e.ctrlKey && e.key === 'd') {
-            e.preventDefault();
-            toggleDarkMode();
-        }
-        else if (e.ctrlKey && e.key === 'r') {
-            e.preventDefault();
-            window.refreshDashboard && window.refreshDashboard();
-            showToast('Dashboard refreshed', 'info');
-        }
-        else if (e.ctrlKey && e.key === 'n') {
-            e.preventDefault();
-            window.showPanel && window.showPanel('send-notification');
-        }
-        else if (e.ctrlKey && e.key === 's') {
-            e.preventDefault();
-            window.showPanel && window.showPanel('system-settings');
-        }
-        else if (e.ctrlKey && e.key === 'k') {
-            e.preventDefault();
-            const searchInput = document.getElementById('menuSearch');
-            if (searchInput && document.getElementById('sidebar').classList.contains('open')) {
-                searchInput.focus();
-            } else {
-                openModal('shortcutsModal');
-            }
-        }
-        else if (e.ctrlKey && e.key === 'p') {
-            e.preventDefault();
-            loadAdminProfileForEdit();
-            openModal('profileEditModal');
-        }
-        else if (e.key === 'Escape') {
-            const activeModals = document.querySelectorAll('.modal.active');
-            activeModals.forEach(modal => closeModal(modal.id));
-        }
-    });
-    
-    // ============================================
-    // UTILITY FUNCTIONS
-    // ============================================
-    function formatDate(d) { return new Date(d).toLocaleString(); }
-    function formatCurrency(a) { return 'KSh ' + Number(a).toLocaleString(); }
-    function getInitials(n) { return n.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2); }
-    function openModal(id) { document.getElementById(id)?.classList.add('active'); }
-    function closeModal(id) { document.getElementById(id)?.classList.remove('active'); }
-
-    // Expose modal functions to global scope for onclick handlers
-    window.openModal = openModal;
-    window.closeModal = closeModal;
-    
-    function showConfirm(msg, cb) {
-        document.getElementById('confirmMessage').textContent = msg;
-        confirmCallback = cb;
-        openModal('confirmModal');
-    }
-
-    
     
     // ============================================
     // API FETCH WRAPPER
     // ============================================
     async function apiFetch(url, options = {}) {
         const currentToken = localStorage.getItem('token') || sessionStorage.getItem('token');
-        if (!currentToken) {
-            window.location.href = 'login.html';
-            return null;
-        }
-        
+        if (!currentToken) { window.location.href = 'login.html'; return null; }
         try {
             const res = await fetch(`${API_BASE}${url}`, {
                 ...options,
-                headers: { 
-                    'Authorization': `Bearer ${currentToken}`, 
-                    'Content-Type': 'application/json', 
-                    ...options.headers 
-                }
+                headers: { 'Authorization': `Bearer ${currentToken}`, 'Content-Type': 'application/json', ...options.headers }
             });
-            if (res.status === 401) { 
-                localStorage.clear();
-                sessionStorage.clear(); 
-                window.location.href = 'login.html'; 
-                return null; 
-            }
+            if (res.status === 401) { localStorage.clear(); sessionStorage.clear(); window.location.href = 'login.html'; return null; }
             if (!res.ok) throw new Error((await res.json().catch(()=>({}))).message || `HTTP ${res.status}`);
             return await res.json();
-        } catch(e) { 
-            console.error('API Error:', e); 
-            throw e; 
-        }
+        } catch(e) { console.error('API Error:', e); throw e; }
     }
     
     // ============================================
-    // SIDEBAR & PANEL FUNCTIONS
+    // AUTHENTICATION CHECK
+    // ============================================
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    if (!token) { window.location.href = 'login.html'; return; }
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.exp < Math.floor(Date.now() / 1000)) {
+            localStorage.clear(); sessionStorage.clear(); window.location.href = 'login.html'; return;
+        }
+    } catch(e) { console.error('Invalid token'); }
+    
+    // ============================================
+    // DARK MODE
+    // ============================================
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') { document.body.classList.add('dark-mode'); updateDarkModeIcon(true); }
+    function updateDarkModeIcon(isDark) {
+        const toggleBtn = document.getElementById('darkModeToggle');
+        if (toggleBtn) toggleBtn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+    }
+    function toggleDarkMode() {
+        const isDark = document.body.classList.toggle('dark-mode');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        updateDarkModeIcon(isDark);
+        showToast(isDark ? 'Dark mode enabled' : 'Light mode enabled', 'info', 'Theme');
+    }
+    document.getElementById('darkModeToggle')?.addEventListener('click', toggleDarkMode);
+    
+    // ============================================
+    // SIDEBAR MENU
     // ============================================
     const menuCategories = [
         { name: '📊 DASHBOARD', items: [{ id: 'dashboard', icon: 'fa-chart-pie', name: 'Dashboard' }] },
@@ -2173,10 +1039,7 @@ body.dark-mode .toast-notification.info {
             { id: 'hostel-analytics', icon: 'fa-chart-bar', name: 'Hostel Analytics' }
         ]},
         { name: '📢 NOTIFICATIONS', items: [{ id: 'send-notification', icon: 'fa-paper-plane', name: 'Send Notification' }] },
-        { name: '⚙️ SETTINGS', items: [
-            { id: 'system-settings', icon: 'fa-cog', name: 'Settings' },
-            { id: 'profile', icon: 'fa-user-circle', name: 'My Profile' }
-        ]}
+        { name: '⚙️ SETTINGS', items: [{ id: 'system-settings', icon: 'fa-cog', name: 'Settings' }] }
     ];
     
     function renderSidebarMenu(filter = '') {
@@ -2201,17 +1064,8 @@ body.dark-mode .toast-notification.info {
     }
     
     function showPanel(panelId) {
-        if (panelId === 'impersonate') {
-            openModal('impersonateModal');
-            closeSidebar();
-            return;
-        }
-        if (panelId === 'profile') {
-            loadAdminProfileForEdit();
-            openModal('profileEditModal');
-            closeSidebar();
-            return;
-        }
+        if (panelId === 'impersonate') { openModal('impersonateModal'); closeSidebar(); return; }
+        if (panelId === 'profile') { loadAdminProfileForEdit(); openModal('profileEditModal'); closeSidebar(); return; }
         document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
         let panel = document.getElementById(`panel-${panelId}`);
         if (!panel) panel = createPanel(panelId);
@@ -2225,81 +1079,33 @@ body.dark-mode .toast-notification.info {
     function createPanel(panelId) {
         const contents = {
             'dashboard': `<div class="panel-header"><h2>Dashboard Overview</h2><div class="panel-actions"><button class="btn btn-outline" onclick="refreshDashboard()"><i class="fas fa-sync-alt"></i> Refresh</button></div></div><div class="stats-grid" id="dashboard-stats"></div><h3>Recent Activity</h3><div class="table-container"><table><thead><th>Time</th><th>User</th><th>Action</th><th>Details</th><th>IP</th></thead><tbody id="dashboard-activity"></tbody></table></div>`,
-            'students': `<div class="panel-header"><h2>Student Management</h2><div class="panel-actions"><select id="studentFilter" onchange="loadStudents()"><option value="all">All</option><option value="active">Active</option><option value="locked">Locked</option><option value="verified">Verified</option></select><input type="text" id="studentSearch" placeholder="Search..."><button class="btn btn-primary" onclick="loadStudents()"><i class="fas fa-search"></i></button></div></div><div class="table-container"><table id="studentsTable"><thead><th>Name</th><th>Email</th><th>Phone</th><th>Reg No</th><th>Verified</th><th>2FA</th><th>Status</th><th>Joined</th><th>Actions</th></thead><tbody id="studentsBody"></tbody></table></div>`,
-            'owners': `<div class="panel-header"><h2>Owner Management</h2><div class="panel-actions"><select id="ownerFilter" onchange="loadOwners()"><option value="all">All</option><option value="pending">Pending</option><option value="approved">Approved</option></select><input type="text" id="ownerSearch" placeholder="Search..."><button class="btn btn-primary" onclick="loadOwners()"><i class="fas fa-search"></i></button></div></div><div class="table-container"><table id="ownersTable"><thead><th>Business</th><th>Name</th><th>Email</th><th>Phone</th><th>Approval</th><th>Verified</th><th>Hostels</th><th>Fraud</th><th>Actions</th></thead><tbody id="ownersBody"></tbody></table></div>`,
-            'hostels': `<div class="panel-header"><h2>Hostel Management</h2><div class="panel-actions"><select id="hostelFilter" onchange="loadHostels()"><option value="all">All</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="featured">Featured</option></select><input type="text" id="hostelSearch" placeholder="Search..."><button class="btn btn-primary" onclick="loadHostels()"><i class="fas fa-search"></i></button></div></div><div class="table-container"><table id="hostelsTable"><thead><th>Name</th><th>Owner</th><th>Location</th><th>Distance</th><th>Price</th><th>Type</th><th>Status</th><th>Featured</th><th>Actions</th></thead><tbody id="hostelsBody"></tbody></table></div>`,
-            'featured-hostels': `<div class="panel-header"><h2>Featured Hostels</h2><div class="panel-actions"><button class="btn btn-primary" onclick="loadFeaturedHostels()">Refresh</button></div></div><div class="table-container"><table id="featuredHostelsTable"><thead><th>Name</th><th>Owner</th><th>Location</th><th>Price</th><th>Rating</th><th>Actions</th></thead><tbody id="featuredHostelsBody"></tbody></table></div>`,
-            'audit-logs': `<div class="panel-header"><h2>Audit Logs</h2><div class="panel-actions"><input type="text" id="auditSearch" placeholder="Search..."><button class="btn btn-primary" onclick="loadAuditLogs()">Search</button></div></div><div class="table-container"><table id="auditTable"><thead><th>Time</th><th>User</th><th>Action</th><th>Details</th><th>IP</th></thead><tbody id="auditBody"></tbody></table></div>`,
+            'students': `<div class="panel-header"><h2>Student Management</h2><div class="panel-actions"><select id="studentFilter" onchange="loadStudents()"><option value="all">All</option><option value="active">Active</option><option value="locked">Locked</option><option value="verified">Verified</option></select><input type="text" id="studentSearch" placeholder="Search by name, email or phone..." style="width:250px;"><button class="btn btn-primary" onclick="loadStudents()"><i class="fas fa-search"></i> Search</button></div></div><div class="table-container"><table id="studentsTable"><thead><th>Name</th><th>Email</th><th>Phone</th><th>Reg No</th><th>Verified</th><th>2FA</th><th>Status</th><th>Joined</th><th>Actions</th></thead><tbody id="studentsBody"></tbody></table></div>`,
+            'owners': `<div class="panel-header"><h2>Owner Management</h2><div class="panel-actions"><select id="ownerFilter" onchange="loadOwners()"><option value="all">All</option><option value="pending">Pending</option><option value="approved">Approved</option></select><input type="text" id="ownerSearch" placeholder="Search by name, email or phone..." style="width:250px;"><button class="btn btn-primary" onclick="loadOwners()"><i class="fas fa-search"></i> Search</button></div></div><div class="table-container"><table id="ownersTable"><thead><th>Business</th><th>Name</th><th>Email</th><th>Phone</th><th>Approval</th><th>Verified</th><th>Hostels</th><th>Fraud</th><th>Actions</th></thead><tbody id="ownersBody"></tbody></table></div>`,
+            'hostels': `<div class="panel-header"><h2>Hostel Management</h2><div class="panel-actions"><select id="hostelFilter" onchange="loadHostels()"><option value="all">All</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="featured">Featured</option></select><input type="text" id="hostelSearch" placeholder="Search by name, owner, location..." style="width:250px;"><button class="btn btn-primary" onclick="loadHostels()"><i class="fas fa-search"></i> Search</button></div></div><div class="table-container"><table id="hostelsTable"><thead><th>Name</th><th>Owner</th><th>Location</th><th>Distance</th><th>Price</th><th>Type</th><th>Status</th><th>Featured</th><th>Bookings</th><th>Actions</th></thead><tbody id="hostelsBody"></tbody></table></div>`,
+            'featured-hostels': `<div class="panel-header"><h2>Featured Hostels</h2><div class="panel-actions"><button class="btn btn-primary" onclick="loadFeaturedHostels()">Refresh</button></div></div><div class="table-container"><table id="featuredHostelsTable"><thead><th>Name</th><th>Owner</th><th>Location</th><th>Price</th><th>Rating</th><th>Bookings</th><th>Actions</th></thead><tbody id="featuredHostelsBody"></tbody></table></div>`,
+            'audit-logs': `<div class="panel-header"><h2>Audit Logs</h2><div class="panel-actions"><input type="text" id="auditSearch" placeholder="Search by user, action..." style="width:250px;"><button class="btn btn-primary" onclick="loadAuditLogs()">Search</button></div></div><div class="table-container"><table id="auditTable"><thead><th>Time</th><th>User</th><th>Action</th><th>Details</th><th>IP</th></thead><tbody id="auditBody"></tbody></table></div>`,
             'fraud-alerts': `<div class="panel-header"><h2>Fraud Alerts</h2></div><div class="stats-grid" id="fraudStats"></div><div class="table-container"><table id="fraudTable"><thead><th>User</th><th>Role</th><th>Fraud Score</th><th>Failed Attempts</th><th>Locked Until</th><th>Actions</th></thead><tbody id="fraudBody"></tbody></table></div>`,
-            'sessions': `<div class="panel-header"><h2>Active Sessions</h2><div class="panel-actions"><button class="btn btn-outline" onclick="loadSessions()">Refresh</button></div></div><div class="table-container"><table id="sessionsTable"><thead><th>User</th><th>Session Key</th><th>Expires</th></thead><tbody id="sessionsBody"></tbody></table></div>`,
-            'user-analytics': `<div class="panel-header"><h2>User Analytics</h2><div class="panel-actions"><button class="btn btn-outline" onclick="loadUserAnalytics()">Refresh</button></div></div><div class="chart-container"><canvas id="userAnalyticsChart"></canvas></div>`,
-            'hostel-analytics': `<div class="panel-header"><h2>Hostel Analytics</h2><div class="panel-actions"><button class="btn btn-outline" onclick="loadHostelAnalytics()">Refresh</button></div></div><div class="chart-container"><canvas id="hostelAnalyticsChart"></canvas></div>`,
-            'system-settings': `<div class="panel-header"><h2>System Settings</h2></div><div class="form-group"><label>Site Name</label><input type="text" id="siteName" value="Kirinyaga Hostels"></div><div class="form-group"><label>Admin Email</label><input type="email" id="adminEmail" value="admin@kirinyagahostels.com"></div><div class="form-group"><label>Contact Phone</label><input type="text" id="contactPhone" value="+254712345678"></div><div class="form-group"><label>Max Login Attempts</label><input type="number" id="maxAttempts" value="5"></div><div class="form-group"><label>Admin Max Attempts</label><input type="number" id="adminMaxAttempts" value="3"></div><div class="form-group"><label>Lockout Hours</label><input type="number" id="lockoutHours" value="1"></div><button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>`,
+            'sessions': `<div class="panel-header"><h2>Active Sessions</h2><div class="panel-actions"><button class="btn btn-outline" onclick="loadSessions()">Refresh</button></div></div><div class="table-container"><table id="sessionsTable"><thead><th>User</th><th>Session Key</th><th>Expires</th><th>IP</th><th>Device</th></thead><tbody id="sessionsBody"></tbody></table></div>`,
+            'user-analytics': `<div class="panel-header"><h2>User Analytics</h2><div class="panel-actions"><button class="btn btn-outline" onclick="loadUserAnalytics()">Refresh</button></div></div><div class="stats-grid" id="userAnalyticsStats"></div><div class="chart-container"><canvas id="userAnalyticsChart"></canvas></div>`,
+            'hostel-analytics': `<div class="panel-header"><h2>Hostel Analytics</h2><div class="panel-actions"><button class="btn btn-outline" onclick="loadHostelAnalytics()">Refresh</button></div></div><div class="stats-grid" id="hostelAnalyticsStats"></div><div class="chart-container"><canvas id="hostelAnalyticsChart"></canvas></div>`,
+            'system-settings': `<div class="panel-header"><h2>System Settings</h2><div class="panel-actions"><button class="btn btn-primary" onclick="saveSettings()">Save All Settings</button></div></div><div class="form-group"><label>Site Name</label><input type="text" id="siteName" value="Kirinyaga Hostels"></div><div class="form-group"><label>Admin Email</label><input type="email" id="adminEmail" value="admin@kirinyagahostels.com"></div><div class="form-group"><label>Contact Phone</label><input type="text" id="contactPhone" value="+254712345678"></div><div class="form-group"><label>Max Login Attempts</label><input type="number" id="maxAttempts" value="5"></div><div class="form-group"><label>Admin Max Attempts</label><input type="number" id="adminMaxAttempts" value="3"></div><div class="form-group"><label>Lockout Hours</label><input type="number" id="lockoutHours" value="1"></div>`,
             'send-notification': `
-                <div class="panel-header">
-                    <h2><i class="fas fa-paper-plane"></i> Send Notification</h2>
-                    <div class="panel-actions">
-                        <button class="btn btn-outline" onclick="resetNotificationForm()"><i class="fas fa-undo-alt"></i> Reset</button>
-                    </div>
-                </div>
-                <div class="alert-info" style="margin-bottom:1rem; padding:1rem;">
-                    <i class="fas fa-info-circle"></i> Send notifications to users via email and/or SMS.
-                </div>
-                <div class="form-group">
-                    <label>Channel <span style="color: var(--danger);">*</span></label>
-                    <select id="notifChannel">
-                        <option value="email">📧 Email Only</option>
-                        <option value="sms">📱 SMS Only</option>
-                        <option value="both">📧📱 Both Email & SMS</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Recipient Type <span style="color: var(--danger);">*</span></label>
-                    <select id="notifUserType" onchange="toggleRecipientFields()">
-                        <option value="all">👥 All Users</option>
-                        <option value="students">🎓 All Students</option>
-                        <option value="owners">🏢 All Owners</option>
-                        <option value="specific">🔢 Specific Users (by ID)</option>
-                        <option value="single">👤 Single User</option>
-                    </select>
-                </div>
-                <div class="form-group" id="recipientIdsGroup" style="display:none;">
-                    <label>User IDs (comma separated)</label>
-                    <input type="text" id="notifUserIds" placeholder="e.g., a6ebeede-781a-4c8e-8274-96998b57e1a9">
-                    <small>Enter UUIDs separated by commas</small>
-                </div>
-                <div class="form-group" id="singleUserGroup" style="display:none;">
-                    <label>Email or Phone Number <span style="color: var(--danger);">*</span></label>
-                    <input type="text" id="notifSingleContact" placeholder="email@example.com or +254712345678">
-                    <small>Enter email address OR phone number</small>
-                </div>
-                <div class="form-group">
-                    <label>Subject (for email)</label>
-                    <input type="text" id="notifSubject" placeholder="Notification Subject">
-                </div>
-                <div class="form-group">
-                    <label>Message <span style="color: var(--danger);">*</span></label>
-                    <textarea id="notifMessage" rows="5" required placeholder="Enter your message here..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Link (optional)</label>
-                    <input type="text" id="notifLink" placeholder="https://kirinyagahostels.com/dashboard">
-                </div>
+                <div class="panel-header"><h2><i class="fas fa-paper-plane"></i> Send Notification</h2></div>
+                <div class="alert-info" style="margin-bottom:1rem; padding:1rem;"><i class="fas fa-info-circle"></i> Send notifications to users via email and/or SMS.</div>
+                <div class="form-group"><label>Channel</label><select id="notifChannel"><option value="email">📧 Email Only</option><option value="sms">📱 SMS Only</option><option value="both">📧📱 Both</option></select></div>
+                <div class="form-group"><label>Recipient Type</label><select id="notifUserType" onchange="toggleRecipientFields()"><option value="all">👥 All Users</option><option value="students">🎓 All Students</option><option value="owners">🏢 All Owners</option><option value="specific">🔢 Specific Users (by ID)</option><option value="single">👤 Single User</option></select></div>
+                <div class="form-group" id="recipientIdsGroup" style="display:none;"><label>User IDs (comma separated)</label><input type="text" id="notifUserIds" placeholder="e.g., a6ebeede-781a-4c8e-8274-96998b57e1a9"></div>
+                <div class="form-group" id="singleUserGroup" style="display:none;"><label>Email or Phone</label><input type="text" id="notifSingleContact" placeholder="email@example.com or +254712345678"></div>
+                <div class="form-group"><label>Subject</label><input type="text" id="notifSubject" placeholder="Notification Subject"></div>
+                <div class="form-group"><label>Message</label><textarea id="notifMessage" rows="5" required placeholder="Enter your message here..."></textarea></div>
+                <div class="form-group"><label>Link (optional)</label><input type="text" id="notifLink" placeholder="https://kirinyagahostels.com/dashboard"></div>
                 <div id="notificationResult"></div>
-                <div style="margin-top: 1.5rem;">
-                    <button class="btn btn-primary" id="sendNotificationBtn"><i class="fas fa-paper-plane"></i> Send Notification</button>
-                </div>
-            `
+                <button class="btn btn-primary" id="sendNotificationBtn"><i class="fas fa-paper-plane"></i> Send Notification</button>`
         };
-        const panel = document.createElement('div'); 
-        panel.className = 'panel'; 
-        panel.id = `panel-${panelId}`;
+        const panel = document.createElement('div'); panel.className = 'panel'; panel.id = `panel-${panelId}`;
         panel.innerHTML = contents[panelId] || `<div class="panel-header"><h2>${panelId}</h2></div><p>Content coming soon...</p>`;
         document.getElementById('panels-container').appendChild(panel);
-        
-        if (panelId === 'send-notification') {
-            setTimeout(() => attachSendNotificationEvent(), 100);
-        }
+        if (panelId === 'send-notification') setTimeout(() => attachSendNotificationEvent(), 100);
         return panel;
     }
     
@@ -2320,90 +1126,28 @@ body.dark-mode .toast-notification.info {
         const link = document.getElementById('notifLink').value;
         const userIDs = document.getElementById('notifUserIds').value;
         const singleContact = document.getElementById('notifSingleContact').value;
-
-        if (!message) {
-            showToast('Please enter a message', 'error');
-            return;
-        }
-
-        if (userType === 'single' && !singleContact) {
-            showToast('Please enter email or phone number', 'error');
-            return;
-        }
-
+        if (!message) { showToast('Please enter a message', 'error'); return; }
         const btn = document.getElementById('sendNotificationBtn');
         const originalText = btn.innerHTML;
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Sending...';
-
-        const resultDiv = document.getElementById('notificationResult');
-        resultDiv.innerHTML = '<div class="alert-info"><i class="fas fa-spinner fa-pulse"></i> Sending...</div>';
-
-        const payload = {
-            title: subject || 'Notification from Kirinyaga Hostels',
-            message: message,
-            channel: channel,
-            user_type: userType,
-            link: link
-        };
-
-        if (userType === 'specific') {
-            payload.user_ids = userIDs.split(',').map(id => id.trim());
-        } else if (userType === 'single') {
-            if (singleContact.includes('@')) {
-                payload.email = singleContact;
-            } else {
-                let phone = singleContact.replace(/\D/g, '');
-                if (phone.startsWith('0')) phone = '254' + phone.substring(1);
-                else if (phone.startsWith('7')) phone = '254' + phone;
-                else if (!phone.startsWith('254')) phone = '254' + phone;
-                payload.phone = phone;
-            }
+        btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Sending...';
+        const payload = { title: subject || 'Notification', message: message, channel: channel, user_type: userType, link: link };
+        if (userType === 'specific') payload.user_ids = userIDs.split(',').map(id => id.trim());
+        else if (userType === 'single') {
+            if (singleContact.includes('@')) payload.email = singleContact;
+            else { let phone = singleContact.replace(/\D/g, ''); if (phone.startsWith('0')) phone = '254' + phone.substring(1); payload.phone = phone; }
         }
-
         try {
-            const response = await apiFetch('/notifications/send-bulk/', {
-                method: 'POST',
-                body: JSON.stringify(payload)
-            });
-            
-            if (response) {
-                showToast(`✅ Sent to ${response.sent || response.email_sent || 0} users!`, 'success');
-                resultDiv.innerHTML = `<div class="alert-success">✓ Sent to ${response.sent || response.email_sent || 0} users</div>`;
-                document.getElementById('notifSubject').value = '';
-                document.getElementById('notifMessage').value = '';
-                document.getElementById('notifLink').value = '';
-                document.getElementById('notifUserIds').value = '';
-                document.getElementById('notifSingleContact').value = '';
-                setTimeout(async () => { await loadNotifications(); }, 2000);
-            }
-        } catch (error) {
-            showToast(error.message, 'error');
-            resultDiv.innerHTML = `<div class="alert-danger">Failed: ${error.message}</div>`;
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = originalText;
-        }
+            const response = await apiFetch('/notifications/send-bulk/', { method: 'POST', body: JSON.stringify(payload) });
+            showToast(`✅ Sent to ${response.sent || 0} users!`, 'success');
+            document.getElementById('notifSubject').value = ''; document.getElementById('notifMessage').value = '';
+            document.getElementById('notifLink').value = ''; document.getElementById('notifUserIds').value = ''; document.getElementById('notifSingleContact').value = '';
+        } catch(e) { showToast(e.message, 'error'); }
+        finally { btn.disabled = false; btn.innerHTML = originalText; }
     }
     
     window.toggleRecipientFields = function() {
-        const type = document.getElementById('notifUserType').value;
-        document.getElementById('recipientIdsGroup').style.display = type === 'specific' ? 'block' : 'none';
-        document.getElementById('singleUserGroup').style.display = type === 'single' ? 'block' : 'none';
-    };
-    
-    window.resetNotificationForm = function() {
-        document.getElementById('notifChannel').value = 'email';
-        document.getElementById('notifUserType').value = 'all';
-        document.getElementById('recipientIdsGroup').style.display = 'none';
-        document.getElementById('singleUserGroup').style.display = 'none';
-        document.getElementById('notifUserIds').value = '';
-        document.getElementById('notifSingleContact').value = '';
-        document.getElementById('notifSubject').value = '';
-        document.getElementById('notifMessage').value = '';
-        document.getElementById('notifLink').value = '';
-        document.getElementById('notificationResult').innerHTML = '';
-        showToast('Form reset', 'info');
+        document.getElementById('recipientIdsGroup').style.display = document.getElementById('notifUserType').value === 'specific' ? 'block' : 'none';
+        document.getElementById('singleUserGroup').style.display = document.getElementById('notifUserType').value === 'single' ? 'block' : 'none';
     };
     
     // ============================================
@@ -2421,9 +1165,7 @@ body.dark-mode .toast-notification.info {
             `;
             const dashboardActivity = document.getElementById('dashboard-activity');
             if (dashboardActivity) {
-                dashboardActivity.innerHTML = (data.recent_activity || []).slice(0, 10).map(a => `
-                     <tr><td>${formatDate(a.timestamp)}</td><td>${a.user}</td><td>${a.action}</td><td>${JSON.stringify(a.details).substring(0,50)}...</td><td>${a.ip_address || 'N/A'}</td></tr>
-                `).join('');
+                dashboardActivity.innerHTML = (data.recent_activity || []).slice(0, 10).map(a => `<tr><td>${formatDate(a.timestamp)}</td><td>${a.user}</td><td>${a.action}</td><td>${JSON.stringify(a.details).substring(0,50)}...</td><td>${a.ip_address || 'N/A'}</td></tr>`).join('');
             }
             if (document.getElementById('userGrowthChart')) {
                 if (charts.userGrowth) charts.userGrowth.destroy();
@@ -2445,86 +1187,19 @@ body.dark-mode .toast-notification.info {
         } catch(e) { console.error(e); }
     }
     
-    async function autoDeleteOldNotifications() {
-        const cutoffTime = new Date(Date.now() - (AUTO_DELETE_HOURS * 60 * 60 * 1000));
-        const oldNotifications = notifications.filter(n => new Date(n.created_at) < cutoffTime);
-        if (oldNotifications.length === 0) return;
-        const currentToken = localStorage.getItem('token') || sessionStorage.getItem('token');
-        for (const notification of oldNotifications) {
-            try {
-                await fetch(`${API_BASE}/notifications/${notification.id}/`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${currentToken}`, 'Content-Type': 'application/json' }
-                });
-            } catch(e) { console.error(e); }
-        }
-        await loadNotifications();
-    }
-    
-    async function autoMarkAllAsRead() {
-        const unreadNotifications = notifications.filter(n => !n.is_read);
-        if (unreadNotifications.length === 0) return;
-        const currentToken = localStorage.getItem('token') || sessionStorage.getItem('token');
-        for (const notification of unreadNotifications) {
-            try {
-                await fetch(`${API_BASE}/notifications/${notification.id}/mark-read/`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${currentToken}`, 'Content-Type': 'application/json' }
-                });
-                notification.is_read = true;
-            } catch(e) { console.error(e); }
-        }
-        await loadNotifications();
-    }
-    
-    async function loadNotifications() {
-        try {
-            const data = await apiFetch('/notifications/');
-            notifications = data.results || data || [];
-            await autoDeleteOldNotifications();
-            const unread = notifications.filter(n => !n.is_read).length;
-            const badge = document.getElementById('notificationBadge');
-            if (unread > 0) {
-                badge.textContent = unread;
-                badge.style.display = 'flex';
-            } else {
-                badge.style.display = 'none';
-            }
-            const list = document.getElementById('notificationList');
-            if (!list) return;
-            if (!notifications.length) {
-                list.innerHTML = '<div class="loading-row">No notifications</div>';
-                return;
-            }
-            list.innerHTML = notifications.map(n => `
-                <div class="notification-item ${!n.is_read ? 'unread' : ''}" data-id="${n.id}">
-                    <div class="notification-title">${escapeHtml(n.title)}</div>
-                    <div class="notification-message">${escapeHtml(n.message)}</div>
-                    <div class="notification-time">${formatDate(n.created_at)}</div>
-                </div>
-            `).join('');
-        } catch(e) { console.error('Failed to load notifications:', e); }
-    }
-    
-    function escapeHtml(text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-    
     async function loadStudents() {
         const filter = document.getElementById('studentFilter')?.value || 'all';
         const search = document.getElementById('studentSearch')?.value || '';
         try {
             const data = await apiFetch(`/students/?status=${filter}&search=${encodeURIComponent(search)}`);
             const items = data.results || data || [];
+            students = items;
             const tbody = document.getElementById('studentsBody');
             if (!tbody) return;
             tbody.innerHTML = items.map(s => `
                 <tr>
-                    <td>${s.full_name}</td><td>${s.email}</td><td>${s.student_profile?.phone_number || 'N/A'}</td>
-                    <td>${s.student_profile?.registration_number || 'N/A'}</td>
+                    <td>${escapeHtml(s.full_name)}</td><td>${escapeHtml(s.email)}</td><td>${escapeHtml(s.student_profile?.phone_number || 'N/A')}</td>
+                    <td>${escapeHtml(s.student_profile?.registration_number || 'N/A')}</td>
                     <td><span class="badge ${s.email_verified ? 'badge-success' : 'badge-warning'}">${s.email_verified ? 'Verified' : 'Pending'}</span></td>
                     <td><span class="badge ${s.is_2fa_enabled ? 'badge-success' : 'badge-info'}">${s.is_2fa_enabled ? 'Enabled' : 'Disabled'}</span></td>
                     <td><span class="badge ${s.is_active ? 'badge-success' : 'badge-danger'}">${s.is_active ? 'Active' : 'Locked'}</span></td>
@@ -2541,12 +1216,15 @@ body.dark-mode .toast-notification.info {
         try {
             const data = await apiFetch(`/owners/?approval=${filter}&search=${encodeURIComponent(search)}`);
             const items = data.results || data || [];
+            owners = items;
             const tbody = document.getElementById('ownersBody');
             if (!tbody) return;
             tbody.innerHTML = items.map(o => `
                 <tr>
-                    <td>${o.owner_profile?.hostel_name || 'N/A'}</td><td>${o.full_name}</td><td>${o.email}</td>
-                    <td>${o.owner_profile?.primary_phone || 'N/A'}</td>
+                    <td>${escapeHtml(o.owner_profile?.hostel_name || 'N/A')}</td>
+                    <td>${escapeHtml(o.full_name)}</td>
+                    <td>${escapeHtml(o.email)}</td>
+                    <td>${escapeHtml(o.owner_profile?.primary_phone || 'N/A')}</td>
                     <td><span class="badge ${o.owner_profile?.is_approved ? 'badge-success' : 'badge-warning'}">${o.owner_profile?.is_approved ? 'Approved' : 'Pending'}</span></td>
                     <td><span class="badge ${o.owner_profile?.verified_badge ? 'badge-success' : 'badge-info'}">${o.owner_profile?.verified_badge ? 'Verified' : 'No'}</span></td>
                     <td>${o.owner_profile?.hostel_count || 0}</td>
@@ -2567,14 +1245,20 @@ body.dark-mode .toast-notification.info {
         try {
             const data = await apiFetch(`/hostels/?${params}`);
             const items = data.results || data || [];
+            hostels = items;
             const tbody = document.getElementById('hostelsBody');
             if (!tbody) return;
             tbody.innerHTML = items.map(h => `
                 <tr>
-                    <td>${h.name}</td><td>${h.owner_name || 'Unknown'}</td><td>${h.address}</td><td>${h.distance_to_university} km</td>
-                    <td>${formatCurrency(h.price)}</td><td>${h.room_type}</td>
+                    <td>${escapeHtml(h.name)}</td>
+                    <td>${escapeHtml(h.owner_name || 'Unknown')}</td>
+                    <td>${escapeHtml(h.address)}</td>
+                    <td>${h.distance_to_university} km</td>
+                    <td>${formatCurrency(h.price)}</td>
+                    <td>${h.room_type}</td>
                     <td><span class="badge ${h.is_approved ? 'badge-success' : 'badge-warning'}">${h.is_approved ? 'Approved' : 'Pending'}</span></td>
                     <td><span class="badge ${h.is_featured ? 'badge-success' : 'badge-info'}">${h.is_featured ? 'Featured' : 'No'}</span></td>
+                    <td>${h.total_bookings || 0}</td>
                     <td class="action-icons"><i class="fas fa-eye" onclick="viewHostel('${h.id}')"></i>${!h.is_approved ? `<i class="fas fa-check-circle" onclick="approveHostel('${h.id}')"></i>` : ''}<i class="fas fa-star" onclick="toggleFeatured('${h.id}')"></i><i class="fas fa-trash delete" onclick="deleteHostel('${h.id}')"></i></td>
                 </tr>
             `).join('');
@@ -2588,7 +1272,15 @@ body.dark-mode .toast-notification.info {
             const tbody = document.getElementById('featuredHostelsBody');
             if (!tbody) return;
             tbody.innerHTML = items.map(h => `
-                <tr><td>${h.name}</td><td>${h.owner_name || 'Unknown'}</td><td>${h.address}</td><td>${formatCurrency(h.price)}</td><td>${h.avg_rating ? h.avg_rating.toFixed(1) + ' ★' : 'No ratings'}</td><td class="action-icons"><i class="fas fa-eye" onclick="viewHostel('${h.id}')"></i><i class="fas fa-star" onclick="toggleFeatured('${h.id}')"></i></td></tr>
+                <tr>
+                    <td>${escapeHtml(h.name)}</td>
+                    <td>${escapeHtml(h.owner_name || 'Unknown')}</td>
+                    <td>${escapeHtml(h.address)}</td>
+                    <td>${formatCurrency(h.price)}</td>
+                    <td>${h.avg_rating ? h.avg_rating.toFixed(1) + ' ★' : 'No ratings'}</td>
+                    <td>${h.total_bookings || 0}</td>
+                    <td class="action-icons"><i class="fas fa-eye" onclick="viewHostel('${h.id}')"></i><i class="fas fa-star" onclick="toggleFeatured('${h.id}')"></i></td>
+                </tr>
             `).join('');
         } catch(e) { console.error(e); }
     }
@@ -2598,10 +1290,17 @@ body.dark-mode .toast-notification.info {
         try {
             const data = await apiFetch(`/audit-logs/?search=${encodeURIComponent(search)}`);
             const items = data.results || data || [];
+            auditLogs = items;
             const tbody = document.getElementById('auditBody');
             if (!tbody) return;
             tbody.innerHTML = items.map(l => `
-                <tr><td>${formatDate(l.timestamp)}</td><td>${l.user}</td><td>${l.action}</td><td>${JSON.stringify(l.details).substring(0,50)}...</td><td>${l.ip_address || 'N/A'}</td></tr>
+                <tr>
+                    <td>${formatDate(l.timestamp)}</td>
+                    <td>${escapeHtml(l.user)}</td>
+                    <td>${escapeHtml(l.action)}</td>
+                    <td>${escapeHtml(JSON.stringify(l.details).substring(0,80))}...</td>
+                    <td>${l.ip_address || 'N/A'}</td>
+                </tr>
             `).join('');
         } catch(e) { console.error(e); }
     }
@@ -2611,13 +1310,18 @@ body.dark-mode .toast-notification.info {
             const data = await apiFetch('/fraud-alerts/');
             const highRisk = data?.high_risk_users || [];
             const fraudStats = document.getElementById('fraudStats');
-            if (fraudStats) {
-                fraudStats.innerHTML = `<div class="stat-card"><div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-info"><h3>${highRisk.length}</h3><p>High Risk Users</p></div></div>`;
-            }
+            if (fraudStats) fraudStats.innerHTML = `<div class="stat-card"><div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-info"><h3>${highRisk.length}</h3><p>High Risk Users</p></div></div>`;
             const tbody = document.getElementById('fraudBody');
             if (!tbody) return;
             tbody.innerHTML = highRisk.map(u => `
-                <tr><td>${u.email}</td><td>${u.role}</td><td><span class="badge ${u.fraud_score > 70 ? 'badge-danger' : 'badge-warning'}">${u.fraud_score || 0}</span></td><td>${u.failed_login_attempts || 0}</td><td>${u.locked_until ? formatDate(u.locked_until) : 'Not locked'}</td><td class="action-icons"><i class="fas fa-unlock" onclick="unlockUser('${u.id}')"></i>${u.role === 'owner' ? `<i class="fas fa-chart-line" onclick="updateFraudScore('${u.id}')"></i>` : ''}</td></tr>
+                <tr>
+                    <td>${escapeHtml(u.email)}</td>
+                    <td>${u.role}</td>
+                    <td><span class="badge ${u.fraud_score > 70 ? 'badge-danger' : 'badge-warning'}">${u.fraud_score || 0}</span></td>
+                    <td>${u.failed_login_attempts || 0}</td>
+                    <td>${u.locked_until ? formatDate(u.locked_until) : 'Not locked'}</td>
+                    <td class="action-icons"><i class="fas fa-unlock" onclick="unlockUser('${u.id}')"></i>${u.role === 'owner' ? `<i class="fas fa-chart-line" onclick="updateFraudScore('${u.id}')"></i>` : ''}</td>
+                </tr>
             `).join('');
         } catch(e) { console.error(e); }
     }
@@ -2627,13 +1331,23 @@ body.dark-mode .toast-notification.info {
             const data = await apiFetch('/sessions/');
             const tbody = document.getElementById('sessionsBody');
             if (!tbody) return;
-            tbody.innerHTML = (data.sessions || []).map(s => `<tr><td>${s.user}</td><td>${s.session_token}</td><td>${formatDate(s.expires)}</td></tr>`).join('');
+            tbody.innerHTML = (data.sessions || []).map(s => `
+                <tr>
+                    <td>${escapeHtml(s.user)}</td>
+                    <td><code>${s.session_token.substring(0,16)}...</code></td>
+                    <td>${formatDate(s.expires)}</td>
+                    <td>${s.ip || 'N/A'}</td>
+                    <td>${s.user_agent || 'Unknown'}</td>
+                </tr>
+            `).join('');
         } catch(e) { console.error(e); }
     }
     
     async function loadUserAnalytics() {
         try {
             const data = await apiFetch('/analytics/users/');
+            const statsDiv = document.getElementById('userAnalyticsStats');
+            if (statsDiv) statsDiv.innerHTML = `<div class="stat-card"><div class="stat-icon"><i class="fas fa-signal"></i></div><div class="stat-info"><h3>${data.total_users || 0}</h3><p>Total Users</p><small>${data.active_users || 0} active</small></div></div>`;
             const ctx = document.getElementById('userAnalyticsChart')?.getContext('2d');
             if (!ctx) return;
             if (charts.userAnalytics) charts.userAnalytics.destroy();
@@ -2648,6 +1362,8 @@ body.dark-mode .toast-notification.info {
     async function loadHostelAnalytics() {
         try {
             const data = await apiFetch('/analytics/hostels/');
+            const statsDiv = document.getElementById('hostelAnalyticsStats');
+            if (statsDiv) statsDiv.innerHTML = `<div class="stat-card"><div class="stat-icon"><i class="fas fa-chart-bar"></i></div><div class="stat-info"><h3>${data.total_hostels || 0}</h3><p>Total Hostels</p><small>${data.total_bookings || 0} total bookings</small></div></div>`;
             const ctx = document.getElementById('hostelAnalyticsChart')?.getContext('2d');
             if (!ctx) return;
             if (charts.hostelAnalytics) charts.hostelAnalytics.destroy();
@@ -2672,6 +1388,9 @@ body.dark-mode .toast-notification.info {
         else if (panelId === 'hostel-analytics') loadHostelAnalytics();
     }
     
+    // ============================================
+    // ADMIN PROFILE & ACTIONS
+    // ============================================
     async function loadAdminProfile() {
         try {
             const data = await apiFetch('/auth/profile/');
@@ -2687,9 +1406,10 @@ body.dark-mode .toast-notification.info {
         const user = [...students, ...owners].find(u => u.id === id);
         if (user) {
             document.getElementById('userModalBody').innerHTML = `
-                <p><strong>Name:</strong> ${user.full_name}</p>
-                <p><strong>Email:</strong> ${user.email}</p>
+                <p><strong>Name:</strong> ${escapeHtml(user.full_name)}</p>
+                <p><strong>Email:</strong> ${escapeHtml(user.email)}</p>
                 <p><strong>Role:</strong> ${user.role}</p>
+                <p><strong>Phone:</strong> ${escapeHtml(user.student_profile?.phone_number || user.owner_profile?.primary_phone || 'N/A')}</p>
                 <p><strong>Joined:</strong> ${user.date_joined ? formatDate(user.date_joined) : 'N/A'}</p>
                 <p><strong>Email Verified:</strong> ${user.email_verified ? 'Yes' : 'No'}</p>
                 <p><strong>2FA:</strong> ${user.is_2fa_enabled ? 'Enabled' : 'Disabled'}</p>
@@ -2703,12 +1423,13 @@ body.dark-mode .toast-notification.info {
         const hostel = hostels.find(h => h.id === id);
         if (hostel) {
             document.getElementById('hostelModalBody').innerHTML = `
-                <p><strong>Name:</strong> ${hostel.name}</p>
-                <p><strong>Owner:</strong> ${hostel.owner_name || 'Unknown'}</p>
-                <p><strong>Address:</strong> ${hostel.address}</p>
+                <p><strong>Name:</strong> ${escapeHtml(hostel.name)}</p>
+                <p><strong>Owner:</strong> ${escapeHtml(hostel.owner_name || 'Unknown')}</p>
+                <p><strong>Address:</strong> ${escapeHtml(hostel.address)}</p>
                 <p><strong>Price:</strong> ${formatCurrency(hostel.price)}</p>
                 <p><strong>Status:</strong> ${hostel.is_approved ? 'Approved' : 'Pending'}</p>
                 <p><strong>Featured:</strong> ${hostel.is_featured ? 'Yes' : 'No'}</p>
+                <p><strong>Total Bookings:</strong> ${hostel.total_bookings || 0}</p>
                 <p><strong>Rating:</strong> ${hostel.avg_rating ? hostel.avg_rating.toFixed(1) + ' ★' : 'No ratings'}</p>
             `;
             openModal('hostelModal');
@@ -2802,7 +1523,131 @@ body.dark-mode .toast-notification.info {
     window.refreshDashboard = function() { loadDashboardStats(); };
     
     // ============================================
-    // EVENT LISTENERS
+    // IMPERSONATION
+    // ============================================
+    window.startImpersonation = async function() {
+        const email = document.getElementById('impersonateEmail').value;
+        const userId = document.getElementById('impersonateUserId').value;
+        if (!email && !userId) { showToast('Please enter an email or user ID', 'error'); return; }
+        try {
+            const data = await apiFetch('/impersonate/start/', { method: 'POST', body: JSON.stringify({ email, user_id: userId }) });
+            if (data && data.access_token) {
+                const currentToken = localStorage.getItem('token') || sessionStorage.getItem('token');
+                sessionStorage.setItem('original_token', currentToken);
+                sessionStorage.setItem('token', data.access_token);
+                sessionStorage.setItem('impersonating', data.user_email);
+                document.getElementById('impersonatedUserName').innerText = data.user_email;
+                document.getElementById('impersonationBadge').style.display = 'flex';
+                showToast(`Now impersonating ${data.user_email}`, 'success');
+                closeModal('impersonateModal');
+                setTimeout(() => window.location.reload(), 1000);
+            }
+        } catch(e) { showToast(e.message, 'error'); }
+    };
+    
+    window.stopImpersonation = async function() {
+        const originalToken = sessionStorage.getItem('original_token');
+        if (originalToken) {
+            sessionStorage.setItem('token', originalToken);
+            sessionStorage.removeItem('original_token');
+            sessionStorage.removeItem('impersonating');
+            document.getElementById('impersonationBadge').style.display = 'none';
+            showToast('Back to admin account', 'success');
+            window.location.reload();
+        }
+    };
+    
+    if (sessionStorage.getItem('impersonating')) {
+        document.getElementById('impersonatedUserName').innerText = sessionStorage.getItem('impersonating');
+        document.getElementById('impersonationBadge').style.display = 'flex';
+    }
+    
+    // ============================================
+    // PROFILE EDIT
+    // ============================================
+    async function loadAdminProfileForEdit() {
+        try {
+            const data = await apiFetch('/auth/profile/');
+            if (data) {
+                document.getElementById('profileFullName').value = data.full_name;
+                document.getElementById('profileEmail').value = data.email;
+                document.getElementById('profileAvatarPreview').innerText = getInitials(data.full_name);
+            }
+        } catch(e) { showToast('Failed to load profile', 'error'); }
+    }
+    
+    window.updateAdminProfile = async function() {
+        const fullName = document.getElementById('profileFullName').value;
+        const email = document.getElementById('profileEmail').value;
+        const currentPassword = document.getElementById('profileCurrentPassword').value;
+        const newPassword = document.getElementById('profileNewPassword').value;
+        const confirmPassword = document.getElementById('profileConfirmPassword').value;
+        if (!fullName || !email) { showToast('Name and email are required', 'error'); return; }
+        if (newPassword && newPassword !== confirmPassword) { showToast('New passwords do not match', 'error'); return; }
+        if (newPassword && !currentPassword) { showToast('Current password is required to change password', 'error'); return; }
+        try {
+            const payload = { full_name: fullName, email: email };
+            if (currentPassword) payload.current_password = currentPassword;
+            if (newPassword) payload.new_password = newPassword;
+            await apiFetch('/auth/profile/update/', { method: 'PUT', body: JSON.stringify(payload) });
+            showToast('Profile updated successfully', 'success');
+            closeModal('profileEditModal');
+            document.getElementById('adminName').textContent = fullName;
+            document.getElementById('adminAvatar').textContent = getInitials(fullName);
+        } catch(e) { showToast(e.message, 'error'); }
+    };
+    
+    // ============================================
+    // NOTIFICATIONS & SMS
+    // ============================================
+    async function loadNotifications() {
+        try {
+            const data = await apiFetch('/notifications/');
+            notifications = data.results || data || [];
+            const unread = notifications.filter(n => !n.is_read).length;
+            const badge = document.getElementById('notificationBadge');
+            if (unread > 0) { badge.textContent = unread; badge.style.display = 'flex'; }
+            else { badge.style.display = 'none'; }
+            const list = document.getElementById('notificationList');
+            if (!list) return;
+            if (!notifications.length) { list.innerHTML = '<div class="loading-row">No notifications</div>'; return; }
+            list.innerHTML = notifications.map(n => `
+                <div class="notification-item ${!n.is_read ? 'unread' : ''}" data-id="${n.id}">
+                    <div class="notification-title">${escapeHtml(n.title)}</div>
+                    <div class="notification-message">${escapeHtml(n.message)}</div>
+                    <div class="notification-time">${formatDate(n.created_at)}</div>
+                </div>
+            `).join('');
+        } catch(e) { console.error(e); }
+    }
+    
+    window.checkSmsBalance = async function() {
+        try {
+            const data = await apiFetch('/sms/balance/');
+            if (data && data.balance !== undefined) document.getElementById('smsBalance').innerHTML = data.balance;
+        } catch(e) { document.getElementById('smsBalance').innerHTML = 'Error'; }
+    };
+    
+    window.dismissAnnouncement = function() {
+        document.getElementById('announcementBanner').classList.remove('active');
+        localStorage.setItem('announcement_dismissed', 'true');
+    };
+    
+    // ============================================
+    // KEYBOARD SHORTCUTS
+    // ============================================
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === 'd') { e.preventDefault(); toggleDarkMode(); }
+        else if (e.ctrlKey && e.key === 'r') { e.preventDefault(); window.refreshDashboard(); showToast('Dashboard refreshed', 'info'); }
+        else if (e.ctrlKey && e.key === 'n') { e.preventDefault(); showPanel('send-notification'); }
+        else if (e.ctrlKey && e.key === 's') { e.preventDefault(); showPanel('system-settings'); }
+        else if (e.ctrlKey && e.key === 'k') { e.preventDefault(); document.getElementById('menuSearch').focus(); }
+        else if (e.ctrlKey && e.key === 'p') { e.preventDefault(); loadAdminProfileForEdit(); openModal('profileEditModal'); }
+        else if (e.key === 'Escape') { document.querySelectorAll('.modal.active').forEach(m => closeModal(m.id)); }
+    });
+    
+    // ============================================
+    // EVENT LISTENERS & INIT
     // ============================================
     document.getElementById('menuToggle').onclick = () => {
         document.getElementById('sidebar').classList.add('open');
@@ -2811,76 +1656,30 @@ body.dark-mode .toast-notification.info {
     document.getElementById('sidebarClose').onclick = closeSidebar;
     document.getElementById('sidebarOverlay').onclick = closeSidebar;
     document.getElementById('menuSearch').addEventListener('input', e => renderSidebarMenu(e.target.value));
-    document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
     document.getElementById('shortcutsHelpBtn').addEventListener('click', () => openModal('shortcutsModal'));
-    document.getElementById('confirmActionBtn').addEventListener('click', () => {
-        if (confirmCallback) { confirmCallback(); confirmCallback = null; }
-        closeModal('confirmModal');
-    });
+    document.getElementById('confirmActionBtn').addEventListener('click', () => { if (confirmCallback) { confirmCallback(); confirmCallback = null; } closeModal('confirmModal'); });
     
     const notificationsBell = document.getElementById('notificationsBell');
     const notificationDropdown = document.getElementById('notificationDropdown');
-    const markAllReadBtn = document.getElementById('markAllReadBtn');
-    
     notificationsBell.addEventListener('click', async function(e) {
         e.stopPropagation();
         notificationDropdown.classList.toggle('active');
-        if (notificationDropdown.classList.contains('active')) {
-            await loadNotifications();
-            await autoMarkAllAsRead();
-        }
+        if (notificationDropdown.classList.contains('active')) await loadNotifications();
     });
-    
-    markAllReadBtn.addEventListener('click', async function(e) {
-        e.stopPropagation();
-        await autoMarkAllAsRead();
-        showToast('All notifications marked as read', 'success');
-    });
-    
     document.addEventListener('click', function(e) {
-        if (!notificationDropdown.contains(e.target) && !notificationsBell.contains(e.target)) {
-            notificationDropdown.classList.remove('active');
-        }
+        if (!notificationDropdown.contains(e.target) && !notificationsBell.contains(e.target)) notificationDropdown.classList.remove('active');
     });
+    document.getElementById('adminMenu').addEventListener('click', function() { loadAdminProfileForEdit(); openModal('profileEditModal'); });
+    document.getElementById('refreshDashboard')?.addEventListener('click', loadDashboardStats);
     
-    document.getElementById('adminMenu').addEventListener('click', function() {
-        loadAdminProfileForEdit();
-        openModal('profileEditModal');
-    });
-    
-    document.getElementById('profileAvatarUpload')?.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                showToast('Avatar upload would save to server', 'info', 'Demo Mode');
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-    
-    // ============================================
-    // INITIALIZATION
-    // ============================================
     async function init() {
         renderSidebarMenu();
         await loadAdminProfile();
         await loadDashboardStats();
         await loadNotifications();
-        await loadAnnouncement();
         setTimeout(() => checkSmsBalance(), 2000);
-        setInterval(async () => { await autoDeleteOldNotifications(); }, 60 * 60 * 1000);
         setInterval(loadNotifications, 30000);
-        loadStudents();
-        loadOwners();
-        loadHostels();
-        loadFeaturedHostels();
-        loadAuditLogs();
-        loadFraudAlerts();
-        loadSessions();
-        document.getElementById('refreshDashboard')?.addEventListener('click', loadDashboardStats);
     }
-    
     init();
 })();
     </script>
