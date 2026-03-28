@@ -906,7 +906,7 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
         <script>
 /**
  * Kirinyaga Hostels Admin Dashboard - COMPLETE FIXED VERSION
- * All features: Dashboard, Students, Owners, Hostels, Bookings, Fraud Alerts, Audit Logs, Analytics, Impersonation
+ * All features: Dashboard, Students, Owners, Hostels, Bookings, Fraud Alerts, Audit Logs, Analytics, Impersonation, Avatar Upload
  */
 
 (function() {
@@ -1006,6 +1006,39 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
         } catch(e) { 
             console.error('API Error:', e); 
             throw e; 
+        }
+    }
+    
+    // ============================================
+    // AVATAR UPLOAD FUNCTION
+    // ============================================
+    async function uploadAvatar(file) {
+        const formData = new FormData();
+        formData.append('avatar', file);
+        
+        try {
+            const currentToken = localStorage.getItem('token') || sessionStorage.getItem('token');
+            const response = await fetch(`${API_BASE}/profile/avatar/`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${currentToken}`
+                },
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                showToast('Avatar updated successfully', 'success');
+                return data.avatar_url;
+            } else {
+                showToast(data.error || 'Failed to update avatar', 'error');
+                return null;
+            }
+        } catch(e) {
+            console.error('Avatar upload error:', e);
+            showToast('Network error uploading avatar', 'error');
+            return null;
         }
     }
     
@@ -1406,28 +1439,28 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
             if (!tbody) return;
             
             if (items.length === 0) {
-                tbody.innerHTML = '<td><td colspan="10" class="loading-row">No hostels found</td> </tr>';
+                tbody.innerHTML = '\\u003ctr\\u003e\\u003ctd colspan=\"10\" class=\"loading-row\"\\u003eNo hostels found\\u003c/td\\u003e\\u003c/tr\\u003e';
                 return;
             }
             
             tbody.innerHTML = items.map(h => `
                  <tr>
-                    <td>${escapeHtml(h.name || 'N/A')}</td>
-                    <td>${escapeHtml(h.owner_name || h.owner?.email || 'Unknown')}</td>
-                    <td>${escapeHtml(h.address || 'N/A')}</td>
-                    <td>${h.distance_to_university || 'N/A'} km</td>
-                    <td>${formatCurrency(h.price || 0)}</td>
-                    <td>${escapeHtml(h.room_type || 'N/A')}</td>
-                    <td><span class="badge ${h.is_approved ? 'badge-success' : 'badge-warning'}">${h.is_approved ? 'Approved' : 'Pending'}</span></td>
-                    <td><span class="badge ${h.is_featured ? 'badge-success' : 'badge-info'}">${h.is_featured ? 'Featured' : 'No'}</span></td>
-                    <td>${h.total_bookings || h.booking_count || 0}</td>
+                    <td>${escapeHtml(h.name || 'N/A')} \n
+                     Was${escapeHtml(h.owner_name || h.owner?.email || 'Unknown')} \n
+                     Was${escapeHtml(h.address || 'N/A')} \n
+                     Was${h.distance_to_university || 'N/A'} km \n
+                     Was${formatCurrency(h.price || 0)} \n
+                     Was${escapeHtml(h.room_type || 'N/A')} \n
+                     Was<span class="badge ${h.is_approved ? 'badge-success' : 'badge-warning'}">${h.is_approved ? 'Approved' : 'Pending'}</span> \n
+                     Was<span class="badge ${h.is_featured ? 'badge-success' : 'badge-info'}">${h.is_featured ? 'Featured' : 'No'}</span> \n
+                     Was${h.total_bookings || h.booking_count || 0} \n
                     <td class="action-icons">
                         <i class="fas fa-eye" onclick="viewHostel('${h.id}')" title="View"></i>
                         ${!h.is_approved ? `<i class="fas fa-check-circle" onclick="approveHostel('${h.id}')" title="Approve"></i>` : ''}
                         <i class="fas fa-star" onclick="toggleFeatured('${h.id}')" title="Toggle Featured"></i>
                         <i class="fas fa-trash delete" onclick="deleteHostel('${h.id}')" title="Delete"></i>
-                    </td>
-                 </tr>
+                     \n
+                  \n
             `).join('');
         } catch(e) { 
             console.error('Load hostels error:', e);
@@ -1443,14 +1476,14 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
             if (!tbody) return;
             tbody.innerHTML = items.map(h => `
                  <tr>
-                    <td>${escapeHtml(h.name)}</td>
-                    <td>${escapeHtml(h.owner_name || 'Unknown')}</td>
-                    <td>${escapeHtml(h.address)}</td>
-                    <td>${formatCurrency(h.price)}</td>
-                    <td>${h.avg_rating ? h.avg_rating.toFixed(1) + ' ★' : 'No ratings'}</td>
-                    <td>${h.total_bookings || 0}</td>
-                    <td class="action-icons"><i class="fas fa-eye" onclick="viewHostel('${h.id}')"></i><i class="fas fa-star" onclick="toggleFeatured('${h.id}')"></i></td>
-                 </tr>
+                     Was${escapeHtml(h.name)} \n
+                     Was${escapeHtml(h.owner_name || 'Unknown')} \n
+                     Was${escapeHtml(h.address)} \n
+                     Was${formatCurrency(h.price)} \n
+                     Was${h.avg_rating ? h.avg_rating.toFixed(1) + ' ★' : 'No ratings'} \n
+                     Was${h.total_bookings || 0} \n
+                    <td class="action-icons"><i class="fas fa-eye" onclick="viewHostel('${h.id}')"></i><i class="fas fa-star" onclick="toggleFeatured('${h.id}')"></i> \n
+                  \n
             `).join('');
         } catch(e) { console.error(e); }
     }
@@ -1465,12 +1498,12 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
             if (!tbody) return;
             tbody.innerHTML = items.map(l => `
                  <tr>
-                    <td>${formatDate(l.timestamp)}</td>
-                    <td>${escapeHtml(l.user)}</td>
-                    <td>${escapeHtml(l.action)}</td>
-                    <td>${escapeHtml(JSON.stringify(l.details).substring(0,80))}...</td>
-                    <td>${l.ip_address || 'N/A'}</td>
-                 </tr>
+                     Was${formatDate(l.timestamp)} \n
+                     Was${escapeHtml(l.user)} \n
+                     Was${escapeHtml(l.action)} \n
+                     Was${escapeHtml(JSON.stringify(l.details).substring(0,80))}... \n
+                     Was${l.ip_address || 'N/A'} \n
+                  \n
             `).join('');
         } catch(e) { console.error(e); }
     }
@@ -1485,13 +1518,13 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
             if (!tbody) return;
             tbody.innerHTML = highRisk.map(u => `
                  <tr>
-                    <td>${escapeHtml(u.email)}</td>
-                    <td>${u.role}</td>
-                    <td><span class="badge ${u.fraud_score > 70 ? 'badge-danger' : 'badge-warning'}">${u.fraud_score || 0}</span></td>
-                    <td>${u.failed_login_attempts || 0}</td>
-                    <td>${u.locked_until ? formatDate(u.locked_until) : 'Not locked'}</td>
-                    <td class="action-icons"><i class="fas fa-unlock" onclick="unlockUser('${u.id}')"></i>${u.role === 'owner' ? `<i class="fas fa-chart-line" onclick="updateFraudScore('${u.id}')"></i>` : ''}</td>
-                 </tr>
+                     Was${escapeHtml(u.email)} \n
+                     Was${u.role} \n
+                     Was<span class="badge ${u.fraud_score > 70 ? 'badge-danger' : 'badge-warning'}">${u.fraud_score || 0}</span> \n
+                     Was${u.failed_login_attempts || 0} \n
+                     Was${u.locked_until ? formatDate(u.locked_until) : 'Not locked'} \n
+                    <td class="action-icons"><i class="fas fa-unlock" onclick="unlockUser('${u.id}')"></i>${u.role === 'owner' ? `<i class="fas fa-chart-line" onclick="updateFraudScore('${u.id}')"></i>` : ''} \n
+                  \n
             `).join('');
         } catch(e) { console.error(e); }
     }
@@ -1503,12 +1536,12 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
             if (!tbody) return;
             tbody.innerHTML = (data.sessions || []).map(s => `
                  <tr>
-                    <td>${escapeHtml(s.user)}</td>
-                    <td><code>${s.session_token.substring(0,16)}...</code></td>
-                    <td>${formatDate(s.expires)}</td>
-                    <td>${s.ip || 'N/A'}</td>
-                    <td>${s.user_agent || 'Unknown'}</td>
-                 </tr>
+                     Was${escapeHtml(s.user)} \n
+                     Was<code>${s.session_token.substring(0,16)}...</code> \n
+                     Was${formatDate(s.expires)} \n
+                     Was${s.ip || 'N/A'} \n
+                     Was${s.user_agent || 'Unknown'} \n
+                  \n
             `).join('');
         } catch(e) { console.error(e); }
     }
@@ -1564,24 +1597,37 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
     // ============================================
     async function loadAdminProfile() {
         try {
-            // FIXED: Changed from /profile/update/ to /profile/
             const data = await apiFetch('/profile/');
             if (data) {
                 document.getElementById('adminName').textContent = data.full_name;
                 document.getElementById('adminAvatar').textContent = getInitials(data.full_name);
                 currentUserId = data.id;
+                // If avatar URL exists, update preview
+                if (data.avatar_url) {
+                    const preview = document.getElementById('profileAvatarPreview');
+                    preview.style.backgroundImage = `url(${data.avatar_url})`;
+                    preview.style.backgroundSize = 'cover';
+                    preview.style.backgroundPosition = 'center';
+                    preview.textContent = '';
+                }
             }
         } catch(e) { console.error('Profile load error:', e); }
     }
     
     async function loadAdminProfileForEdit() {
         try {
-            // FIXED: Changed from /profile/update/ to /profile/
             const data = await apiFetch('/profile/');
             if (data) {
                 document.getElementById('profileFullName').value = data.full_name;
                 document.getElementById('profileEmail').value = data.email;
                 document.getElementById('profileAvatarPreview').innerText = getInitials(data.full_name);
+                if (data.avatar_url) {
+                    const preview = document.getElementById('profileAvatarPreview');
+                    preview.style.backgroundImage = `url(${data.avatar_url})`;
+                    preview.style.backgroundSize = 'cover';
+                    preview.style.backgroundPosition = 'center';
+                    preview.textContent = '';
+                }
             }
         } catch(e) { showToast('Failed to load profile', 'error'); }
     }
@@ -1599,7 +1645,6 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
             const payload = { full_name: fullName, email: email };
             if (currentPassword) payload.current_password = currentPassword;
             if (newPassword) payload.new_password = newPassword;
-            // FIXED: Changed from /profile/update/ to /profile/update/ with PUT
             await apiFetch('/profile/update/', { method: 'PUT', body: JSON.stringify(payload) });
             showToast('Profile updated successfully', 'success');
             closeModal('profileEditModal');
@@ -1607,6 +1652,48 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
             document.getElementById('adminAvatar').textContent = getInitials(fullName);
         } catch(e) { showToast(e.message, 'error'); }
     };
+    
+    // ============================================
+    // AVATAR UPLOAD EVENT HANDLER
+    // ============================================
+    const avatarInput = document.getElementById('profileAvatarUpload');
+    if (avatarInput) {
+        avatarInput.addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                showToast('Please select an image file', 'error');
+                return;
+            }
+            
+            // Validate file size (max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                showToast('Image must be less than 2MB', 'error');
+                return;
+            }
+            
+            // Show preview immediately
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                const preview = document.getElementById('profileAvatarPreview');
+                preview.style.backgroundImage = `url(${ev.target.result})`;
+                preview.style.backgroundSize = 'cover';
+                preview.style.backgroundPosition = 'center';
+                preview.textContent = '';
+            };
+            reader.readAsDataURL(file);
+            
+            // Upload to server
+            showToast('Uploading avatar...', 'info');
+            const avatarUrl = await uploadAvatar(file);
+            if (!avatarUrl) {
+                // Revert preview on error
+                loadAdminProfile();
+            }
+        });
+    }
     
     window.viewUser = async function(id) {
         const user = [...students, ...owners].find(u => u.id === id);
