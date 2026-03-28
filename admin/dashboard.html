@@ -905,8 +905,8 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
 
         <script>
 /**
- * Kirinyaga Hostels Admin Dashboard - Enhanced JavaScript
- * Features: Search by email/name/phone, Impersonation, Analytics, Full CRUD
+ * Kirinyaga Hostels Admin Dashboard - COMPLETE FIXED VERSION
+ * All features: Dashboard, Students, Owners, Hostels, Bookings, Fraud Alerts, Audit Logs, Analytics, Impersonation
  */
 
 (function() {
@@ -916,18 +916,30 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
     const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
     
     // Global variables
-    let students = [], owners = [], hostels = [], auditLogs = [], notifications = [];
+    let students = [], owners = [], hostels = [], auditLogs = [], notifications = [], bookings = [];
     let currentUserId = null, charts = {}, confirmCallback = null;
-    let currentImpersonating = null;
     const AUTO_DELETE_HOURS = 48;
     
     // ============================================
     // UTILITY FUNCTIONS
     // ============================================
-    function formatDate(d) { return new Date(d).toLocaleString(); }
-    function formatCurrency(amount) { return 'KSh ' + Number(amount).toLocaleString(); }
-    function getInitials(name) { return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2); }
-    function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+    function formatDate(d) { 
+        if (!d) return 'N/A';
+        return new Date(d).toLocaleString(); 
+    }
+    function formatCurrency(amount) { 
+        return 'KSh ' + Number(amount || 0).toLocaleString(); 
+    }
+    function getInitials(name) { 
+        if (!name) return 'A';
+        return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2); 
+    }
+    function escapeHtml(text) { 
+        if (!text) return ''; 
+        const div = document.createElement('div'); 
+        div.textContent = text; 
+        return div.innerHTML; 
+    }
     
     function openModal(id) { document.getElementById(id)?.classList.add('active'); }
     function closeModal(id) { document.getElementById(id)?.classList.remove('active'); }
@@ -974,35 +986,57 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
     // ============================================
     async function apiFetch(url, options = {}) {
         const currentToken = localStorage.getItem('token') || sessionStorage.getItem('token');
-        if (!currentToken) { window.location.href = 'login.html'; return null; }
+        if (!currentToken) { 
+            window.location.href = 'login.html'; 
+            return null; 
+        }
         try {
             const res = await fetch(`${API_BASE}${url}`, {
                 ...options,
                 headers: { 'Authorization': `Bearer ${currentToken}`, 'Content-Type': 'application/json', ...options.headers }
             });
-            if (res.status === 401) { localStorage.clear(); sessionStorage.clear(); window.location.href = 'login.html'; return null; }
+            if (res.status === 401) { 
+                localStorage.clear(); 
+                sessionStorage.clear(); 
+                window.location.href = 'login.html'; 
+                return null; 
+            }
             if (!res.ok) throw new Error((await res.json().catch(()=>({}))).message || `HTTP ${res.status}`);
             return await res.json();
-        } catch(e) { console.error('API Error:', e); throw e; }
+        } catch(e) { 
+            console.error('API Error:', e); 
+            throw e; 
+        }
     }
     
     // ============================================
     // AUTHENTICATION CHECK
     // ============================================
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-    if (!token) { window.location.href = 'login.html'; return; }
+    if (!token) { 
+        window.location.href = 'login.html'; 
+        return; 
+    }
     try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         if (payload.exp < Math.floor(Date.now() / 1000)) {
-            localStorage.clear(); sessionStorage.clear(); window.location.href = 'login.html'; return;
+            localStorage.clear(); 
+            sessionStorage.clear(); 
+            window.location.href = 'login.html'; 
+            return;
         }
-    } catch(e) { console.error('Invalid token'); }
+    } catch(e) { 
+        console.error('Invalid token'); 
+    }
     
     // ============================================
     // DARK MODE
     // ============================================
     const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') { document.body.classList.add('dark-mode'); updateDarkModeIcon(true); }
+    if (savedTheme === 'dark') { 
+        document.body.classList.add('dark-mode'); 
+        updateDarkModeIcon(true); 
+    }
     function updateDarkModeIcon(isDark) {
         const toggleBtn = document.getElementById('darkModeToggle');
         if (toggleBtn) toggleBtn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
@@ -1028,6 +1062,9 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
         { name: '🏘️ HOSTEL MANAGEMENT', items: [
             { id: 'hostels', icon: 'fa-bed', name: 'All Hostels' },
             { id: 'featured-hostels', icon: 'fa-star', name: 'Featured Hostels' }
+        ]},
+        { name: '📅 BOOKINGS', items: [
+            { id: 'bookings', icon: 'fa-calendar-check', name: 'All Bookings' }
         ]},
         { name: '🔒 SECURITY', items: [
             { id: 'fraud-alerts', icon: 'fa-shield-alt', name: 'Fraud Alerts' },
@@ -1075,41 +1112,13 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
         loadPanelData(panelId);
         closeSidebar();
     }
-
-    async function loadBookings() {
-    const search = document.getElementById('bookingSearch')?.value || '';
-    try {
-        const data = await apiFetch(`/bookings/?search=${encodeURIComponent(search)}`);
-        const items = Array.isArray(data) ? data : (data.results || []);
-        const tbody = document.getElementById('bookingsBody');
-        if (!tbody) return;
-        
-        if (items.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" class="loading-row">No bookings found</td></tr>';
-            return;
-        }
-        
-        tbody.innerHTML = items.map(b => `
-            <tr>
-                <td>${b.id?.substring(0, 8) || 'N/A'}</td>
-                <td>${escapeHtml(b.user_email || b.user?.email || 'N/A')}</td>
-                <td>${escapeHtml(b.hostel_name || b.hostel?.name || 'N/A')}</td>
-                <td>${formatDate(b.check_in)}</td>
-                <td>${formatDate(b.check_out)}</td>
-                <td><span class="badge ${b.status === 'confirmed' ? 'badge-success' : b.status === 'pending' ? 'badge-warning' : 'badge-danger'}">${b.status || 'N/A'}</span></td>
-                <td>${formatCurrency(b.total_amount || 0)}</td>
-                <td>${formatDate(b.created_at)}</td>
-            </tr>
-        `).join('');
-    } catch(e) { 
-        console.error('Load bookings error:', e);
-        showToast('Failed to load bookings', 'error');
-    }
-}
     
+    // ============================================
+    // CREATE PANEL FUNCTION
+    // ============================================
     function createPanel(panelId) {
         const contents = {
-            'dashboard': `<div class="panel-header"><h2>Dashboard Overview</h2><div class="panel-actions"><button class="btn btn-outline" onclick="refreshDashboard()"><i class="fas fa-sync-alt"></i> Refresh</button></div></div><div class="stats-grid" id="dashboard-stats"></div><h3>Recent Activity</h3><div class="table-container"><table><thead><th>Time</th><th>User</th><th>Action</th><th>Details</th><th>IP</th></thead><tbody id="dashboard-activity"></tbody></table></div>`,
+            'dashboard': `<div class="panel-header"><h2>Dashboard Overview</h2><div class="panel-actions"><button class="btn btn-outline" onclick="refreshDashboard()"><i class="fas fa-sync-alt"></i> Refresh</button></div></div><div class="stats-grid" id="dashboard-stats"></div><h3>Recent Activity</h3><div class="table-container">\n<table>\n<thead>\n<th>Time</th><th>User</th><th>Action</th><th>Details</th><th>IP</th>\n</thead>\n<tbody id="dashboard-activity"></tbody>\n</table>\n</div>`,
             'students': `<div class="panel-header"><h2>Student Management</h2><div class="panel-actions"><select id="studentFilter" onchange="loadStudents()"><option value="all">All</option><option value="active">Active</option><option value="locked">Locked</option><option value="verified">Verified</option></select><input type="text" id="studentSearch" placeholder="Search by name, email or phone..." style="width:250px;"><button class="btn btn-primary" onclick="loadStudents()"><i class="fas fa-search"></i> Search</button></div></div><div class="table-container"><table id="studentsTable"><thead><th>Name</th><th>Email</th><th>Phone</th><th>Reg No</th><th>Verified</th><th>2FA</th><th>Status</th><th>Joined</th><th>Actions</th></thead><tbody id="studentsBody"></tbody></table></div>`,
             'owners': `<div class="panel-header"><h2>Owner Management</h2><div class="panel-actions"><select id="ownerFilter" onchange="loadOwners()"><option value="all">All</option><option value="pending">Pending</option><option value="approved">Approved</option></select><input type="text" id="ownerSearch" placeholder="Search by name, email or phone..." style="width:250px;"><button class="btn btn-primary" onclick="loadOwners()"><i class="fas fa-search"></i> Search</button></div></div><div class="table-container"><table id="ownersTable"><thead><th>Business</th><th>Name</th><th>Email</th><th>Phone</th><th>Approval</th><th>Verified</th><th>Hostels</th><th>Fraud</th><th>Actions</th></thead><tbody id="ownersBody"></tbody></table></div>`,
             'hostels': `<div class="panel-header"><h2>Hostel Management</h2><div class="panel-actions"><select id="hostelFilter" onchange="loadHostels()"><option value="all">All</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="featured">Featured</option></select><input type="text" id="hostelSearch" placeholder="Search by name, owner, location..." style="width:250px;"><button class="btn btn-primary" onclick="loadHostels()"><i class="fas fa-search"></i> Search</button></div></div><div class="table-container"><table id="hostelsTable"><thead><th>Name</th><th>Owner</th><th>Location</th><th>Distance</th><th>Price</th><th>Type</th><th>Status</th><th>Featured</th><th>Bookings</th><th>Actions</th></thead><tbody id="hostelsBody"></tbody></table></div>`,
@@ -1134,7 +1143,9 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
                 <div id="notificationResult"></div>
                 <button class="btn btn-primary" id="sendNotificationBtn"><i class="fas fa-paper-plane"></i> Send Notification</button>`
         };
-        const panel = document.createElement('div'); panel.className = 'panel'; panel.id = `panel-${panelId}`;
+        const panel = document.createElement('div'); 
+        panel.className = 'panel'; 
+        panel.id = `panel-${panelId}`;
         panel.innerHTML = contents[panelId] || `<div class="panel-header"><h2>${panelId}</h2></div><p>Content coming soon...</p>`;
         document.getElementById('panels-container').appendChild(panel);
         if (panelId === 'send-notification') setTimeout(() => attachSendNotificationEvent(), 100);
@@ -1171,8 +1182,11 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
         try {
             const response = await apiFetch('/notifications/send-bulk/', { method: 'POST', body: JSON.stringify(payload) });
             showToast(`✅ Sent to ${response.sent || 0} users!`, 'success');
-            document.getElementById('notifSubject').value = ''; document.getElementById('notifMessage').value = '';
-            document.getElementById('notifLink').value = ''; document.getElementById('notifUserIds').value = ''; document.getElementById('notifSingleContact').value = '';
+            document.getElementById('notifSubject').value = ''; 
+            document.getElementById('notifMessage').value = '';
+            document.getElementById('notifLink').value = ''; 
+            document.getElementById('notifUserIds').value = ''; 
+            document.getElementById('notifSingleContact').value = '';
         } catch(e) { showToast(e.message, 'error'); }
         finally { btn.disabled = false; btn.innerHTML = originalText; }
     }
@@ -1185,131 +1199,159 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
     // ============================================
     // LOAD FUNCTIONS
     // ============================================
-async function loadDashboardStats() {
-    try {
-        const data = await apiFetch('/dashboard/stats/');
-        if (!data) return;
-        
-        // Display stats with proper fallbacks
-        document.getElementById('statsGrid').innerHTML = `
-            <div class="stat-card" onclick="showPanel('students')">
-                <div class="stat-icon"><i class="fas fa-users"></i></div>
-                <div class="stat-info">
-                    <h3>${data.users?.total_users || 0}</h3>
-                    <p>Total Users</p>
-                    <small>${data.users?.new_today || 0} today</small>
-                </div>
-            </div>
-            <div class="stat-card" onclick="showPanel('hostels')">
-                <div class="stat-icon"><i class="fas fa-bed"></i></div>
-                <div class="stat-info">
-                    <h3>${data.hostels?.total || 0}</h3>
-                    <p>Total Hostels</p>
-                    <small>${data.hostels?.pending || 0} pending</small>
-                </div>
-            </div>
-            <div class="stat-card" onclick="showPanel('bookings')">
-                <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
-                <div class="stat-info">
-                    <h3>${data.bookings?.total || 0}</h3>
-                    <p>Total Bookings</p>
-                    <small>${data.bookings?.recent || 0} this week</small>
-                </div>
-            </div>
-            <div class="stat-card" onclick="showPanel('fraud-alerts')">
-                <div class="stat-icon"><i class="fas fa-shield-alt"></i></div>
-                <div class="stat-info">
-                    <h3>${data.fraud?.high_risk || 0}</h3>
-                    <p>Fraud Alerts</p>
-                    <small>${data.fraud?.locked || 0} locked</small>
-                </div>
-            </div>
-        `;
-        
-        // Recent activity
-        const dashboardActivity = document.getElementById('dashboard-activity');
-        if (dashboardActivity && data.recent_activity) {
-            dashboardActivity.innerHTML = data.recent_activity.slice(0, 10).map(a => `
+    async function loadBookings() {
+        const search = document.getElementById('bookingSearch')?.value || '';
+        try {
+            const data = await apiFetch(`/bookings/?search=${encodeURIComponent(search)}`);
+            const items = Array.isArray(data) ? data : (data.results || []);
+            bookings = items;
+            const tbody = document.getElementById('bookingsBody');
+            if (!tbody) return;
+            
+            if (items.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="loading-row">No bookings found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = items.map(b => `
                 <tr>
-                    <td>${formatDate(a.timestamp)}</td>
-                    <td>${escapeHtml(a.user || 'System')}</td>
-                    <td>${escapeHtml(a.action)}</td>
-                    <td>${escapeHtml(JSON.stringify(a.details).substring(0, 80))}...</td>
-                    <td>${a.ip_address || 'N/A'}</td>
+                    <td>${b.id?.substring(0, 8) || 'N/A'}</td>
+                    <td>${escapeHtml(b.user_email || b.user?.email || 'N/A')}</td>
+                    <td>${escapeHtml(b.hostel_name || b.hostel?.name || 'N/A')}</td>
+                    <td>${formatDate(b.check_in)}</td>
+                    <td>${formatDate(b.check_out)}</td>
+                    <td><span class="badge ${b.status === 'confirmed' ? 'badge-success' : b.status === 'pending' ? 'badge-warning' : 'badge-danger'}">${b.status || 'N/A'}</span></td>
+                    <td>${formatCurrency(b.total_amount || 0)}</td>
+                    <td>${formatDate(b.created_at)}</td>
                 </tr>
             `).join('');
+        } catch(e) { 
+            console.error('Load bookings error:', e);
+            showToast('Failed to load bookings', 'error');
         }
-        
-        // User Growth Chart
-        if (document.getElementById('userGrowthChart') && data.user_growth) {
-            if (charts.userGrowth) charts.userGrowth.destroy();
-            charts.userGrowth = new Chart(document.getElementById('userGrowthChart'), {
-                type: 'line',
-                data: {
-                    labels: data.user_growth.labels || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                    datasets: [
-                        { label: 'Students', data: data.user_growth.students || [], borderColor: '#006747', fill: false, tension: 0.4 },
-                        { label: 'Owners', data: data.user_growth.owners || [], borderColor: '#FFD700', fill: false, tension: 0.4 }
-                    ]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-        }
-        
-        // Hostel Chart
-        if (document.getElementById('hostelChart') && data.hostels) {
-            if (charts.hostel) charts.hostel.destroy();
-            charts.hostel = new Chart(document.getElementById('hostelChart'), {
-                type: 'doughnut',
-                data: {
-                    labels: ['Approved', 'Pending'],
-                    datasets: [{ data: [data.hostels.approved || 0, data.hostels.pending || 0], backgroundColor: ['#006747', '#FFD700'] }]
-                }
-            });
-        }
-    } catch(e) { 
-        console.error('Dashboard stats error:', e);
-        showToast('Failed to load dashboard stats', 'error');
     }
-}
     
-async function loadStudents() {
-    const filter = document.getElementById('studentFilter')?.value || 'all';
-    const search = document.getElementById('studentSearch')?.value || '';
-    try {
-        const data = await apiFetch(`/students/?status=${filter}&search=${encodeURIComponent(search)}`);
-        const items = Array.isArray(data) ? data : (data.results || []);
-        students = items;
-        const tbody = document.getElementById('studentsBody');
-        if (!tbody) return;
-        
-        if (items.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" class="loading-row">No students found</td></tr>';
-            return;
+    async function loadDashboardStats() {
+        try {
+            const data = await apiFetch('/dashboard/stats/');
+            if (!data) return;
+            
+            document.getElementById('statsGrid').innerHTML = `
+                <div class="stat-card" onclick="showPanel('students')">
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
+                    <div class="stat-info">
+                        <h3>${data.users?.total_users || 0}</h3>
+                        <p>Total Users</p>
+                        <small>${data.users?.new_today || 0} today</small>
+                    </div>
+                </div>
+                <div class="stat-card" onclick="showPanel('hostels')">
+                    <div class="stat-icon"><i class="fas fa-bed"></i></div>
+                    <div class="stat-info">
+                        <h3>${data.hostels?.total || 0}</h3>
+                        <p>Total Hostels</p>
+                        <small>${data.hostels?.pending || 0} pending</small>
+                    </div>
+                </div>
+                <div class="stat-card" onclick="showPanel('bookings')">
+                    <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+                    <div class="stat-info">
+                        <h3>${data.bookings?.total || 0}</h3>
+                        <p>Total Bookings</p>
+                        <small>${data.bookings?.recent || 0} this week</small>
+                    </div>
+                </div>
+                <div class="stat-card" onclick="showPanel('fraud-alerts')">
+                    <div class="stat-icon"><i class="fas fa-shield-alt"></i></div>
+                    <div class="stat-info">
+                        <h3>${data.fraud?.high_risk || 0}</h3>
+                        <p>Fraud Alerts</p>
+                        <small>${data.fraud?.locked || 0} locked</small>
+                    </div>
+                </div>
+            `;
+            
+            const dashboardActivity = document.getElementById('dashboard-activity');
+            if (dashboardActivity && data.recent_activity) {
+                dashboardActivity.innerHTML = data.recent_activity.slice(0, 10).map(a => `
+                    <tr>
+                        <td>${formatDate(a.timestamp)}</td>
+                        <td>${escapeHtml(a.user || 'System')}</td>
+                        <td>${escapeHtml(a.action)}</td>
+                        <td>${escapeHtml(JSON.stringify(a.details).substring(0, 80))}...</td>
+                        <td>${a.ip_address || 'N/A'}</td>
+                    </tr>
+                `).join('');
+            }
+            
+            if (document.getElementById('userGrowthChart') && data.user_growth) {
+                if (charts.userGrowth) charts.userGrowth.destroy();
+                charts.userGrowth = new Chart(document.getElementById('userGrowthChart'), {
+                    type: 'line',
+                    data: {
+                        labels: data.user_growth.labels || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                        datasets: [
+                            { label: 'Students', data: data.user_growth.students || [], borderColor: '#006747', fill: false, tension: 0.4 },
+                            { label: 'Owners', data: data.user_growth.owners || [], borderColor: '#FFD700', fill: false, tension: 0.4 }
+                        ]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
+            
+            if (document.getElementById('hostelChart') && data.hostels) {
+                if (charts.hostel) charts.hostel.destroy();
+                charts.hostel = new Chart(document.getElementById('hostelChart'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Approved', 'Pending'],
+                        datasets: [{ data: [data.hostels.approved || 0, data.hostels.pending || 0], backgroundColor: ['#006747', '#FFD700'] }]
+                    }
+                });
+            }
+        } catch(e) { 
+            console.error('Dashboard stats error:', e);
+            showToast('Failed to load dashboard stats', 'error');
         }
-        
-        tbody.innerHTML = items.map(s => `
-            <tr>
-                <td>${escapeHtml(s.full_name || 'N/A')}</td>
-                <td>${escapeHtml(s.email || 'N/A')}</td>
-                <td>${escapeHtml(s.student_profile?.phone_number || s.phone || 'N/A')}</td>
-                <td>${escapeHtml(s.student_profile?.registration_number || s.registration_number || 'N/A')}</td>
-                <td><span class="badge ${s.email_verified ? 'badge-success' : 'badge-warning'}">${s.email_verified ? 'Verified' : 'Pending'}</span></td>
-                <td><span class="badge ${s.is_2fa_enabled ? 'badge-success' : 'badge-info'}">${s.is_2fa_enabled ? 'Enabled' : 'Disabled'}</span></td>
-                <td><span class="badge ${s.is_active ? 'badge-success' : 'badge-danger'}">${s.is_active ? 'Active' : 'Locked'}</span></td>
-                <td>${s.date_joined ? formatDate(s.date_joined) : 'N/A'}</td>
-                <td class="action-icons">
-                    <i class="fas fa-eye" onclick="viewUser('${s.id}')" title="View"></i>
-                    <i class="fas ${s.is_active ? 'fa-ban' : 'fa-check-circle'}" onclick="toggleUserStatus('${s.id}', 'student')" title="${s.is_active ? 'Lock' : 'Unlock'}"></i>
-                    <i class="fas fa-trash delete" onclick="deleteUser('${s.id}', 'student')" title="Delete"></i>
-                </td>
-            </tr>
-        `).join('');
-    } catch(e) { 
-        console.error('Load students error:', e);
-        showToast('Failed to load students', 'error');
     }
-}
+    
+    async function loadStudents() {
+        const filter = document.getElementById('studentFilter')?.value || 'all';
+        const search = document.getElementById('studentSearch')?.value || '';
+        try {
+            const data = await apiFetch(`/students/?status=${filter}&search=${encodeURIComponent(search)}`);
+            const items = Array.isArray(data) ? data : (data.results || []);
+            students = items;
+            const tbody = document.getElementById('studentsBody');
+            if (!tbody) return;
+            
+            if (items.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="loading-row">No students found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = items.map(s => `
+                <tr>
+                    <td>${escapeHtml(s.full_name || 'N/A')}</td>
+                    <td>${escapeHtml(s.email || 'N/A')}</td>
+                    <td>${escapeHtml(s.student_profile?.phone_number || s.phone || 'N/A')}</td>
+                    <td>${escapeHtml(s.student_profile?.registration_number || s.registration_number || 'N/A')}</td>
+                    <td><span class="badge ${s.email_verified ? 'badge-success' : 'badge-warning'}">${s.email_verified ? 'Verified' : 'Pending'}</span></td>
+                    <td><span class="badge ${s.is_2fa_enabled ? 'badge-success' : 'badge-info'}">${s.is_2fa_enabled ? 'Enabled' : 'Disabled'}</span></td>
+                    <td><span class="badge ${s.is_active ? 'badge-success' : 'badge-danger'}">${s.is_active ? 'Active' : 'Locked'}</span></td>
+                    <td>${s.date_joined ? formatDate(s.date_joined) : 'N/A'}</td>
+                    <td class="action-icons">
+                        <i class="fas fa-eye" onclick="viewUser('${s.id}')" title="View"></i>
+                        <i class="fas ${s.is_active ? 'fa-ban' : 'fa-check-circle'}" onclick="toggleUserStatus('${s.id}', 'student')" title="${s.is_active ? 'Lock' : 'Unlock'}"></i>
+                        <i class="fas fa-trash delete" onclick="deleteUser('${s.id}', 'student')" title="Delete"></i>
+                    </td>
+                </tr>
+            `).join('');
+        } catch(e) { 
+            console.error('Load students error:', e);
+            showToast('Failed to load students', 'error');
+        }
+    }
     
     async function loadOwners() {
         const filter = document.getElementById('ownerFilter')?.value || 'all';
@@ -1320,6 +1362,12 @@ async function loadStudents() {
             owners = items;
             const tbody = document.getElementById('ownersBody');
             if (!tbody) return;
+            
+            if (items.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="loading-row">No owners found</td></tr>';
+                return;
+            }
+            
             tbody.innerHTML = items.map(o => `
                 <tr>
                     <td>${escapeHtml(o.owner_profile?.hostel_name || 'N/A')}</td>
@@ -1330,56 +1378,62 @@ async function loadStudents() {
                     <td><span class="badge ${o.owner_profile?.verified_badge ? 'badge-success' : 'badge-info'}">${o.owner_profile?.verified_badge ? 'Verified' : 'No'}</span></td>
                     <td>${o.owner_profile?.hostel_count || 0}</td>
                     <td><span class="badge ${(o.owner_profile?.fraud_score || 0) > 70 ? 'badge-danger' : (o.owner_profile?.fraud_score || 0) > 40 ? 'badge-warning' : 'badge-success'}">${o.owner_profile?.fraud_score || 0}</span></td>
-                    <td class="action-icons"><i class="fas fa-eye" onclick="viewUser('${o.id}')"></i>${!o.owner_profile?.is_approved ? `<i class="fas fa-check-circle" onclick="approveOwner('${o.id}')"></i>` : ''}<i class="fas fa-certificate" onclick="toggleVerified('${o.id}')"></i><i class="fas fa-ban" onclick="toggleUserStatus('${o.id}', 'owner')"></i><i class="fas fa-trash delete" onclick="deleteUser('${o.id}', 'owner')"></i></td>
+                    <td class="action-icons">
+                        <i class="fas fa-eye" onclick="viewUser('${o.id}')" title="View"></i>
+                        ${!o.owner_profile?.is_approved ? `<i class="fas fa-check-circle" onclick="approveOwner('${o.id}')" title="Approve"></i>` : ''}
+                        <i class="fas fa-certificate" onclick="toggleVerified('${o.id}')" title="Toggle Verified"></i>
+                        <i class="fas fa-ban" onclick="toggleUserStatus('${o.id}', 'owner')" title="Toggle Status"></i>
+                        <i class="fas fa-trash delete" onclick="deleteUser('${o.id}', 'owner')" title="Delete"></i>
+                    </td>
                 </tr>
             `).join('');
         } catch(e) { console.error(e); }
     }
     
-async function loadHostels() {
-    const filter = document.getElementById('hostelFilter')?.value || 'all';
-    const search = document.getElementById('hostelSearch')?.value || '';
-    let params = new URLSearchParams();
-    if (search) params.append('search', search);
-    if (filter === 'approved' || filter === 'pending') params.append('approval', filter);
-    else if (filter === 'featured') params.append('featured', 'true');
-    
-    try {
-        const data = await apiFetch(`/hostels/?${params}`);
-        const items = Array.isArray(data) ? data : (data.results || []);
-        hostels = items;
-        const tbody = document.getElementById('hostelsBody');
-        if (!tbody) return;
+    async function loadHostels() {
+        const filter = document.getElementById('hostelFilter')?.value || 'all';
+        const search = document.getElementById('hostelSearch')?.value || '';
+        let params = new URLSearchParams();
+        if (search) params.append('search', search);
+        if (filter === 'approved' || filter === 'pending') params.append('approval', filter);
+        else if (filter === 'featured') params.append('featured', 'true');
         
-        if (items.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="10" class="loading-row">No hostels found</td></tr>';
-            return;
+        try {
+            const data = await apiFetch(`/hostels/?${params}`);
+            const items = Array.isArray(data) ? data : (data.results || []);
+            hostels = items;
+            const tbody = document.getElementById('hostelsBody');
+            if (!tbody) return;
+            
+            if (items.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" class="loading-row">No hostels found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = items.map(h => `
+                <tr>
+                    <td>${escapeHtml(h.name || 'N/A')}</td>
+                    <td>${escapeHtml(h.owner_name || h.owner?.email || 'Unknown')}</td>
+                    <td>${escapeHtml(h.address || 'N/A')}</td>
+                    <td>${h.distance_to_university || 'N/A'} km</td>
+                    <td>${formatCurrency(h.price || 0)}</td>
+                    <td>${escapeHtml(h.room_type || 'N/A')}</td>
+                    <td><span class="badge ${h.is_approved ? 'badge-success' : 'badge-warning'}">${h.is_approved ? 'Approved' : 'Pending'}</span></td>
+                    <td><span class="badge ${h.is_featured ? 'badge-success' : 'badge-info'}">${h.is_featured ? 'Featured' : 'No'}</span></td>
+                    <td>${h.total_bookings || h.booking_count || 0}</td>
+                    <td class="action-icons">
+                        <i class="fas fa-eye" onclick="viewHostel('${h.id}')" title="View"></i>
+                        ${!h.is_approved ? `<i class="fas fa-check-circle" onclick="approveHostel('${h.id}')" title="Approve"></i>` : ''}
+                        <i class="fas fa-star" onclick="toggleFeatured('${h.id}')" title="Toggle Featured"></i>
+                        <i class="fas fa-trash delete" onclick="deleteHostel('${h.id}')" title="Delete"></i>
+                    </td>
+                </tr>
+            `).join('');
+        } catch(e) { 
+            console.error('Load hostels error:', e);
+            showToast('Failed to load hostels', 'error');
         }
-        
-        tbody.innerHTML = items.map(h => `
-            <tr>
-                <td>${escapeHtml(h.name || 'N/A')}</td>
-                <td>${escapeHtml(h.owner_name || h.owner?.email || 'Unknown')}</td>
-                <td>${escapeHtml(h.address || 'N/A')}</td>
-                <td>${h.distance_to_university || 'N/A'} km</td>
-                <td>${formatCurrency(h.price || 0)}</td>
-                <td>${escapeHtml(h.room_type || 'N/A')}</td>
-                <td><span class="badge ${h.is_approved ? 'badge-success' : 'badge-warning'}">${h.is_approved ? 'Approved' : 'Pending'}</span></td>
-                <td><span class="badge ${h.is_featured ? 'badge-success' : 'badge-info'}">${h.is_featured ? 'Featured' : 'No'}</span></td>
-                <td>${h.total_bookings || h.booking_count || 0}</td>
-                <td class="action-icons">
-                    <i class="fas fa-eye" onclick="viewHostel('${h.id}')" title="View"></i>
-                    ${!h.is_approved ? `<i class="fas fa-check-circle" onclick="approveHostel('${h.id}')" title="Approve"></i>` : ''}
-                    <i class="fas fa-star" onclick="toggleFeatured('${h.id}')" title="Toggle Featured"></i>
-                    <i class="fas fa-trash delete" onclick="deleteHostel('${h.id}')" title="Delete"></i>
-                </td>
-            </tr>
-        `).join('');
-    } catch(e) { 
-        console.error('Load hostels error:', e);
-        showToast('Failed to load hostels', 'error');
     }
-}
     
     async function loadFeaturedHostels() {
         try {
@@ -1498,6 +1552,7 @@ async function loadHostels() {
         else if (panelId === 'hostels') loadHostels();
         else if (panelId === 'featured-hostels') loadFeaturedHostels();
         else if (panelId === 'audit-logs') loadAuditLogs();
+        else if (panelId === 'bookings') loadBookings();
         else if (panelId === 'fraud-alerts') loadFraudAlerts();
         else if (panelId === 'sessions') loadSessions();
         else if (panelId === 'user-analytics') loadUserAnalytics();
@@ -1517,6 +1572,38 @@ async function loadHostels() {
             }
         } catch(e) { console.error(e); }
     }
+    
+    async function loadAdminProfileForEdit() {
+        try {
+            const data = await apiFetch('/auth/profile/');
+            if (data) {
+                document.getElementById('profileFullName').value = data.full_name;
+                document.getElementById('profileEmail').value = data.email;
+                document.getElementById('profileAvatarPreview').innerText = getInitials(data.full_name);
+            }
+        } catch(e) { showToast('Failed to load profile', 'error'); }
+    }
+    
+    window.updateAdminProfile = async function() {
+        const fullName = document.getElementById('profileFullName').value;
+        const email = document.getElementById('profileEmail').value;
+        const currentPassword = document.getElementById('profileCurrentPassword').value;
+        const newPassword = document.getElementById('profileNewPassword').value;
+        const confirmPassword = document.getElementById('profileConfirmPassword').value;
+        if (!fullName || !email) { showToast('Name and email are required', 'error'); return; }
+        if (newPassword && newPassword !== confirmPassword) { showToast('New passwords do not match', 'error'); return; }
+        if (newPassword && !currentPassword) { showToast('Current password is required to change password', 'error'); return; }
+        try {
+            const payload = { full_name: fullName, email: email };
+            if (currentPassword) payload.current_password = currentPassword;
+            if (newPassword) payload.new_password = newPassword;
+            await apiFetch('/auth/profile/update/', { method: 'PUT', body: JSON.stringify(payload) });
+            showToast('Profile updated successfully', 'success');
+            closeModal('profileEditModal');
+            document.getElementById('adminName').textContent = fullName;
+            document.getElementById('adminAvatar').textContent = getInitials(fullName);
+        } catch(e) { showToast(e.message, 'error'); }
+    };
     
     window.viewUser = async function(id) {
         const user = [...students, ...owners].find(u => u.id === id);
@@ -1679,41 +1766,6 @@ async function loadHostels() {
     }
     
     // ============================================
-    // PROFILE EDIT
-    // ============================================
-    async function loadAdminProfileForEdit() {
-        try {
-            const data = await apiFetch('/auth/profile/');
-            if (data) {
-                document.getElementById('profileFullName').value = data.full_name;
-                document.getElementById('profileEmail').value = data.email;
-                document.getElementById('profileAvatarPreview').innerText = getInitials(data.full_name);
-            }
-        } catch(e) { showToast('Failed to load profile', 'error'); }
-    }
-    
-    window.updateAdminProfile = async function() {
-        const fullName = document.getElementById('profileFullName').value;
-        const email = document.getElementById('profileEmail').value;
-        const currentPassword = document.getElementById('profileCurrentPassword').value;
-        const newPassword = document.getElementById('profileNewPassword').value;
-        const confirmPassword = document.getElementById('profileConfirmPassword').value;
-        if (!fullName || !email) { showToast('Name and email are required', 'error'); return; }
-        if (newPassword && newPassword !== confirmPassword) { showToast('New passwords do not match', 'error'); return; }
-        if (newPassword && !currentPassword) { showToast('Current password is required to change password', 'error'); return; }
-        try {
-            const payload = { full_name: fullName, email: email };
-            if (currentPassword) payload.current_password = currentPassword;
-            if (newPassword) payload.new_password = newPassword;
-            await apiFetch('/auth/profile/update/', { method: 'PUT', body: JSON.stringify(payload) });
-            showToast('Profile updated successfully', 'success');
-            closeModal('profileEditModal');
-            document.getElementById('adminName').textContent = fullName;
-            document.getElementById('adminAvatar').textContent = getInitials(fullName);
-        } catch(e) { showToast(e.message, 'error'); }
-    };
-    
-    // ============================================
     // NOTIFICATIONS & SMS
     // ============================================
     async function loadNotifications() {
@@ -1788,6 +1840,19 @@ async function loadHostels() {
     document.getElementById('adminMenu').addEventListener('click', function() { loadAdminProfileForEdit(); openModal('profileEditModal'); });
     document.getElementById('refreshDashboard')?.addEventListener('click', loadDashboardStats);
     
+    // Make load functions globally available
+    window.loadBookings = loadBookings;
+    window.loadDashboardStats = loadDashboardStats;
+    window.loadStudents = loadStudents;
+    window.loadOwners = loadOwners;
+    window.loadHostels = loadHostels;
+    window.loadFeaturedHostels = loadFeaturedHostels;
+    window.loadAuditLogs = loadAuditLogs;
+    window.loadFraudAlerts = loadFraudAlerts;
+    window.loadSessions = loadSessions;
+    window.loadUserAnalytics = loadUserAnalytics;
+    window.loadHostelAnalytics = loadHostelAnalytics;
+    
     async function init() {
         renderSidebarMenu();
         await loadAdminProfile();
@@ -1798,6 +1863,6 @@ async function loadHostels() {
     }
     init();
 })();
-    </script>
+</script>
 </body>
 </html>
