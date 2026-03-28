@@ -1564,7 +1564,7 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
     // ============================================
     async function loadAdminProfile() {
         try {
-            const data = await apiFetch('/auth/profile/');
+            const data = await apiFetch('/profile/update/');
             if (data) {
                 document.getElementById('adminName').textContent = data.full_name;
                 document.getElementById('adminAvatar').textContent = getInitials(data.full_name);
@@ -1575,7 +1575,7 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
     
     async function loadAdminProfileForEdit() {
         try {
-            const data = await apiFetch('/auth/profile/');
+            const data = await apiFetch('/auth/profile/update/');
             if (data) {
                 document.getElementById('profileFullName').value = data.full_name;
                 document.getElementById('profileEmail').value = data.email;
@@ -1597,7 +1597,7 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
             const payload = { full_name: fullName, email: email };
             if (currentPassword) payload.current_password = currentPassword;
             if (newPassword) payload.new_password = newPassword;
-            await apiFetch('/auth/profile/update/', { method: 'PUT', body: JSON.stringify(payload) });
+            await apiFetch('/profile/update/', { method: 'PUT', body: JSON.stringify(payload) });
             showToast('Profile updated successfully', 'success');
             closeModal('profileEditModal');
             document.getElementById('adminName').textContent = fullName;
