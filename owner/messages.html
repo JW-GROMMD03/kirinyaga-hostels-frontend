@@ -297,25 +297,9 @@
             gap: 4px;
         }
 
-        .message-actions {
-            display: flex;
-            gap: 0.5rem;
-            flex-shrink: 0;
-        }
-
-        .message-actions button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 50%;
-            transition: all 0.3s;
-            color: var(--text-secondary);
-        }
-
-        .message-actions button:hover {
-            background: var(--bg-light);
-            color: var(--kyu-green);
+        .expiry-soon {
+            background: rgba(202, 138, 4, 0.1);
+            color: var(--warning);
         }
 
         .modal {
@@ -435,9 +419,6 @@
             .message-item {
                 flex-direction: column;
             }
-            .message-actions {
-                align-self: flex-end;
-            }
         }
     </style>
 </head>
@@ -466,7 +447,6 @@
             <h1><i class="fas fa-bell"></i> Notifications</h1>
             <div class="header-actions">
                 <button class="btn-outline" id="markAllReadBtn"><i class="fas fa-check-double"></i> Mark All Read</button>
-                <button class="btn-outline" id="manualCleanupBtn"><i class="fas fa-clock"></i> Clean Expired (1 Week+)</button>
             </div>
         </div>
 
@@ -526,7 +506,7 @@
         let messages = [];
         let currentMessageId = null;
 
-        // AUTO-DELETE CONFIG: messages older than 7 days (604800000 ms)
+        // Auto-delete after 7 days (604800000 ms)
         const AUTO_DELETE_DAYS = 7;
         const AUTO_DELETE_MS = AUTO_DELETE_DAYS * 24 * 60 * 60 * 1000;
 
@@ -555,7 +535,7 @@
             } catch(e) { console.error(e); throw e; }
         }
 
-        // Helper: Check if message is older than AUTO_DELETE_DAYS
+        // Check if message is older than 7 days
         function isMessageExpired(message) {
             if (!message.created_at) return false;
             const createdDate = new Date(message.created_at);
@@ -564,7 +544,7 @@
             return ageMs >= AUTO_DELETE_MS;
         }
 
-        // Auto-delete expired messages (older than 7 days) from local array and server
+        // Auto-delete expired messages
         async function deleteExpiredMessages() {
             const expiredMessages = messages.filter(msg => isMessageExpired(msg));
             if (expiredMessages.length === 0) return 0;
@@ -580,7 +560,6 @@
             }
             
             if (deletedCount > 0) {
-                // Remove expired messages from local array
                 messages = messages.filter(msg => !isMessageExpired(msg));
                 updateStatsAndRender();
                 showToast(`🗑️ ${deletedCount} message(s) older than ${AUTO_DELETE_DAYS} days automatically deleted.`, 'info');
@@ -588,65 +567,43 @@
             return deletedCount;
         }
 
-        // Manual cleanup for expired messages (can be triggered by button)
-        async function manualCleanupExpired() {
-            showLoading();
-            try {
-                const expiredBeforeClean = messages.filter(msg => isMessageExpired(msg)).length;
-                if (expiredBeforeClean === 0) {
-                    showToast(`No messages older than ${AUTO_DELETE_DAYS} days found.`, 'info');
-                    hideLoading();
-                    return;
-                }
-                await deleteExpiredMessages();
-                // Re-fetch to sync with backend after deletions
-                await loadNotifications(true); // silent refresh
-            } catch (e) {
-                showToast('Error during cleanup', 'error');
-            } finally {
-                hideLoading();
-            }
-        }
-
-        function updateStatsAndRender() {
-            document.getElementById('totalCount').textContent = messages.length;
-            const unreadCount = messages.filter(m => !m.is_read).length;
-            document.getElementById('unreadCount').textContent = unreadCount;
-            // Count messages that will expire in next 7 days (but not yet expired)
-            const now = new Date();
-            const expiringSoon = messages.filter(msg => {
-                if (!msg.created_at) return false;
-                const age = now - new Date(msg.created_at);
-                const daysOld = age / (1000 * 3600 * 24);
-                return daysOld >= 5 && daysOld < AUTO_DELETE_DAYS && !isMessageExpired(msg);
-            }).length;
-            document.getElementById('expiringCount').textContent = expiringSoon;
-            renderMessages();
-        }
-
-        async function loadNotifications(silent = false) {
-            if (!silent) showLoading();
-            try {
-                const data = await apiFetch('/notifications/');
-                messages = data.results || data || [];
-                // After loading, immediately delete any expired messages
-                await deleteExpiredMessages();
-                updateStatsAndRender();
-            } catch(e) { 
-                if (!silent) showToast('Failed to load messages', 'error');
-            }
-            finally { if (!silent) hideLoading(); }
-        }
-
-        function getDaysUntilExpiry(createdAt) {
+        function getDaysRemaining(createdAt) {
             if (!createdAt) return null;
             const created = new Date(createdAt);
             const now = new Date();
             const ageMs = now - created;
             const remainingMs = AUTO_DELETE_MS - ageMs;
             if (remainingMs <= 0) return 0;
-            const daysRemaining = Math.ceil(remainingMs / (1000 * 3600 * 24));
-            return daysRemaining;
+            return Math.ceil(remainingMs / (1000 * 3600 * 24));
+        }
+
+        function updateStatsAndRender() {
+            document.getElementById('totalCount').textContent = messages.length;
+            const unreadCount = messages.filter(m => !m.is_read).length;
+            document.getElementById('unreadCount').textContent = unreadCount;
+            
+            // Count messages expiring in next 3 days
+            const expiringSoon = messages.filter(msg => {
+                const daysLeft = getDaysRemaining(msg.created_at);
+                return daysLeft !== null && daysLeft > 0 && daysLeft <= 3;
+            }).length;
+            document.getElementById('expiringCount').textContent = expiringSoon;
+            
+            renderMessages();
+        }
+
+        async function loadNotifications() {
+            showLoading();
+            try {
+                const data = await apiFetch('/notifications/');
+                messages = data.results || data || [];
+                await deleteExpiredMessages();
+                updateStatsAndRender();
+            } catch(e) { 
+                showToast('Failed to load messages', 'error');
+            } finally { 
+                hideLoading(); 
+            }
         }
 
         function renderMessages() {
@@ -664,10 +621,13 @@
             }
             
             container.innerHTML = filtered.map(msg => {
-                const daysLeft = getDaysUntilExpiry(msg.created_at);
-                const expiryWarning = (daysLeft !== null && daysLeft <= 3 && daysLeft > 0) ? 
-                    `<span class="expiry-badge"><i class="fas fa-hourglass-half"></i> Expires in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}</span>` : 
-                    (daysLeft === 0 ? `<span class="expiry-badge"><i class="fas fa-trash-alt"></i> Expired (will be auto-deleted)</span>` : '');
+                const daysLeft = getDaysRemaining(msg.created_at);
+                let expiryHtml = '';
+                if (daysLeft !== null && daysLeft > 0 && daysLeft <= 3) {
+                    expiryHtml = `<span class="expiry-badge expiry-soon"><i class="fas fa-hourglass-half"></i> Expires in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}</span>`;
+                } else if (daysLeft === 0) {
+                    expiryHtml = `<span class="expiry-badge"><i class="fas fa-trash-alt"></i> Expiring today</span>`;
+                }
                 
                 return `
                     <div class="message-item ${!msg.is_read ? 'unread' : ''}">
@@ -677,7 +637,7 @@
                             <div class="message-preview">${escapeHtml(msg.message.substring(0, 100))}${msg.message.length > 100 ? '...' : ''}</div>
                             <div class="message-meta">
                                 <span><i class="far fa-clock"></i> ${formatDate(msg.created_at)}</span>
-                                ${expiryWarning ? `<span>${expiryWarning}</span>` : ''}
+                                ${expiryHtml}
                             </div>
                         </div>
                         <div class="message-actions">
@@ -712,12 +672,10 @@
                 if (msg) msg.is_read = true;
                 updateStatsAndRender();
                 showToast('Marked as read', 'success');
-                // If modal is open for this message, we can update modal view but not needed.
-            } catch(e) { showToast('Failed to mark as read', 'error'); }
+            } catch(e) { 
+                showToast('Failed to mark as read', 'error'); 
+            }
         }
-
-        // No deleteMessage function exposed anymore - removed manual delete buttons completely
-        // The only way messages are removed is via auto-deletion after 7 days or manual cleanup button
 
         async function markAllRead() {
             const unread = messages.filter(m => !m.is_read);
@@ -740,12 +698,13 @@
             const msg = messages.find(m => m.id == id);
             if (!msg) return;
             currentMessageId = id;
-            const daysLeft = getDaysUntilExpiry(msg.created_at);
+            
+            const daysLeft = getDaysRemaining(msg.created_at);
             let expiryNote = '';
-            if (daysLeft !== null && daysLeft > 0) {
+            if (daysLeft !== null && daysLeft > 0 && daysLeft <= 3) {
                 expiryNote = `<p style="margin-top: 12px; padding: 8px 12px; background: rgba(220,38,38,0.1); border-radius: 8px; font-size: 0.85rem; color: var(--danger);"><i class="fas fa-clock"></i> This message will be automatically deleted in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}.</p>`;
             } else if (daysLeft === 0) {
-                expiryNote = `<p style="margin-top: 12px; padding: 8px 12px; background: rgba(220,38,38,0.1); border-radius: 8px; font-size: 0.85rem; color: var(--danger);"><i class="fas fa-trash-alt"></i> This message has expired and will be removed shortly.</p>`;
+                expiryNote = `<p style="margin-top: 12px; padding: 8px 12px; background: rgba(220,38,38,0.1); border-radius: 8px; font-size: 0.85rem; color: var(--danger);"><i class="fas fa-trash-alt"></i> This message will be deleted today.</p>`;
             }
             
             document.getElementById('modalTitle').textContent = msg.title;
@@ -755,16 +714,26 @@
                 ${expiryNote}
             `;
             document.getElementById('messageModal').classList.add('active');
+            
             if (!msg.is_read) markAsRead(id);
         }
 
-        function closeModal() { document.getElementById('messageModal').classList.remove('active'); currentMessageId = null; }
-        function markReadAndClose() { if (currentMessageId) markAsRead(currentMessageId); closeModal(); }
+        function closeModal() { 
+            document.getElementById('messageModal').classList.remove('active'); 
+            currentMessageId = null; 
+        }
+        
+        function markReadAndClose() { 
+            if (currentMessageId) markAsRead(currentMessageId); 
+            closeModal(); 
+        }
 
-        // Event listeners
-        document.getElementById('logoutBtn').onclick = () => { sessionStorage.removeItem('accessToken'); window.location.href = 'login.html'; };
+        // Event Listeners
+        document.getElementById('logoutBtn').onclick = () => { 
+            sessionStorage.removeItem('accessToken'); 
+            window.location.href = 'login.html'; 
+        };
         document.getElementById('markAllReadBtn').onclick = markAllRead;
-        document.getElementById('manualCleanupBtn').onclick = manualCleanupExpired;
         
         document.querySelectorAll('.filter-tab').forEach(tab => {
             tab.onclick = () => {
@@ -775,6 +744,7 @@
             };
         });
 
+        // Dark Mode
         const savedTheme = localStorage.getItem('ownerTheme');
         if (savedTheme === 'dark') document.body.classList.add('dark-mode');
         document.getElementById('darkModeToggle').onclick = () => {
@@ -783,24 +753,16 @@
             document.getElementById('darkModeToggle').innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
         };
 
-        // Initial load
+        // Initial load and auto-refresh
         loadNotifications();
+        setInterval(() => loadNotifications(), 10 * 60 * 1000);
+        window.addEventListener('focus', () => loadNotifications());
         
-        // Auto cleanup check every 10 minutes (also checks expired messages)
-        setInterval(async () => {
-            // Refresh messages from server and auto-clean expired ones
-            await loadNotifications(true);
-        }, 10 * 60 * 1000); // every 10 minutes
-        
-        // Also check on page focus for better UX
-        window.addEventListener('focus', () => loadNotifications(true));
-        
-        // Expose necessary functions globally
+        // Expose functions
         window.closeModal = closeModal;
         window.markReadAndClose = markReadAndClose;
         window.viewMessage = viewMessage;
         window.markAsRead = markAsRead;
-        // No deleteMessage exposed - manual deletion removed
     </script>
 </body>
 </html>
