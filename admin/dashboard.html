@@ -1062,25 +1062,39 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
         console.error('Invalid token'); 
     }
     
-    // ============================================
-    // DARK MODE
-    // ============================================
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') { 
-        document.body.classList.add('dark-mode'); 
-        updateDarkModeIcon(true); 
+// ============================================
+// DARK MODE 
+// ============================================
+
+
+// Load saved theme from localStorage on page load
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'dark') { 
+    document.body.classList.add('dark-mode'); 
+    updateDarkModeIcon(true); 
+}
+
+function updateDarkModeIcon(isDark) {
+    const toggleBtn = document.getElementById('darkModeToggle');
+    if (toggleBtn) {
+        toggleBtn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        toggleBtn.title = isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode';
     }
-    function updateDarkModeIcon(isDark) {
-        const toggleBtn = document.getElementById('darkModeToggle');
-        if (toggleBtn) toggleBtn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-    }
-    function toggleDarkMode() {
-        const isDark = document.body.classList.toggle('dark-mode');
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        updateDarkModeIcon(isDark);
-        showToast(isDark ? 'Dark mode enabled' : 'Light mode enabled', 'info', 'Theme');
-    }
-    document.getElementById('darkModeToggle')?.addEventListener('click', toggleDarkMode);
+}
+
+function toggleDarkMode() {
+    const isDark = document.body.classList.toggle('dark-mode');
+    // Save theme preference to localStorage
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    updateDarkModeIcon(isDark);
+    showToast(isDark ? 'Dark mode enabled' : 'Light mode enabled', 'info', 'Theme');
+}
+
+// Add event listener
+const darkModeToggle = document.getElementById('darkModeToggle');
+if (darkModeToggle) {
+    darkModeToggle.addEventListener('click', toggleDarkMode);
+}
     
     // ============================================
     // SIDEBAR MENU
@@ -1608,24 +1622,24 @@ async function loadFeaturedHostels() {
     // ============================================
     // ADMIN PROFILE & ACTIONS
     // ============================================
-    async function loadAdminProfile() {
-        try {
-            const data = await apiFetch('/profile/');
-            if (data) {
-                document.getElementById('adminName').textContent = data.full_name;
-                document.getElementById('adminAvatar').textContent = getInitials(data.full_name);
-                currentUserId = data.id;
-                // If avatar URL exists, update preview
-                if (data.avatar_url) {
-                    const preview = document.getElementById('profileAvatarPreview');
-                    preview.style.backgroundImage = `url(${data.avatar_url})`;
-                    preview.style.backgroundSize = 'cover';
-                    preview.style.backgroundPosition = 'center';
-                    preview.textContent = '';
-                }
+async function loadAdminProfile() {
+    try {
+        const data = await apiFetch('/profile/');
+        if (data) {
+            document.getElementById('adminName').textContent = data.full_name;
+            document.getElementById('adminAvatar').textContent = getInitials(data.full_name);
+            currentUserId = data.id;
+            // If avatar URL exists, update preview
+            if (data.avatar_url) {
+                const preview = document.getElementById('profileAvatarPreview');
+                preview.style.backgroundImage = `url(${data.avatar_url})`;
+                preview.style.backgroundSize = 'cover';
+                preview.style.backgroundPosition = 'center';
+                preview.textContent = '';
             }
-        } catch(e) { console.error('Profile load error:', e); }
-    }
+        }
+    } catch(e) { console.error('Profile load error:', e); }
+}
     
     async function loadAdminProfileForEdit() {
         try {
@@ -1729,9 +1743,14 @@ window.verifyStudent = async function(id) {
     showConfirm('Verify this student?', async () => {
         try {
             const response = await apiFetch(`/users/${id}/verify/`, { method: 'POST' });
-            showToast('Student verified successfully', 'success');
-            loadStudents();
+            if (response && response.status === 'success') {
+                showToast(response.message || 'Student verified successfully', 'success');
+                loadStudents(); // Refresh the table
+            } else {
+                showToast(response.error || 'Failed to verify student', 'error');
+            }
         } catch(e) {
+            console.error('Verify student error:', e);
             showToast('Failed to verify student', 'error');
         }
     });
