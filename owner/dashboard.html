@@ -14,12 +14,14 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
+        /* Dark Mode Variables */
         :root {
             --kyu-green: #006747;
             --kyu-gold: #FFD700;
             --text-primary: #1e293b;
             --text-secondary: #64748b;
             --bg-light: #f8fafc;
+            --bg-white: #ffffff;
             --border-light: #e2e8f0;
             --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.1);
             --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.1);
@@ -29,16 +31,29 @@
             --info: #2563eb;
         }
 
+        body.dark-mode {
+            --kyu-green: #2ecc71;
+            --kyu-gold: #f1c40f;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --bg-light: #0f172a;
+            --bg-white: #1e293b;
+            --border-light: #334155;
+            --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.3);
+            --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.4);
+        }
+
         body {
             background: var(--bg-light);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         /* Header */
         header {
-            background: white;
+            background: var(--bg-white);
             box-shadow: var(--shadow-sm);
             padding: 1rem 2rem;
             display: flex;
@@ -48,6 +63,7 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            transition: background 0.3s ease;
         }
 
         .logo {
@@ -80,6 +96,13 @@
             padding: 5px 15px;
             background: var(--bg-light);
             border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .user-info:hover {
+            background: var(--border-light);
+            transform: scale(1.02);
         }
 
         .user-avatar {
@@ -108,6 +131,26 @@
         .user-role {
             font-size: 0.8rem;
             color: var(--text-secondary);
+        }
+
+        .dark-mode-toggle {
+            background: var(--bg-light);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+            color: var(--text-primary);
+        }
+
+        .dark-mode-toggle:hover {
+            background: var(--border-light);
+            transform: rotate(15deg);
         }
 
         .btn-logout {
@@ -148,6 +191,10 @@
             box-shadow: var(--shadow-md);
         }
 
+        body.dark-mode .welcome-section {
+            background: linear-gradient(135deg, #1e3a3a, #2e5a5a);
+        }
+
         .welcome-section h1 {
             font-size: 2.2rem;
             margin-bottom: 0.5rem;
@@ -175,6 +222,10 @@
             gap: 10px;
             border-left: 4px solid var(--danger);
         }
+        body.dark-mode .error-banner {
+            background: #7f1a1a;
+            color: #fecaca;
+        }
         .error-banner.hidden {
             display: none;
         }
@@ -188,7 +239,7 @@
         }
 
         .stat-card {
-            background: white;
+            background: var(--bg-white);
             border-radius: 20px;
             padding: 1.5rem;
             box-shadow: var(--shadow-sm);
@@ -251,7 +302,7 @@
         }
 
         .action-card {
-            background: white;
+            background: var(--bg-white);
             border-radius: 16px;
             padding: 1.5rem 1rem;
             text-align: center;
@@ -297,7 +348,7 @@
 
         /* Recent Activity Section */
         .recent-activity {
-            background: white;
+            background: var(--bg-white);
             border-radius: 20px;
             padding: 1.5rem;
             box-shadow: var(--shadow-sm);
@@ -385,7 +436,7 @@
 
         /* Hostels Preview */
         .hostels-preview {
-            background: white;
+            background: var(--bg-white);
             border-radius: 20px;
             padding: 1.5rem;
             box-shadow: var(--shadow-sm);
@@ -424,8 +475,6 @@
             background: var(--bg-light);
             border-radius: 12px;
             transition: transform 0.3s;
-            text-decoration: none;
-            color: inherit;
             cursor: default;
             border: 1px solid transparent;
         }
@@ -474,6 +523,147 @@
             background: var(--warning);
         }
 
+        /* Profile Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-white);
+            border-radius: 24px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-light);
+        }
+
+        .modal-header h3 {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            cursor: pointer;
+            font-size: 1.8rem;
+            color: var(--text-secondary);
+            transition: color 0.2s;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .modal-close:hover {
+            color: var(--danger);
+            background: var(--bg-light);
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid var(--border-light);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: var(--bg-white);
+            color: var(--text-primary);
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--kyu-green);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .btn-primary {
+            padding: 0.8rem 1.5rem;
+            background: var(--kyu-green);
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #004d33;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            padding: 0.8rem 1.5rem;
+            background: transparent;
+            border: 2px solid var(--kyu-green);
+            color: var(--kyu-green);
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-outline:hover {
+            background: var(--kyu-green);
+            color: white;
+        }
+
         /* Loading Spinner */
         .loading-overlay {
             position: fixed;
@@ -481,11 +671,12 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255,255,255,0.8);
+            background: rgba(0,0,0,0.5);
             display: none;
             justify-content: center;
             align-items: center;
             z-index: 9999;
+            backdrop-filter: blur(4px);
         }
 
         .loading-overlay.active {
@@ -505,7 +696,6 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Success Message */
         .success-message {
             background: #dcfce7;
             color: var(--success);
@@ -516,6 +706,15 @@
             align-items: center;
             gap: 10px;
             border-left: 4px solid var(--success);
+        }
+
+        body.dark-mode .success-message {
+            background: #14532d;
+            color: #86efac;
+        }
+
+        .success-message.hidden {
+            display: none;
         }
 
         /* Footer */
@@ -551,7 +750,6 @@
             color: var(--kyu-gold);
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             header {
                 flex-direction: column;
@@ -586,7 +784,10 @@
             <span>Kirinyaga Hostels</span>
         </div>
         <div class="user-menu">
-            <div class="user-info">
+            <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle Dark Mode">
+                <i class="fas fa-moon"></i>
+            </button>
+            <div class="user-info" id="profileBtn">
                 <div class="user-avatar" id="userAvatar">O</div>
                 <div class="user-details">
                     <span class="user-name" id="userName">Loading...</span>
@@ -606,7 +807,7 @@
             <p>Manage your hostels, track bookings, and grow your business</p>
         </div>
 
-        <!-- Error Banner (hidden by default) -->
+        <!-- Error Banner -->
         <div id="errorBanner" class="error-banner hidden">
             <i class="fas fa-exclamation-circle"></i>
             <span id="errorMessage">⚠️ Failed to load data. Please refresh or check your connection.</span>
@@ -615,7 +816,7 @@
             </button>
         </div>
 
-        <!-- Success Message (hidden by default) -->
+        <!-- Success Message -->
         <div id="successMessage" class="success-message hidden">
             <i class="fas fa-check-circle"></i>
             <span id="successText"></span>
@@ -740,6 +941,42 @@
         </div>
     </div>
 
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-edit"></i> Edit Profile</h3>
+                <span class="modal-close" onclick="closeProfileModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="profileFullName" placeholder="Your full name">
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="profileEmail" placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Current Password</label>
+                    <input type="password" id="profileCurrentPassword" placeholder="Enter current password to make changes">
+                </div>
+                <div class="form-group">
+                    <label>New Password (leave blank to keep current)</label>
+                    <input type="password" id="profileNewPassword" placeholder="New password">
+                </div>
+                <div class="form-group">
+                    <label>Confirm New Password</label>
+                    <input type="password" id="profileConfirmPassword" placeholder="Confirm new password">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-outline" onclick="closeProfileModal()">Cancel</button>
+                <button class="btn-primary" onclick="updateProfile()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <div class="footer-content">
             <p>© 2025 Kirinyaga University Hostels. All rights reserved.</p>
@@ -763,6 +1000,30 @@
         window.location.href = 'login.html';
     }
 
+    // ==================== DARK MODE - PERSISTENT ====================
+    const savedTheme = localStorage.getItem('ownerTheme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        updateDarkModeIcon(true);
+    }
+
+    function updateDarkModeIcon(isDark) {
+        const toggleBtn = document.getElementById('darkModeToggle');
+        if (toggleBtn) {
+            toggleBtn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            toggleBtn.title = isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+        }
+    }
+
+    function toggleDarkMode() {
+        const isDark = document.body.classList.toggle('dark-mode');
+        localStorage.setItem('ownerTheme', isDark ? 'dark' : 'light');
+        updateDarkModeIcon(isDark);
+        showSuccess(isDark ? 'Dark mode enabled' : 'Light mode enabled');
+    }
+
+    document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
+
     // ==================== UI HELPERS ====================
     function showLoading() {
         document.getElementById('loadingOverlay').classList.add('active');
@@ -776,8 +1037,6 @@
         const errorBanner = document.getElementById('errorBanner');
         document.getElementById('errorMessage').textContent = message || '⚠️ Failed to load data. Please refresh or check your connection.';
         errorBanner.classList.remove('hidden');
-        
-        // Auto hide after 5 seconds
         setTimeout(() => {
             errorBanner.classList.add('hidden');
         }, 5000);
@@ -787,7 +1046,6 @@
         const successDiv = document.getElementById('successMessage');
         document.getElementById('successText').textContent = message;
         successDiv.classList.remove('hidden');
-        
         setTimeout(() => {
             successDiv.classList.add('hidden');
         }, 3000);
@@ -796,7 +1054,6 @@
     // ==================== API HELPER ====================
     async function apiFetch(url, options = {}) {
         try {
-            console.log(`Fetching: ${API_BASE}${url}`);
             const response = await fetch(`${API_BASE}${url}`, {
                 ...options,
                 headers: {
@@ -807,7 +1064,6 @@
             });
 
             if (response.status === 401) {
-                console.error('Unauthorized - redirecting to login');
                 sessionStorage.removeItem('accessToken');
                 window.location.href = 'login.html';
                 return null;
@@ -818,16 +1074,13 @@
                 throw new Error(error.message || error.detail || `HTTP ${response.status}`);
             }
 
-            const data = await response.json();
-            console.log(`Response from ${url}:`, data);
-            return data;
+            return await response.json();
         } catch (error) {
             console.error(`API Error (${url}):`, error);
             throw error;
         }
     }
 
-    // ==================== HELPER: EXTRACT ARRAY FROM RESPONSE ====================
     function extractArray(data) {
         if (Array.isArray(data)) return data;
         if (data && data.results && Array.isArray(data.results)) return data.results;
@@ -847,6 +1100,10 @@
 
                 const initials = (data.full_name || data.email).split(' ').map(n => n[0]).join('').toUpperCase();
                 document.getElementById('userAvatar').textContent = initials.slice(0, 2);
+                
+                // Store for profile edit
+                document.getElementById('profileFullName').value = data.full_name || '';
+                document.getElementById('profileEmail').value = data.email || '';
             }
         } catch (error) {
             console.error('Failed to load profile:', error);
@@ -855,16 +1112,70 @@
         }
     }
 
+    async function updateProfile() {
+        const fullName = document.getElementById('profileFullName').value;
+        const email = document.getElementById('profileEmail').value;
+        const currentPassword = document.getElementById('profileCurrentPassword').value;
+        const newPassword = document.getElementById('profileNewPassword').value;
+        const confirmPassword = document.getElementById('profileConfirmPassword').value;
+
+        if (!fullName || !email) {
+            showError('Name and email are required');
+            return;
+        }
+
+        if (newPassword && newPassword !== confirmPassword) {
+            showError('New passwords do not match');
+            return;
+        }
+
+        if (newPassword && !currentPassword) {
+            showError('Current password is required to change password');
+            return;
+        }
+
+        showLoading();
+        try {
+            const payload = { full_name: fullName, email: email };
+            if (currentPassword) payload.current_password = currentPassword;
+            if (newPassword) payload.new_password = newPassword;
+
+            const response = await apiFetch('/auth/profile/update/', {
+                method: 'PUT',
+                body: JSON.stringify(payload)
+            });
+
+            if (response) {
+                showSuccess('Profile updated successfully');
+                closeProfileModal();
+                loadProfile(); // Refresh profile data
+                document.getElementById('profileCurrentPassword').value = '';
+                document.getElementById('profileNewPassword').value = '';
+                document.getElementById('profileConfirmPassword').value = '';
+            }
+        } catch (error) {
+            showError(error.message || 'Failed to update profile');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    function openProfileModal() {
+        document.getElementById('profileModal').classList.add('active');
+    }
+
+    function closeProfileModal() {
+        document.getElementById('profileModal').classList.remove('active');
+    }
+
     // ==================== STATS ====================
     async function loadStats() {
         try {
             let hostels = [];
 
-            // Attempt to get hostels
             try {
                 const data = await apiFetch('/hostels/my/');
                 hostels = extractArray(data);
-                if (hostels.length) console.log('Got hostels from /hostels/my/');
             } catch (e) {
                 console.warn('Endpoint /hostels/my/ failed:', e.message);
             }
@@ -873,23 +1184,11 @@
                 try {
                     const data = await apiFetch(`/hostels/?owner=${currentUserId}`);
                     hostels = extractArray(data);
-                    if (hostels.length) console.log('Got hostels from /hostels/?owner=');
                 } catch (e) {
                     console.warn('Endpoint /hostels/?owner= failed:', e.message);
                 }
             }
 
-            if (!hostels.length) {
-                try {
-                    const data = await apiFetch('/hostels/');
-                    hostels = extractArray(data);
-                    if (hostels.length) console.log('Got hostels from /hostels/');
-                } catch (e) {
-                    console.warn('Endpoint /hostels/ failed:', e.message);
-                }
-            }
-
-            // Update hostel stats
             const total = hostels.length;
             const approved = hostels.filter(h => h.is_approved || h.approved).length;
             const pending = total - approved;
@@ -902,17 +1201,14 @@
             document.getElementById('featuredHostels').textContent = featured;
             document.getElementById('totalViews').textContent = views;
 
-            // Load bookings
             try {
                 const bookingsData = await apiFetch('/bookings/?owner=me');
                 const bookings = extractArray(bookingsData);
                 document.getElementById('totalBookings').textContent = bookings.length;
             } catch (error) {
-                console.warn('Bookings endpoint not available:', error);
                 document.getElementById('totalBookings').textContent = '0';
             }
 
-            // Load hostels preview
             loadHostelsPreview(hostels.slice(0, 4));
 
         } catch (error) {
@@ -921,7 +1217,7 @@
         }
     }
 
-    // ==================== HOSTELS PREVIEW ====================
+    // ==================== HOSTELS PREVIEW (Non-clickable images) ====================
     function loadHostelsPreview(hostels) {
         const preview = document.getElementById('hostelsPreview');
         const CLOUDINARY_BASE = 'https://res.cloudinary.com/dqujm2fhm/';
@@ -951,13 +1247,13 @@
             const statusText = isApproved ? 'Approved' : 'Pending';
             
             return `
-            <div class="mini-hostel-card" onclick="window.location.href='hostel-details.html?id=${hostel.id}'">
+            <div class="mini-hostel-card">
                 <img src="${imageUrl}" 
                      alt="${hostel.name}" 
                      class="mini-hostel-image"
                      onerror="this.src='https://placehold.co/60x60/006747/white?text=H'">
                 <div class="mini-hostel-info">
-                    <div class="mini-hostel-name">${hostel.name}</div>
+                    <div class="mini-hostel-name">${escapeHtml(hostel.name)}</div>
                     <div class="mini-hostel-status">
                         <span class="status-dot ${statusClass}"></span>
                         ${statusText}
@@ -967,16 +1263,22 @@
         `}).join('');
     }
 
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
     // ==================== RECENT ACTIVITY ====================
     async function loadRecentActivity() {
         try {
-            // Try to get real activities from audit logs
             let activities = [];
             
             try {
-                const auditData = await apiFetch('/admin/audit-logs/?page=1&page_size=5');
+                const auditData = await apiFetch('/owner/activity-logs/');
                 if (auditData && auditData.results) {
-                    activities = auditData.results.map(log => ({
+                    activities = auditData.results.slice(0, 5).map(log => ({
                         icon: getActivityIcon(log.action),
                         title: log.action,
                         time: formatTimeAgo(log.timestamp),
@@ -984,16 +1286,14 @@
                     }));
                 }
             } catch (e) {
-                console.warn('Audit logs not available, using mock data');
+                console.warn('Activity logs not available');
             }
 
-            // Fallback to mock data if no real activities
             if (activities.length === 0) {
                 activities = [
                     { icon: 'fa-home', title: 'Dashboard viewed', time: 'Just now', color: 'var(--kyu-green)' },
                     { icon: 'fa-eye', title: 'Hostel page visited', time: '2 hours ago', color: 'var(--info)' },
-                    { icon: 'fa-calendar-check', title: 'New booking received', time: '1 day ago', color: 'var(--success)' },
-                    { icon: 'fa-star', title: 'New review posted', time: '2 days ago', color: 'var(--kyu-gold)' }
+                    { icon: 'fa-calendar-check', title: 'New booking received', time: '1 day ago', color: 'var(--success)' }
                 ];
             }
 
@@ -1017,10 +1317,6 @@
     function getActivityIcon(action) {
         const iconMap = {
             'LOGIN_SUCCESS': 'fa-sign-in-alt',
-            'LOGIN_FAILED': 'fa-exclamation-triangle',
-            'STUDENT_SIGNUP': 'fa-user-graduate',
-            'OWNER_SIGNUP': 'fa-user-tie',
-            'APPROVE_OWNER': 'fa-check-circle',
             'CREATE_HOSTEL': 'fa-home',
             'UPDATE_HOSTEL': 'fa-edit',
             'DELETE_HOSTEL': 'fa-trash',
@@ -1033,10 +1329,6 @@
     function getActivityColor(action) {
         const colorMap = {
             'LOGIN_SUCCESS': 'var(--kyu-green)',
-            'LOGIN_FAILED': 'var(--danger)',
-            'STUDENT_SIGNUP': 'var(--info)',
-            'OWNER_SIGNUP': 'var(--kyu-green)',
-            'APPROVE_OWNER': 'var(--success)',
             'CREATE_HOSTEL': 'var(--kyu-green)',
             'UPDATE_HOSTEL': 'var(--info)',
             'DELETE_HOSTEL': 'var(--danger)',
@@ -1048,7 +1340,6 @@
 
     function formatTimeAgo(timestamp) {
         if (!timestamp) return 'Unknown';
-        
         const now = new Date();
         const past = new Date(timestamp);
         const diffMs = now - past;
@@ -1063,7 +1354,7 @@
         return past.toLocaleDateString();
     }
 
-    // ==================== REFRESH DATA ====================
+    // ==================== REFRESH ====================
     async function refreshData() {
         showLoading();
         try {
@@ -1093,7 +1384,6 @@
             await loadStats();
             await loadRecentActivity();
             
-            // Set up auto-refresh every 30 seconds
             refreshInterval = setInterval(() => {
                 refreshData();
             }, 30000);
@@ -1106,24 +1396,23 @@
         }
     }
 
-    // Clean up on page unload
     window.addEventListener('beforeunload', () => {
         if (refreshInterval) {
             clearInterval(refreshInterval);
         }
     });
 
-    // Event listeners
     document.getElementById('logoutBtn').addEventListener('click', logout);
+    document.getElementById('profileBtn').addEventListener('click', openProfileModal);
     document.querySelector('.logo').addEventListener('click', () => {
         window.location.href = 'dashboard.html';
     });
 
-    // Make refreshData available globally for the retry button
     window.refreshData = refreshData;
+    window.closeProfileModal = closeProfileModal;
+    window.updateProfile = updateProfile;
 
-    // Start the app
     init();
-</script>
+    </script>
 </body>
 </html>
