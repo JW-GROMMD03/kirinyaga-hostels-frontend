@@ -1152,7 +1152,7 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
     function createPanel(panelId) {
         const contents = {
             'dashboard': `<div class="panel-header"><h2>Dashboard Overview</h2><div class="panel-actions"><button class="btn btn-outline" onclick="refreshDashboard()"><i class="fas fa-sync-alt"></i> Refresh</button></div></div><div class="stats-grid" id="dashboard-stats"></div><h3>Recent Activity</h3><div class="table-container">\n<table>\n<thead>\n<th>Time</th><th>User</th><th>Action</th><th>Details</th><th>IP</th>\n</thead>\n<tbody id="dashboard-activity"></tbody>\n</table>\n</div>`,
-            'students': `<div class="panel-header"><h2>Student Management</h2><div class="panel-actions"><select id="studentFilter" onchange="loadStudents()"><option value="all">All</option><option value="active">Active</option><option value="locked">Locked</option><option value="verified">Verified</option></select><input type="text" id="studentSearch" placeholder="Search by name, email or phone..." style="width:250px;"><button class="btn btn-primary" onclick="loadStudents()"><i class="fas fa-search"></i> Search</button></div></div><div class="table-container"><table id="studentsTable"><thead><th>Name</th><th>Email</th><th>Phone</th><th>Reg No</th><th>Verified</th><th>2FA</th><th>Status</th><th>Joined</th><th>Actions</th></thead><tbody id="studentsBody"></tbody></table></div>`,
+            'students': `<div class="panel-header"><h2>Student Management</h2><div class="panel-actions"><select id="studentFilter" onchange="loadStudents()"><option value="all">All</option><option value="active">Active</option><option value="locked">Locked</option><option value="verified">Verified</option></select><input type="text" id="studentSearch" placeholder="Search by name, email or phone..." style="width:250px;"><button class="btn btn-primary" onclick="loadStudents()"><i class="fas fa-search"></i> Search</button></div></div><div class="table-container"><table id="studentsTable"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Reg No</th><th>Verified</th><th>2FA</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead><tbody id="studentsBody"></tbody></table></div>`,
             'owners': `<div class="panel-header"><h2>Owner Management</h2><div class="panel-actions"><select id="ownerFilter" onchange="loadOwners()"><option value="all">All</option><option value="pending">Pending</option><option value="approved">Approved</option></select><input type="text" id="ownerSearch" placeholder="Search by name, email or phone..." style="width:250px;"><button class="btn btn-primary" onclick="loadOwners()"><i class="fas fa-search"></i> Search</button></div></div><div class="table-container"><table id="ownersTable"><thead><th>Business</th><th>Name</th><th>Email</th><th>Phone</th><th>Approval</th><th>Verified</th><th>Hostels</th><th>Fraud</th><th>Actions</th></thead><tbody id="ownersBody"></tbody></table></div>`,
             'hostels': `<div class="panel-header"><h2>Hostel Management</h2><div class="panel-actions"><select id="hostelFilter" onchange="loadHostels()"><option value="all">All</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="featured">Featured</option></select><input type="text" id="hostelSearch" placeholder="Search by name, owner, location..." style="width:250px;"><button class="btn btn-primary" onclick="loadHostels()"><i class="fas fa-search"></i> Search</button></div></div><div class="table-container"><table id="hostelsTable"><thead><th>Name</th><th>Owner</th><th>Location</th><th>Distance</th><th>Price</th><th>Type</th><th>Status</th><th>Featured</th><th>Bookings</th><th>Actions</th></thead><tbody id="hostelsBody"></tbody></table></div>`,
             'featured-hostels': `<div class="panel-header"><h2>Featured Hostels</h2><div class="panel-actions"><button class="btn btn-primary" onclick="loadFeaturedHostels()">Refresh</button></div></div><div class="table-container"><table id="featuredHostelsTable"><thead><th>Name</th><th>Owner</th><th>Location</th><th>Price</th><th>Rating</th><th>Bookings</th><th>Actions</th></thead><tbody id="featuredHostelsBody"></tbody></table></div>`,
@@ -1348,43 +1348,44 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
         }
     }
     
-    async function loadStudents() {
-        const filter = document.getElementById('studentFilter')?.value || 'all';
-        const search = document.getElementById('studentSearch')?.value || '';
-        try {
-            const data = await apiFetch(`/students/?status=${filter}&search=${encodeURIComponent(search)}`);
-            const items = Array.isArray(data) ? data : (data.results || []);
-            students = items;
-            const tbody = document.getElementById('studentsBody');
-            if (!tbody) return;
-            
-            if (items.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="loading-row">No students found</td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = items.map(s => `
-                <tr>
-                    <td>${escapeHtml(s.full_name || 'N/A')}</td>
-                    <td>${escapeHtml(s.email || 'N/A')}</td>
-                    <td>${escapeHtml(s.student_profile?.phone_number || s.phone || 'N/A')}</td>
-                    <td>${escapeHtml(s.student_profile?.registration_number || s.registration_number || 'N/A')}</td>
-                    <td><span class="badge ${s.email_verified ? 'badge-success' : 'badge-warning'}">${s.email_verified ? 'Verified' : 'Pending'}</span></td>
-                    <td><span class="badge ${s.is_2fa_enabled ? 'badge-success' : 'badge-info'}">${s.is_2fa_enabled ? 'Enabled' : 'Disabled'}</span></td>
-                    <td><span class="badge ${s.is_active ? 'badge-success' : 'badge-danger'}">${s.is_active ? 'Active' : 'Locked'}</span></td>
-                    <td>${s.date_joined ? formatDate(s.date_joined) : 'N/A'}</td>
-                    <td class="action-icons">
-                        <i class="fas fa-eye" onclick="viewUser('${s.id}')" title="View"></i>
-                        <i class="fas ${s.is_active ? 'fa-ban' : 'fa-check-circle'}" onclick="toggleUserStatus('${s.id}', 'student')" title="${s.is_active ? 'Lock' : 'Unlock'}"></i>
-                        <i class="fas fa-trash delete" onclick="deleteUser('${s.id}', 'student')" title="Delete"></i>
-                    </td>
-                </tr>
-            `).join('');
-        } catch(e) { 
-            console.error('Load students error:', e);
-            showToast('Failed to load students', 'error');
+async function loadStudents() {
+    const filter = document.getElementById('studentFilter')?.value || 'all';
+    const search = document.getElementById('studentSearch')?.value || '';
+    try {
+        const data = await apiFetch(`/students/?status=${filter}&search=${encodeURIComponent(search)}`);
+        const items = Array.isArray(data) ? data : (data.results || []);
+        students = items;
+        const tbody = document.getElementById('studentsBody');
+        if (!tbody) return;
+        
+        if (items.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" class="loading-row">No students found</td></tr>';
+            return;
         }
+        
+        tbody.innerHTML = items.map(s => `
+            <tr>
+                <td>${escapeHtml(s.full_name || 'N/A')}</td>
+                <td>${escapeHtml(s.email || 'N/A')}</td>
+                <td>${escapeHtml(s.student_profile?.phone_number || s.phone || 'N/A')}</td>
+                <td>${escapeHtml(s.student_profile?.registration_number || s.registration_number || 'N/A')}</td>
+                <td><span class="badge ${s.email_verified ? 'badge-success' : 'badge-warning'}">${s.email_verified ? 'Verified' : 'Pending'}</span></td>
+                <td><span class="badge ${s.is_2fa_enabled ? 'badge-success' : 'badge-info'}">${s.is_2fa_enabled ? 'Enabled' : 'Disabled'}</span></td>
+                <td><span class="badge ${s.is_active ? 'badge-success' : 'badge-danger'}">${s.is_active ? 'Active' : 'Locked'}</span></td>
+                <td>${s.date_joined ? formatDate(s.date_joined) : 'N/A'}</td>
+                <td class="action-icons">
+                    <i class="fas fa-eye" onclick="viewUser('${s.id}')" title="View"></i>
+                    ${!s.email_verified ? `<i class="fas fa-check-circle" onclick="verifyStudent('${s.id}')" title="Verify Student" style="color: #10b981;"></i>` : ''}
+                    <i class="fas ${s.is_active ? 'fa-ban' : 'fa-check-circle'}" onclick="toggleUserStatus('${s.id}', 'student')" title="${s.is_active ? 'Lock' : 'Unlock'}"></i>
+                    <i class="fas fa-trash delete" onclick="deleteUser('${s.id}', 'student')" title="Delete"></i>
+                </td>
+            </tr>
+        `).join('');
+    } catch(e) { 
+        console.error('Load students error:', e);
+        showToast('Failed to load students', 'error');
     }
+}
     
     async function loadOwners() {
         const filter = document.getElementById('ownerFilter')?.value || 'all';
@@ -1423,70 +1424,82 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
         } catch(e) { console.error(e); }
     }
     
-    async function loadHostels() {
-        const filter = document.getElementById('hostelFilter')?.value || 'all';
-        const search = document.getElementById('hostelSearch')?.value || '';
-        let params = new URLSearchParams();
-        if (search) params.append('search', search);
-        if (filter === 'approved' || filter === 'pending') params.append('approval', filter);
-        else if (filter === 'featured') params.append('featured', 'true');
-        
-        try {
-            const data = await apiFetch(`/hostels/?${params}`);
-            const items = Array.isArray(data) ? data : (data.results || []);
-            hostels = items;
-            const tbody = document.getElementById('hostelsBody');
-            if (!tbody) return;
-            
-            if (items.length === 0) {
-                tbody.innerHTML = '\\u003ctr\\u003e\\u003ctd colspan=\"10\" class=\"loading-row\"\\u003eNo hostels found\\u003c/td\\u003e\\u003c/tr\\u003e';
-                return;
-            }
-            
-            tbody.innerHTML = items.map(h => `
-                 <tr>
-                    <td>${escapeHtml(h.name || 'N/A')} \n
-                     Was${escapeHtml(h.owner_name || h.owner?.email || 'Unknown')} \n
-                     Was${escapeHtml(h.address || 'N/A')} \n
-                     Was${h.distance_to_university || 'N/A'} km \n
-                     Was${formatCurrency(h.price || 0)} \n
-                     Was${escapeHtml(h.room_type || 'N/A')} \n
-                     Was<span class="badge ${h.is_approved ? 'badge-success' : 'badge-warning'}">${h.is_approved ? 'Approved' : 'Pending'}</span> \n
-                     Was<span class="badge ${h.is_featured ? 'badge-success' : 'badge-info'}">${h.is_featured ? 'Featured' : 'No'}</span> \n
-                     Was${h.total_bookings || h.booking_count || 0} \n
-                    <td class="action-icons">
-                        <i class="fas fa-eye" onclick="viewHostel('${h.id}')" title="View"></i>
-                        ${!h.is_approved ? `<i class="fas fa-check-circle" onclick="approveHostel('${h.id}')" title="Approve"></i>` : ''}
-                        <i class="fas fa-star" onclick="toggleFeatured('${h.id}')" title="Toggle Featured"></i>
-                        <i class="fas fa-trash delete" onclick="deleteHostel('${h.id}')" title="Delete"></i>
-                     \n
-                  \n
-            `).join('');
-        } catch(e) { 
-            console.error('Load hostels error:', e);
-            showToast('Failed to load hostels', 'error');
-        }
-    }
+async function loadHostels() {
+    const filter = document.getElementById('hostelFilter')?.value || 'all';
+    const search = document.getElementById('hostelSearch')?.value || '';
+    let params = new URLSearchParams();
+    if (search) params.append('search', search);
+    if (filter === 'approved' || filter === 'pending') params.append('approval', filter);
+    else if (filter === 'featured') params.append('featured', 'true');
     
-    async function loadFeaturedHostels() {
-        try {
-            const data = await apiFetch('/featured-hostels/');
-            const items = data.results || data || [];
-            const tbody = document.getElementById('featuredHostelsBody');
-            if (!tbody) return;
-            tbody.innerHTML = items.map(h => `
-                 <tr>
-                     Was${escapeHtml(h.name)} \n
-                     Was${escapeHtml(h.owner_name || 'Unknown')} \n
-                     Was${escapeHtml(h.address)} \n
-                     Was${formatCurrency(h.price)} \n
-                     Was${h.avg_rating ? h.avg_rating.toFixed(1) + ' ★' : 'No ratings'} \n
-                     Was${h.total_bookings || 0} \n
-                    <td class="action-icons"><i class="fas fa-eye" onclick="viewHostel('${h.id}')"></i><i class="fas fa-star" onclick="toggleFeatured('${h.id}')"></i> \n
-                  \n
-            `).join('');
-        } catch(e) { console.error(e); }
+    try {
+        const data = await apiFetch(`/hostels/?${params}`);
+        const items = Array.isArray(data) ? data : (data.results || []);
+        hostels = items;
+        const tbody = document.getElementById('hostelsBody');
+        if (!tbody) return;
+        
+        if (items.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="10" class="loading-row">No hostels found</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = items.map(h => `
+            <tr>
+                <td><strong>${escapeHtml(h.name || 'N/A')}</strong></td>
+                <td>${escapeHtml(h.owner_name || h.owner?.email || 'Unknown')}</td>
+                <td>${escapeHtml(h.address || 'N/A')}</td>
+                <td>${h.distance_to_university || 'N/A'} km</td>
+                <td>${formatCurrency(h.price || 0)}</td>
+                <td>${escapeHtml(h.room_type || 'N/A')}</td>
+                <td><span class="badge ${h.is_approved ? 'badge-success' : 'badge-warning'}">${h.is_approved ? 'Approved' : 'Pending'}</span></td>
+                <td><span class="badge ${h.is_featured ? 'badge-success' : 'badge-info'}">${h.is_featured ? 'Featured' : 'No'}</span></td>
+                <td>${h.total_bookings || h.booking_count || 0}</td>
+                <td class="action-icons">
+                    <i class="fas fa-eye" onclick="viewHostel('${h.id}')" title="View"></i>
+                    ${!h.is_approved ? `<i class="fas fa-check-circle" onclick="approveHostel('${h.id}')" title="Approve"></i>` : ''}
+                    <i class="fas fa-star" onclick="toggleFeatured('${h.id}')" title="Toggle Featured"></i>
+                    <i class="fas fa-trash delete" onclick="deleteHostel('${h.id}')" title="Delete"></i>
+                </td>
+            </tr>
+        `).join('');
+    } catch(e) { 
+        console.error('Load hostels error:', e);
+        showToast('Failed to load hostels', 'error');
     }
+}
+    
+async function loadFeaturedHostels() {
+    try {
+        const data = await apiFetch('/featured-hostels/');
+        const items = Array.isArray(data) ? data : (data.results || []);
+        const tbody = document.getElementById('featuredHostelsBody');
+        if (!tbody) return;
+        
+        if (items.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="loading-row">No featured hostels</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = items.map(h => `
+            <tr>
+                <td><strong>${escapeHtml(h.name)}</strong></td>
+                <td>${escapeHtml(h.owner_name || 'Unknown')}</td>
+                <td>${escapeHtml(h.address)}</td>
+                <td>${formatCurrency(h.price)}</td>
+                <td>${h.avg_rating ? h.avg_rating.toFixed(1) + ' ★' : 'No ratings'}</td>
+                <td>${h.total_bookings || 0}</td>
+                <td class="action-icons">
+                    <i class="fas fa-eye" onclick="viewHostel('${h.id}')"></i>
+                    <i class="fas fa-star" onclick="toggleFeatured('${h.id}')"></i>
+                </td>
+            </tr>
+        `).join('');
+    } catch(e) { 
+        console.error('Load featured hostels error:', e);
+        showToast('Failed to load featured hostels', 'error');
+    }
+}
     
     async function loadAuditLogs() {
         const search = document.getElementById('auditSearch')?.value || '';
@@ -1711,6 +1724,18 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
             openModal('userModal');
         }
     };
+
+window.verifyStudent = async function(id) {
+    showConfirm('Verify this student?', async () => {
+        try {
+            const response = await apiFetch(`/users/${id}/verify/`, { method: 'POST' });
+            showToast('Student verified successfully', 'success');
+            loadStudents();
+        } catch(e) {
+            showToast('Failed to verify student', 'error');
+        }
+    });
+};
     
     window.viewHostel = async function(id) {
         const hostel = hostels.find(h => h.id === id);
