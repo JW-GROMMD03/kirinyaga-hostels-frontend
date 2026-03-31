@@ -6,7 +6,6 @@
     <title>Messages - Kirinyaga Hostels</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="theme.js"></script>
     <style>
         * {
             margin: 0;
@@ -158,25 +157,6 @@
             gap: 1rem;
         }
 
-        .btn-primary {
-            padding: 0.7rem 1.5rem;
-            background: var(--kyu-green);
-            color: white;
-            border: none;
-            border-radius: 40px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-primary:hover {
-            background: #004d33;
-            transform: translateY(-2px);
-        }
-
         .btn-outline {
             padding: 0.7rem 1.5rem;
             background: transparent;
@@ -218,11 +198,6 @@
             color: var(--kyu-green);
         }
 
-        .stat-card .label {
-            color: var(--text-secondary);
-            margin-top: 0.5rem;
-        }
-
         .filter-tabs {
             display: flex;
             gap: 0.5rem;
@@ -238,7 +213,6 @@
             cursor: pointer;
             transition: all 0.3s;
             color: var(--text-secondary);
-            font-weight: 500;
         }
 
         .filter-tab.active {
@@ -294,14 +268,12 @@
             font-weight: 700;
             color: var(--text-primary);
             margin-bottom: 0.3rem;
-            font-size: 1.1rem;
         }
 
         .message-preview {
             color: var(--text-secondary);
             font-size: 0.9rem;
             margin-bottom: 0.5rem;
-            line-height: 1.4;
         }
 
         .message-meta {
@@ -309,13 +281,20 @@
             gap: 1rem;
             font-size: 0.75rem;
             color: var(--text-secondary);
+            align-items: center;
+            flex-wrap: wrap;
         }
 
-        .message-type {
+        .expiry-badge {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--danger);
             padding: 0.2rem 0.6rem;
-            background: var(--bg-light);
             border-radius: 20px;
             font-size: 0.7rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .message-actions {
@@ -339,10 +318,6 @@
             color: var(--kyu-green);
         }
 
-        .message-actions .delete-btn:hover {
-            color: var(--danger);
-        }
-
         .modal {
             display: none;
             position: fixed;
@@ -354,7 +329,6 @@
             align-items: center;
             justify-content: center;
             z-index: 2000;
-            backdrop-filter: blur(4px);
         }
 
         .modal.active {
@@ -378,42 +352,16 @@
             margin-bottom: 1.5rem;
         }
 
-        .modal-header h3 {
-            font-size: 1.3rem;
-            color: var(--text-primary);
-        }
-
         .modal-close {
             cursor: pointer;
             font-size: 1.5rem;
             color: var(--text-secondary);
-            transition: color 0.2s;
-        }
-
-        .modal-close:hover {
-            color: var(--danger);
-        }
-
-        .modal-body {
-            margin-bottom: 1.5rem;
-        }
-
-        .modal-footer {
-            display: flex;
-            gap: 1rem;
-            justify-content: flex-end;
         }
 
         .empty-state {
             text-align: center;
-            padding: 4rem 2rem;
+            padding: 4rem;
             color: var(--text-secondary);
-        }
-
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
         }
 
         .loading-overlay {
@@ -455,8 +403,6 @@
             border-radius: 12px;
             box-shadow: var(--shadow-md);
             display: none;
-            align-items: center;
-            gap: 10px;
             z-index: 3000;
         }
 
@@ -466,6 +412,10 @@
 
         .toast.error {
             border-left: 4px solid var(--danger);
+        }
+
+        .toast.info {
+            border-left: 4px solid var(--info);
         }
 
         footer {
@@ -481,10 +431,6 @@
             header {
                 flex-direction: column;
                 gap: 1rem;
-            }
-            .messages-header {
-                flex-direction: column;
-                align-items: flex-start;
             }
             .message-item {
                 flex-direction: column;
@@ -520,7 +466,7 @@
             <h1><i class="fas fa-bell"></i> Notifications</h1>
             <div class="header-actions">
                 <button class="btn-outline" id="markAllReadBtn"><i class="fas fa-check-double"></i> Mark All Read</button>
-                <button class="btn-outline" id="deleteAllReadBtn"><i class="fas fa-trash-alt"></i> Delete Read</button>
+                <button class="btn-outline" id="manualCleanupBtn"><i class="fas fa-clock"></i> Clean Expired (1 Week+)</button>
             </div>
         </div>
 
@@ -534,12 +480,8 @@
                 <div class="label">Unread</div>
             </div>
             <div class="stat-card">
-                <div class="number" id="adminCount">0</div>
-                <div class="label">From Admin</div>
-            </div>
-            <div class="stat-card">
-                <div class="number" id="bookingCount">0</div>
-                <div class="label">Booking Updates</div>
+                <div class="number" id="expiringCount">0</div>
+                <div class="label">Expiring Soon (7d)</div>
             </div>
         </div>
 
@@ -567,7 +509,6 @@
             <div class="modal-body" id="modalBody"></div>
             <div class="modal-footer">
                 <button class="btn-outline" onclick="markReadAndClose()">Mark as Read</button>
-                <button class="btn-primary" id="deleteModalBtn" onclick="deleteCurrentMessage()">Delete</button>
             </div>
         </div>
     </div>
@@ -575,351 +516,291 @@
     <div id="toast" class="toast"></div>
 
     <footer>
-        <p>© 2025 Kirinyaga University Hostels. All rights reserved.</p>
+        <p>© 2025 Kirinyaga University Hostels. Messages are automatically deleted after 7 days.</p>
     </footer>
 
     <script>
-        // ==================== CONFIGURATION ====================
         const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
         const token = sessionStorage.getItem('accessToken');
         let currentFilter = 'all';
         let messages = [];
         let currentMessageId = null;
 
-        if (!token) {
-            window.location.href = 'login.html';
-        }
+        // AUTO-DELETE CONFIG: messages older than 7 days (604800000 ms)
+        const AUTO_DELETE_DAYS = 7;
+        const AUTO_DELETE_MS = AUTO_DELETE_DAYS * 24 * 60 * 60 * 1000;
 
-        // ==================== UI HELPERS ====================
-        function showLoading() {
-            document.getElementById('loadingOverlay').classList.add('active');
-        }
+        if (!token) window.location.href = 'login.html';
 
-        function hideLoading() {
-            document.getElementById('loadingOverlay').classList.remove('active');
-        }
+        function showLoading() { document.getElementById('loadingOverlay').classList.add('active'); }
+        function hideLoading() { document.getElementById('loadingOverlay').classList.remove('active'); }
 
         function showToast(message, type = 'info') {
             const toast = document.getElementById('toast');
             toast.textContent = message;
             toast.className = `toast ${type}`;
             toast.style.display = 'flex';
-            setTimeout(() => {
-                toast.style.display = 'none';
-            }, 3000);
+            setTimeout(() => toast.style.display = 'none', 3000);
         }
 
-        // ==================== API HELPER ====================
         async function apiFetch(url, options = {}) {
             try {
                 const response = await fetch(`${API_BASE}${url}`, {
                     ...options,
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        ...options.headers
-                    }
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
                 });
-
-                if (response.status === 401) {
-                    sessionStorage.removeItem('accessToken');
-                    window.location.href = 'login.html';
-                    return null;
-                }
-
-                if (!response.ok) {
-                    const error = await response.json().catch(() => ({}));
-                    throw new Error(error.message || error.detail || `HTTP ${response.status}`);
-                }
-
+                if (response.status === 401) { sessionStorage.removeItem('accessToken'); window.location.href = 'login.html'; return null; }
+                if (!response.ok) throw new Error((await response.json().catch(()=>({}))).message || `HTTP ${response.status}`);
                 return await response.json();
-            } catch (error) {
-                console.error('API Error:', error);
-                throw error;
-            }
+            } catch(e) { console.error(e); throw e; }
         }
 
-        // ==================== LOAD NOTIFICATIONS ====================
-        async function loadNotifications() {
+        // Helper: Check if message is older than AUTO_DELETE_DAYS
+        function isMessageExpired(message) {
+            if (!message.created_at) return false;
+            const createdDate = new Date(message.created_at);
+            const now = new Date();
+            const ageMs = now - createdDate;
+            return ageMs >= AUTO_DELETE_MS;
+        }
+
+        // Auto-delete expired messages (older than 7 days) from local array and server
+        async function deleteExpiredMessages() {
+            const expiredMessages = messages.filter(msg => isMessageExpired(msg));
+            if (expiredMessages.length === 0) return 0;
+            
+            let deletedCount = 0;
+            for (const msg of expiredMessages) {
+                try {
+                    await apiFetch(`/notifications/${msg.id}/`, { method: 'DELETE' });
+                    deletedCount++;
+                } catch (e) {
+                    console.error(`Failed to delete expired message ${msg.id}:`, e);
+                }
+            }
+            
+            if (deletedCount > 0) {
+                // Remove expired messages from local array
+                messages = messages.filter(msg => !isMessageExpired(msg));
+                updateStatsAndRender();
+                showToast(`🗑️ ${deletedCount} message(s) older than ${AUTO_DELETE_DAYS} days automatically deleted.`, 'info');
+            }
+            return deletedCount;
+        }
+
+        // Manual cleanup for expired messages (can be triggered by button)
+        async function manualCleanupExpired() {
             showLoading();
             try {
-                const data = await apiFetch('/notifications/');
-                messages = data.results || data || [];
-                
-                // Auto-delete messages older than 7 days
-                const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
-                const oldMessages = messages.filter(m => new Date(m.created_at).getTime() < oneWeekAgo);
-                for (const old of oldMessages) {
-                    await apiFetch(`/notifications/${old.id}/`, { method: 'DELETE' }).catch(() => {});
+                const expiredBeforeClean = messages.filter(msg => isMessageExpired(msg)).length;
+                if (expiredBeforeClean === 0) {
+                    showToast(`No messages older than ${AUTO_DELETE_DAYS} days found.`, 'info');
+                    hideLoading();
+                    return;
                 }
-                
-                // Reload after auto-delete
-                const freshData = await apiFetch('/notifications/');
-                messages = freshData.results || freshData || [];
-                
-                updateStats();
-                renderMessages();
-            } catch (error) {
-                console.error('Failed to load notifications:', error);
-                showToast('Failed to load messages', 'error');
+                await deleteExpiredMessages();
+                // Re-fetch to sync with backend after deletions
+                await loadNotifications(true); // silent refresh
+            } catch (e) {
+                showToast('Error during cleanup', 'error');
             } finally {
                 hideLoading();
             }
         }
 
-        function updateStats() {
-            const total = messages.length;
-            const unread = messages.filter(m => !m.is_read).length;
-            const admin = messages.filter(m => m.type === 'admin' || m.type === 'announcement').length;
-            const booking = messages.filter(m => m.type === 'booking' || m.type === 'booking_update').length;
-            
-            document.getElementById('totalCount').textContent = total;
-            document.getElementById('unreadCount').textContent = unread;
-            document.getElementById('adminCount').textContent = admin;
-            document.getElementById('bookingCount').textContent = booking;
+        function updateStatsAndRender() {
+            document.getElementById('totalCount').textContent = messages.length;
+            const unreadCount = messages.filter(m => !m.is_read).length;
+            document.getElementById('unreadCount').textContent = unreadCount;
+            // Count messages that will expire in next 7 days (but not yet expired)
+            const now = new Date();
+            const expiringSoon = messages.filter(msg => {
+                if (!msg.created_at) return false;
+                const age = now - new Date(msg.created_at);
+                const daysOld = age / (1000 * 3600 * 24);
+                return daysOld >= 5 && daysOld < AUTO_DELETE_DAYS && !isMessageExpired(msg);
+            }).length;
+            document.getElementById('expiringCount').textContent = expiringSoon;
+            renderMessages();
+        }
+
+        async function loadNotifications(silent = false) {
+            if (!silent) showLoading();
+            try {
+                const data = await apiFetch('/notifications/');
+                messages = data.results || data || [];
+                // After loading, immediately delete any expired messages
+                await deleteExpiredMessages();
+                updateStatsAndRender();
+            } catch(e) { 
+                if (!silent) showToast('Failed to load messages', 'error');
+            }
+            finally { if (!silent) hideLoading(); }
+        }
+
+        function getDaysUntilExpiry(createdAt) {
+            if (!createdAt) return null;
+            const created = new Date(createdAt);
+            const now = new Date();
+            const ageMs = now - created;
+            const remainingMs = AUTO_DELETE_MS - ageMs;
+            if (remainingMs <= 0) return 0;
+            const daysRemaining = Math.ceil(remainingMs / (1000 * 3600 * 24));
+            return daysRemaining;
         }
 
         function renderMessages() {
             const container = document.getElementById('messagesList');
-            let filtered = [...messages];
-            
-            switch (currentFilter) {
-                case 'unread':
-                    filtered = filtered.filter(m => !m.is_read);
-                    break;
-                case 'admin':
-                    filtered = filtered.filter(m => m.type === 'admin' || m.type === 'announcement');
-                    break;
-                case 'booking':
-                    filtered = filtered.filter(m => m.type === 'booking' || m.type === 'booking_update');
-                    break;
-            }
+            let filtered = messages.filter(m => {
+                if (currentFilter === 'unread') return !m.is_read;
+                if (currentFilter === 'admin') return m.type === 'admin' || m.type === 'announcement';
+                if (currentFilter === 'booking') return m.type === 'booking' || m.type === 'booking_update';
+                return true;
+            });
             
             if (filtered.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-inbox"></i>
-                        <p>No messages to display</p>
-                    </div>
-                `;
+                container.innerHTML = `<div class="empty-state"><i class="fas fa-inbox"></i><p>No messages</p></div>`;
                 return;
             }
             
-            container.innerHTML = filtered.map(msg => `
-                <div class="message-item ${!msg.is_read ? 'unread' : ''}" data-id="${msg.id}">
-                    <div class="message-icon">
-                        <i class="fas ${getIconForType(msg.type)}"></i>
-                    </div>
-                    <div class="message-content" onclick="viewMessage('${msg.id}')">
-                        <div class="message-title">${escapeHtml(msg.title)}</div>
-                        <div class="message-preview">${escapeHtml(msg.message.substring(0, 100))}${msg.message.length > 100 ? '...' : ''}</div>
-                        <div class="message-meta">
-                            <span>${formatDate(msg.created_at)}</span>
-                            <span class="message-type">${msg.type || 'general'}</span>
+            container.innerHTML = filtered.map(msg => {
+                const daysLeft = getDaysUntilExpiry(msg.created_at);
+                const expiryWarning = (daysLeft !== null && daysLeft <= 3 && daysLeft > 0) ? 
+                    `<span class="expiry-badge"><i class="fas fa-hourglass-half"></i> Expires in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}</span>` : 
+                    (daysLeft === 0 ? `<span class="expiry-badge"><i class="fas fa-trash-alt"></i> Expired (will be auto-deleted)</span>` : '');
+                
+                return `
+                    <div class="message-item ${!msg.is_read ? 'unread' : ''}">
+                        <div class="message-icon"><i class="fas ${msg.type === 'admin' ? 'fa-user-shield' : msg.type === 'booking' ? 'fa-calendar-check' : 'fa-bell'}"></i></div>
+                        <div class="message-content" onclick="viewMessage('${msg.id}')">
+                            <div class="message-title">${escapeHtml(msg.title)}</div>
+                            <div class="message-preview">${escapeHtml(msg.message.substring(0, 100))}${msg.message.length > 100 ? '...' : ''}</div>
+                            <div class="message-meta">
+                                <span><i class="far fa-clock"></i> ${formatDate(msg.created_at)}</span>
+                                ${expiryWarning ? `<span>${expiryWarning}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="message-actions">
+                            ${!msg.is_read ? `<button onclick="markAsRead('${msg.id}')" title="Mark as read"><i class="fas fa-check"></i></button>` : ''}
                         </div>
                     </div>
-                    <div class="message-actions">
-                        ${!msg.is_read ? `<button onclick="markAsRead('${msg.id}')" title="Mark as read"><i class="fas fa-check"></i></button>` : ''}
-                        <button onclick="deleteMessage('${msg.id}')" class="delete-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
-        function getIconForType(type) {
-            const icons = {
-                'admin': 'fa-user-shield',
-                'announcement': 'fa-bullhorn',
-                'booking': 'fa-calendar-check',
-                'booking_update': 'fa-edit',
-                'default': 'fa-bell'
-            };
-            return icons[type] || icons.default;
+        function formatDate(d) { 
+            if (!d) return 'Unknown'; 
+            const date = new Date(d); 
+            const diff = Math.floor((Date.now() - date) / 60000); 
+            if (diff < 1) return 'Just now'; 
+            if (diff < 60) return `${diff} min ago`; 
+            if (diff < 1440) return `${Math.floor(diff/60)} hour${Math.floor(diff/60) !== 1 ? 's' : ''} ago`; 
+            return date.toLocaleDateString(); 
+        }
+        
+        function escapeHtml(t) { 
+            if (!t) return ''; 
+            const div = document.createElement('div'); 
+            div.textContent = t; 
+            return div.innerHTML; 
         }
 
-        function formatDate(dateString) {
-            if (!dateString) return 'Unknown';
-            const date = new Date(dateString);
-            const now = new Date();
-            const diffMs = now - date;
-            const diffMins = Math.floor(diffMs / 60000);
-            const diffHours = Math.floor(diffMs / 3600000);
-            const diffDays = Math.floor(diffMs / 86400000);
-            
-            if (diffMins < 1) return 'Just now';
-            if (diffMins < 60) return `${diffMins} min ago`;
-            if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
-            if (diffDays < 7) return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
-            return date.toLocaleDateString();
-        }
-
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // ==================== MESSAGE ACTIONS ====================
         async function markAsRead(id) {
             try {
                 await apiFetch(`/notifications/${id}/mark-read/`, { method: 'POST' });
                 const msg = messages.find(m => m.id == id);
                 if (msg) msg.is_read = true;
-                updateStats();
-                renderMessages();
+                updateStatsAndRender();
                 showToast('Marked as read', 'success');
-            } catch (error) {
-                showToast('Failed to mark as read', 'error');
-            }
+                // If modal is open for this message, we can update modal view but not needed.
+            } catch(e) { showToast('Failed to mark as read', 'error'); }
         }
 
-        async function deleteMessage(id) {
-            if (!confirm('Delete this message?')) return;
-            try {
-                // Use DELETE method on the notification endpoint (without /delete/)
-                await apiFetch(`/notifications/${id}/`, { method: 'DELETE' });
-                messages = messages.filter(m => m.id != id);
-                updateStats();
-                renderMessages();
-                showToast('Message deleted', 'success');
-                closeModal();
-            } catch (error) {
-                console.error('Delete error:', error);
-                showToast('Failed to delete message', 'error');
-            }
-        }
+        // No deleteMessage function exposed anymore - removed manual delete buttons completely
+        // The only way messages are removed is via auto-deletion after 7 days or manual cleanup button
 
         async function markAllRead() {
             const unread = messages.filter(m => !m.is_read);
-            if (unread.length === 0) {
-                showToast('No unread messages', 'info');
-                return;
-            }
+            if (unread.length === 0) return showToast('No unread messages', 'info');
             showLoading();
-            try {
-                for (const msg of unread) {
+            let successCount = 0;
+            for (const msg of unread) {
+                try {
                     await apiFetch(`/notifications/${msg.id}/mark-read/`, { method: 'POST' });
                     msg.is_read = true;
-                }
-                updateStats();
-                renderMessages();
-                showToast('All messages marked as read', 'success');
-            } catch (error) {
-                showToast('Failed to mark all as read', 'error');
-            } finally {
-                hideLoading();
+                    successCount++;
+                } catch(e) { console.error(e); }
             }
-        }
-
-        async function deleteAllRead() {
-            const read = messages.filter(m => m.is_read);
-            if (read.length === 0) {
-                showToast('No read messages to delete', 'info');
-                return;
-            }
-            if (!confirm(`Delete ${read.length} read messages?`)) return;
-            showLoading();
-            try {
-                for (const msg of read) {
-                    await apiFetch(`/notifications/${msg.id}/`, { method: 'DELETE' });
-                }
-                messages = messages.filter(m => !m.is_read);
-                updateStats();
-                renderMessages();
-                showToast('Read messages deleted', 'success');
-            } catch (error) {
-                showToast('Failed to delete messages', 'error');
-            } finally {
-                hideLoading();
-            }
+            updateStatsAndRender();
+            showToast(`${successCount} message(s) marked as read`, 'success');
+            hideLoading();
         }
 
         function viewMessage(id) {
             const msg = messages.find(m => m.id == id);
             if (!msg) return;
             currentMessageId = id;
+            const daysLeft = getDaysUntilExpiry(msg.created_at);
+            let expiryNote = '';
+            if (daysLeft !== null && daysLeft > 0) {
+                expiryNote = `<p style="margin-top: 12px; padding: 8px 12px; background: rgba(220,38,38,0.1); border-radius: 8px; font-size: 0.85rem; color: var(--danger);"><i class="fas fa-clock"></i> This message will be automatically deleted in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}.</p>`;
+            } else if (daysLeft === 0) {
+                expiryNote = `<p style="margin-top: 12px; padding: 8px 12px; background: rgba(220,38,38,0.1); border-radius: 8px; font-size: 0.85rem; color: var(--danger);"><i class="fas fa-trash-alt"></i> This message has expired and will be removed shortly.</p>`;
+            }
+            
             document.getElementById('modalTitle').textContent = msg.title;
             document.getElementById('modalBody').innerHTML = `
-                <p><strong>Type:</strong> ${msg.type || 'General'}</p>
-                <p><strong>Date:</strong> ${formatDate(msg.created_at)}</p>
-                <div style="margin-top: 1rem; padding: 1rem; background: var(--bg-light); border-radius: 12px;">
-                    ${escapeHtml(msg.message)}
-                </div>
-                ${msg.link ? `<p style="margin-top: 1rem;"><a href="${msg.link}" target="_blank" style="color: var(--kyu-green);">View Details →</a></p>` : ''}
+                <p><strong><i class="far fa-calendar-alt"></i> Received:</strong> ${formatDate(msg.created_at)}</p>
+                <div style="margin-top:1rem; padding:1rem; background:var(--bg-light); border-radius:12px;">${escapeHtml(msg.message)}</div>
+                ${expiryNote}
             `;
             document.getElementById('messageModal').classList.add('active');
-            
-            if (!msg.is_read) {
-                markAsRead(id);
-            }
+            if (!msg.is_read) markAsRead(id);
         }
 
-        function markReadAndClose() {
-            if (currentMessageId) {
-                markAsRead(currentMessageId);
-            }
-            closeModal();
-        }
+        function closeModal() { document.getElementById('messageModal').classList.remove('active'); currentMessageId = null; }
+        function markReadAndClose() { if (currentMessageId) markAsRead(currentMessageId); closeModal(); }
 
-        function deleteCurrentMessage() {
-            if (currentMessageId) {
-                deleteMessage(currentMessageId);
-            }
-            closeModal();
-        }
-
-        function closeModal() {
-            document.getElementById('messageModal').classList.remove('active');
-            currentMessageId = null;
-        }
-
-        // ==================== EVENT LISTENERS ====================
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            sessionStorage.removeItem('accessToken');
-            window.location.href = 'login.html';
-        });
-
-        document.getElementById('markAllReadBtn').addEventListener('click', markAllRead);
-        document.getElementById('deleteAllReadBtn').addEventListener('click', deleteAllRead);
-
+        // Event listeners
+        document.getElementById('logoutBtn').onclick = () => { sessionStorage.removeItem('accessToken'); window.location.href = 'login.html'; };
+        document.getElementById('markAllReadBtn').onclick = markAllRead;
+        document.getElementById('manualCleanupBtn').onclick = manualCleanupExpired;
+        
         document.querySelectorAll('.filter-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
+            tab.onclick = () => {
                 document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
                 currentFilter = tab.dataset.filter;
                 renderMessages();
-            });
+            };
         });
 
-        // ==================== DARK MODE ====================
         const savedTheme = localStorage.getItem('ownerTheme');
-        if (savedTheme === 'dark') {
-            document.body.classList.add('dark-mode');
-            const toggleBtn = document.getElementById('darkModeToggle');
-            if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
-        }
-
-        document.getElementById('darkModeToggle').addEventListener('click', () => {
+        if (savedTheme === 'dark') document.body.classList.add('dark-mode');
+        document.getElementById('darkModeToggle').onclick = () => {
             const isDark = document.body.classList.toggle('dark-mode');
             localStorage.setItem('ownerTheme', isDark ? 'dark' : 'light');
-            const toggleBtn = document.getElementById('darkModeToggle');
-            if (toggleBtn) {
-                toggleBtn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-            }
-            showToast(isDark ? 'Dark mode enabled' : 'Light mode enabled', 'success');
-        });
+            document.getElementById('darkModeToggle').innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        };
 
-        // ==================== AUTO REFRESH ====================
+        // Initial load
         loadNotifications();
-        setInterval(loadNotifications, 30000);
         
+        // Auto cleanup check every 10 minutes (also checks expired messages)
+        setInterval(async () => {
+            // Refresh messages from server and auto-clean expired ones
+            await loadNotifications(true);
+        }, 10 * 60 * 1000); // every 10 minutes
+        
+        // Also check on page focus for better UX
+        window.addEventListener('focus', () => loadNotifications(true));
+        
+        // Expose necessary functions globally
         window.closeModal = closeModal;
         window.markReadAndClose = markReadAndClose;
-        window.deleteCurrentMessage = deleteCurrentMessage;
         window.viewMessage = viewMessage;
         window.markAsRead = markAsRead;
-        window.deleteMessage = deleteMessage;
+        // No deleteMessage exposed - manual deletion removed
     </script>
 </body>
 </html>
