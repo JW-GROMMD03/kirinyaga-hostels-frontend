@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reviews - Kirinyaga Hostels</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        :root {
+            --kyu-green: #006747;
+            --kyu-gold: #FFD700;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border-light: #e2e8f0;
+            --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --danger: #dc2626;
+            --success: #16a34a;
+            --warning: #ca8a04;
+            --info: #2563eb;
+        }
+
+        body.dark-mode {
+            --kyu-green: #2ecc71;
+            --kyu-gold: #f1c40f;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --bg-light: #0f172a;
+            --bg-white: #1e293b;
+            --border-light: #334155;
+        }
+
+        body {
+            background: var(--bg-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background 0.3s ease;
+        }
+
+        header {
+            background: var(--bg-white);
+            box-shadow: var(--shadow-sm);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--kyu-gold);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+        }
+
+        .logo img {
+            height: 50px;
+        }
+
+        .logo span {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--kyu-green);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .dark-mode-toggle {
+            background: var(--bg-light);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+            color: var(--text-primary);
+        }
+
+        .dark-mode-toggle:hover {
+            background: var(--border-light);
+            transform: rotate(15deg);
+        }
+
+        .btn-logout {
+            padding: 0.6rem 1.2rem;
+            border: 2px solid var(--danger);
+            background: transparent;
+            color: var(--danger);
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-logout:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .container {
+            flex: 1;
+            max-width: 1400px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .reviews-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .reviews-header h1 {
+            font-size: 2rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .reviews-header h1 i {
+            color: var(--kyu-green);
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-white);
+            border-radius: 20px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--kyu-green);
+        }
+
+        .stat-card .label {
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        .rating-stars {
+            color: var(--kyu-gold);
+            font-size: 1rem;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 0.6rem 1.2rem;
+            background: var(--bg-white);
+            border: 1px solid var(--border-light);
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--text-secondary);
+        }
+
+        .filter-tab.active {
+            background: var(--kyu-green);
+            color: white;
+            border-color: var(--kyu-green);
+        }
+
+        .reviews-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .review-card {
+            background: var(--bg-white);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.3s;
+        }
+
+        .review-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .reviewer-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .reviewer-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--kyu-green);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .reviewer-details h4 {
+            color: var(--text-primary);
+            margin-bottom: 0.2rem;
+        }
+
+        .review-date {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .review-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .review-rating .stars {
+            color: var(--kyu-gold);
+            letter-spacing: 2px;
+        }
+
+        .rating-number {
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .review-hostel {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background: rgba(0,103,71,0.1);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--kyu-green);
+            margin-bottom: 1rem;
+        }
+
+        .review-content {
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .review-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .review-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .review-actions .reply-btn {
+            color: var(--kyu-green);
+        }
+
+        .review-actions .reply-btn:hover {
+            background: rgba(0,103,71,0.1);
+        }
+
+        .review-actions .report-btn {
+            color: var(--warning);
+        }
+
+        .review-actions .report-btn:hover {
+            background: rgba(202,138,4,0.1);
+        }
+
+        .reply-section {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-light);
+            display: none;
+        }
+
+        .reply-section.active {
+            display: block;
+        }
+
+        .reply-text {
+            background: var(--bg-light);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-top: 0.5rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .reply-input {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .reply-input textarea {
+            flex: 1;
+            padding: 0.8rem;
+            border: 2px solid var(--border-light);
+            border-radius: 12px;
+            background: var(--bg-white);
+            color: var(--text-primary);
+            resize: vertical;
+        }
+
+        .reply-input button {
+            padding: 0.8rem 1.2rem;
+            background: var(--kyu-green);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0,103,71,0.1);
+            border-left-color: var(--kyu-green);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--bg-white);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            display: none;
+            align-items: center;
+            gap: 10px;
+            z-index: 3000;
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        footer {
+            background: #1e293b;
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
+            border-top: 3px solid var(--kyu-gold);
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .review-header {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <header>
+        <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle Dark Mode">
+    <i class="fas fa-moon"></i>
+</button>
+        <div class="logo" onclick="window.location.href='dashboard.html'">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
+            <span>Kirinyaga Hostels</span>
+        </div>
+        <div class="user-menu">
+            <button class="dark-mode-toggle" id="darkModeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="btn-logout" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="reviews-header">
+            <h1><i class="fas fa-star"></i> Guest Reviews</h1>
+            <div class="header-actions">
+                <button class="btn-outline" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
+            </div>
+        </div>
+
+        <div class="stats-cards" id="statsCards">
+            <div class="stat-card">
+                <div class="number" id="avgRating">—</div>
+                <div class="label">Average Rating</div>
+                <div class="rating-stars" id="avgStars"></div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalReviews">0</div>
+                <div class="label">Total Reviews</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="fiveStarCount">0</div>
+                <div class="label">5-Star Reviews</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="responseRate">0%</div>
+                <div class="label">Response Rate</div>
+            </div>
+        </div>
+
+        <div class="filter-tabs">
+            <button class="filter-tab active" data-filter="all">All Reviews</button>
+            <button class="filter-tab" data-filter="5">5 Stars</button>
+            <button class="filter-tab" data-filter="4">4 Stars</button>
+            <button class="filter-tab" data-filter="3">3 Stars</button>
+            <button class="filter-tab" data-filter="2">2 Stars</button>
+            <button class="filter-tab" data-filter="1">1 Star</button>
+        </div>
+
+        <div class="reviews-list" id="reviewsList">
+            <div class="empty-state">
+                <i class="fas fa-spinner fa-pulse"></i>
+                <p>Loading reviews...</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 Kirinyaga University Hostels. All rights reserved.</p>
+    </footer>
+    <script src="theme.js"></script>
+    <script>
+        // ==================== CONFIGURATION ====================
+        const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
+        const token = sessionStorage.getItem('accessToken');
+        let currentFilter = 'all';
+        let reviews = [];
+        let openReplySection = null;
+
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        // ==================== DARK MODE ====================
+        const savedTheme = localStorage.getItem('ownerTheme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            updateDarkModeIcon(true);
+        }
+
+        function updateDarkModeIcon(isDark) {
+            const toggleBtn = document.getElementById('darkModeToggle');
+            if (toggleBtn) {
+                toggleBtn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            }
+        }
+
+        document.getElementById('darkModeToggle').addEventListener('click', () => {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('ownerTheme', isDark ? 'dark' : 'light');
+            updateDarkModeIcon(isDark);
+            showToast(isDark ? 'Dark mode enabled' : 'Light mode enabled', 'success');
+        });
+
+        // ==================== UI HELPERS ====================
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
+
+        function showToast(message, type = 'info') {
+            let toastContainer = document.getElementById('toast-container');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'toast-container';
+                toastContainer.style.position = 'fixed';
+                toastContainer.style.bottom = '20px';
+                toastContainer.style.right = '20px';
+                toastContainer.style.zIndex = '3000';
+                document.body.appendChild(toastContainer);
+            }
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+            toastContainer.appendChild(toast);
+            toast.style.display = 'flex';
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ==================== API HELPER ====================
+        async function apiFetch(url, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${url}`, {
+                    ...options,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+
+                if (response.status === 401) {
+                    sessionStorage.removeItem('accessToken');
+                    window.location.href = 'login.html';
+                    return null;
+                }
+
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({}));
+                    throw new Error(error.message || error.detail || `HTTP ${response.status}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+
+        // ==================== LOAD REVIEWS ====================
+        async function loadReviews() {
+            showLoading();
+            try {
+                const data = await apiFetch('/reviews/?owner=me');
+                reviews = data.results || data || [];
+                updateStats();
+                renderReviews();
+            } catch (error) {
+                console.error('Failed to load reviews:', error);
+                showToast('Failed to load reviews', 'error');
+                document.getElementById('reviewsList').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Failed to load reviews. Please try again.</p>
+                    </div>
+                `;
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function updateStats() {
+            const total = reviews.length;
+            if (total === 0) {
+                document.getElementById('avgRating').textContent = '—';
+                document.getElementById('avgStars').innerHTML = '—';
+                document.getElementById('totalReviews').textContent = '0';
+                document.getElementById('fiveStarCount').textContent = '0';
+                document.getElementById('responseRate').textContent = '0%';
+                return;
+            }
+            
+            const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
+            const avg = (sum / total).toFixed(1);
+            const fiveStar = reviews.filter(r => r.rating === 5).length;
+            const responded = reviews.filter(r => r.reply).length;
+            const responseRate = Math.round((responded / total) * 100);
+            
+            document.getElementById('avgRating').textContent = avg;
+            document.getElementById('avgStars').innerHTML = renderStarsHtml(avg);
+            document.getElementById('totalReviews').textContent = total;
+            document.getElementById('fiveStarCount').textContent = fiveStar;
+            document.getElementById('responseRate').textContent = `${responseRate}%`;
+        }
+
+        function renderStarsHtml(rating) {
+            const full = Math.floor(rating);
+            const half = rating % 1 >= 0.5;
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= full) stars += '<i class="fas fa-star"></i>';
+                else if (i === full + 1 && half) stars += '<i class="fas fa-star-half-alt"></i>';
+                else stars += '<i class="far fa-star"></i>';
+            }
+            return stars;
+        }
+
+        function renderReviews() {
+            const container = document.getElementById('reviewsList');
+            let filtered = [...reviews];
+            
+            if (currentFilter !== 'all') {
+                const rating = parseInt(currentFilter);
+                filtered = filtered.filter(r => Math.floor(r.rating) === rating);
+            }
+            
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-comment-slash"></i>
+                        <p>No reviews found</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = filtered.map(review => `
+                <div class="review-card" data-id="${review.id}">
+                    <div class="review-header">
+                        <div class="reviewer-info">
+                            <div class="reviewer-avatar">${getInitials(review.user_name || review.user?.full_name || 'U')}</div>
+                            <div class="reviewer-details">
+                                <h4>${escapeHtml(review.user_name || review.user?.full_name || 'Anonymous')}</h4>
+                                <div class="review-date">${formatDate(review.created_at)}</div>
+                            </div>
+                        </div>
+                        <div class="review-rating">
+                            <div class="stars">${renderStarsHtml(review.rating)}</div>
+                            <div class="rating-number">${review.rating}.0</div>
+                        </div>
+                    </div>
+                    <div class="review-hostel">
+                        <i class="fas fa-home"></i> ${escapeHtml(review.hostel_name || review.hostel?.name || 'Unknown Hostel')}
+                    </div>
+                    <div class="review-content">
+                        ${escapeHtml(review.comment || review.review_text || 'No comment provided.')}
+                    </div>
+                    ${review.reply ? `
+                        <div class="reply-section active">
+                            <div class="reply-text">
+                                <i class="fas fa-reply"></i> <strong>Your Reply:</strong><br>
+                                ${escapeHtml(review.reply)}
+                            </div>
+                        </div>
+                    ` : `
+                        <div class="reply-section" id="reply-${review.id}">
+                            <div class="reply-input">
+                                <textarea id="reply-text-${review.id}" rows="2" placeholder="Write a reply to this review..."></textarea>
+                                <button onclick="submitReply('${review.id}')">Reply</button>
+                            </div>
+                        </div>
+                    `}
+                    <div class="review-actions">
+                        ${!review.reply ? `<button class="reply-btn" onclick="toggleReply('${review.id}')"><i class="fas fa-reply"></i> Reply</button>` : ''}
+                        <button class="report-btn" onclick="reportReview('${review.id}')"><i class="fas fa-flag"></i> Report</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleReply(id) {
+            const section = document.getElementById(`reply-${id}`);
+            if (section) {
+                section.classList.toggle('active');
+                if (section.classList.contains('active')) {
+                    document.getElementById(`reply-text-${id}`).focus();
+                }
+            }
+        }
+
+        async function submitReply(id) {
+            const replyText = document.getElementById(`reply-text-${id}`).value.trim();
+            if (!replyText) {
+                showToast('Please enter a reply', 'error');
+                return;
+            }
+            
+            showLoading();
+            try {
+                const response = await apiFetch(`/reviews/${id}/reply/`, {
+                    method: 'POST',
+                    body: JSON.stringify({ reply: replyText })
+                });
+                
+                if (response) {
+                    showToast('Reply posted successfully!', 'success');
+                    await loadReviews();
+                }
+            } catch (error) {
+                showToast(error.message || 'Failed to post reply', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function reportReview(id) {
+            const reason = prompt('Please provide a reason for reporting this review:');
+            if (!reason) return;
+            
+            showLoading();
+            try {
+                const response = await apiFetch(`/reviews/${id}/report/`, {
+                    method: 'POST',
+                    body: JSON.stringify({ reason: reason })
+                });
+                
+                if (response) {
+                    showToast('Review reported. Admin will review it.', 'success');
+                }
+            } catch (error) {
+                showToast(error.message || 'Failed to report review', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function getInitials(name) {
+            if (!name) return 'U';
+            return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'Unknown';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ==================== EVENT LISTENERS ====================
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            sessionStorage.removeItem('accessToken');
+            window.location.href = 'login.html';
+        });
+
+        document.getElementById('refreshBtn').addEventListener('click', () => {
+            loadReviews();
+        });
+
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentFilter = tab.dataset.filter;
+                renderReviews();
+            });
+        });
+
+        // ==================== INIT ====================
+        loadReviews();
+        
+        window.toggleReply = toggleReply;
+        window.submitReply = submitReply;
+        window.reportReview = reportReview;
+    </script>
+</body>
+</html>

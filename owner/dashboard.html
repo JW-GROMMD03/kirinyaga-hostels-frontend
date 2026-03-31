@@ -972,7 +972,7 @@
             </div>
             <div class="modal-footer">
                 <button class="btn-outline" onclick="closeProfileModal()">Cancel</button>
-                <button class="btn-primary" onclick="updateProfile()">Save Changes</button>
+                <button class="btn-primary" id="updateProfileBtn">Save Changes</button>
             </div>
         </div>
     </div>
@@ -1140,7 +1140,8 @@
             if (currentPassword) payload.current_password = currentPassword;
             if (newPassword) payload.new_password = newPassword;
 
-            const response = await apiFetch('/auth/profile/update/', {
+            // Use owner-specific endpoint
+            const response = await apiFetch('/owner/profile/update/', {
                 method: 'PUT',
                 body: JSON.stringify(payload)
             });
@@ -1149,6 +1150,7 @@
                 showSuccess('Profile updated successfully');
                 closeProfileModal();
                 loadProfile(); // Refresh profile data
+                // Clear password fields
                 document.getElementById('profileCurrentPassword').value = '';
                 document.getElementById('profileNewPassword').value = '';
                 document.getElementById('profileConfirmPassword').value = '';
@@ -1217,7 +1219,7 @@
         }
     }
 
-    // ==================== HOSTELS PREVIEW (Non-clickable images) ====================
+    // ==================== HOSTELS PREVIEW ====================
     function loadHostelsPreview(hostels) {
         const preview = document.getElementById('hostelsPreview');
         const CLOUDINARY_BASE = 'https://res.cloudinary.com/dqujm2fhm/';
@@ -1404,6 +1406,7 @@
 
     document.getElementById('logoutBtn').addEventListener('click', logout);
     document.getElementById('profileBtn').addEventListener('click', openProfileModal);
+    document.getElementById('updateProfileBtn').addEventListener('click', updateProfile);
     document.querySelector('.logo').addEventListener('click', () => {
         window.location.href = 'dashboard.html';
     });

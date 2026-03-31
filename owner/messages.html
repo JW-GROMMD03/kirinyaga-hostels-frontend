@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - Kirinyaga Hostels</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        :root {
+            --kyu-green: #006747;
+            --kyu-gold: #FFD700;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border-light: #e2e8f0;
+            --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --danger: #dc2626;
+            --success: #16a34a;
+            --warning: #ca8a04;
+            --info: #2563eb;
+        }
+
+        body.dark-mode {
+            --kyu-green: #2ecc71;
+            --kyu-gold: #f1c40f;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --bg-light: #0f172a;
+            --bg-white: #1e293b;
+            --border-light: #334155;
+        }
+
+        body {
+            background: var(--bg-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background 0.3s ease;
+        }
+
+        /* Header */
+        header {
+            background: var(--bg-white);
+            box-shadow: var(--shadow-sm);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--kyu-gold);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+        }
+
+        .logo img {
+            height: 50px;
+        }
+
+        .logo span {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--kyu-green);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .dark-mode-toggle {
+            background: var(--bg-light);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+            color: var(--text-primary);
+        }
+
+        .dark-mode-toggle:hover {
+            background: var(--border-light);
+            transform: rotate(15deg);
+        }
+
+        .btn-logout {
+            padding: 0.6rem 1.2rem;
+            border: 2px solid var(--danger);
+            background: transparent;
+            color: var(--danger);
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-logout:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .container {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        /* Messages Header */
+        .messages-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .messages-header h1 {
+            font-size: 2rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .messages-header h1 i {
+            color: var(--kyu-green);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-primary {
+            padding: 0.7rem 1.5rem;
+            background: var(--kyu-green);
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            background: #004d33;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            padding: 0.7rem 1.5rem;
+            background: transparent;
+            border: 2px solid var(--kyu-green);
+            color: var(--kyu-green);
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-outline:hover {
+            background: var(--kyu-green);
+            color: white;
+        }
+
+        /* Stats Cards */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-white);
+            border-radius: 20px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            border-left: 4px solid var(--kyu-green);
+        }
+
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--kyu-green);
+        }
+
+        .stat-card .label {
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* Filter Tabs */
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 0.6rem 1.2rem;
+            background: var(--bg-white);
+            border: 1px solid var(--border-light);
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .filter-tab.active {
+            background: var(--kyu-green);
+            color: white;
+            border-color: var(--kyu-green);
+        }
+
+        .filter-tab:hover:not(.active) {
+            background: var(--border-light);
+        }
+
+        /* Messages List */
+        .messages-list {
+            background: var(--bg-white);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .message-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-light);
+            transition: background 0.3s;
+            cursor: pointer;
+        }
+
+        .message-item:hover {
+            background: var(--bg-light);
+        }
+
+        .message-item.unread {
+            background: rgba(0,103,71,0.05);
+            border-left: 4px solid var(--kyu-green);
+        }
+
+        .message-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(0,103,71,0.1);
+            color: var(--kyu-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            flex: 1;
+        }
+
+        .message-title {
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.3rem;
+            font-size: 1.1rem;
+        }
+
+        .message-preview {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .message-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .message-type {
+            padding: 0.2rem 0.6rem;
+            background: var(--bg-light);
+            border-radius: 20px;
+            font-size: 0.7rem;
+        }
+
+        .message-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .message-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s;
+            color: var(--text-secondary);
+        }
+
+        .message-actions button:hover {
+            background: var(--bg-light);
+            color: var(--kyu-green);
+        }
+
+        .message-actions .delete-btn:hover {
+            color: var(--danger);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-white);
+            border-radius: 24px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h3 {
+            font-size: 1.3rem;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: var(--danger);
+        }
+
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0,103,71,0.1);
+            border-left-color: var(--kyu-green);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--bg-white);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            display: none;
+            align-items: center;
+            gap: 10px;
+            z-index: 3000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        footer {
+            background: #1e293b;
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
+            border-top: 3px solid var(--kyu-gold);
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .messages-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .message-item {
+                flex-direction: column;
+            }
+            .message-actions {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <header>
+        <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle Dark Mode">
+    <i class="fas fa-moon"></i>
+</button>
+        <div class="logo" onclick="window.location.href='dashboard.html'">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
+            <span>Kirinyaga Hostels</span>
+        </div>
+        <div class="user-menu">
+            <button class="dark-mode-toggle" id="darkModeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="btn-logout" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="messages-header">
+            <h1><i class="fas fa-bell"></i> Notifications</h1>
+            <div class="header-actions">
+                <button class="btn-outline" id="markAllReadBtn"><i class="fas fa-check-double"></i> Mark All Read</button>
+                <button class="btn-outline" id="deleteAllReadBtn"><i class="fas fa-trash-alt"></i> Delete Read</button>
+            </div>
+        </div>
+
+        <div class="stats-cards">
+            <div class="stat-card">
+                <div class="number" id="totalCount">0</div>
+                <div class="label">Total Messages</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="unreadCount">0</div>
+                <div class="label">Unread</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="adminCount">0</div>
+                <div class="label">From Admin</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="bookingCount">0</div>
+                <div class="label">Booking Updates</div>
+            </div>
+        </div>
+
+        <div class="filter-tabs">
+            <button class="filter-tab active" data-filter="all">All</button>
+            <button class="filter-tab" data-filter="unread">Unread</button>
+            <button class="filter-tab" data-filter="admin">Admin</button>
+            <button class="filter-tab" data-filter="booking">Bookings</button>
+            <button class="filter-tab" data-filter="view">Hostel Views</button>
+        </div>
+
+        <div class="messages-list" id="messagesList">
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <p>Loading messages...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Message</h3>
+                <span class="modal-close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer">
+                <button class="btn-outline" onclick="markReadAndClose()">Mark as Read</button>
+                <button class="btn-primary" id="deleteModalBtn" onclick="deleteCurrentMessage()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <footer>
+        <p>© 2025 Kirinyaga University Hostels. All rights reserved.</p>
+    </footer>
+    <script src="theme.js"></script>
+    <script>
+        // ==================== CONFIGURATION ====================
+        const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
+        const token = sessionStorage.getItem('accessToken');
+        let currentFilter = 'all';
+        let messages = [];
+        let currentMessageId = null;
+
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        // ==================== DARK MODE ====================
+        const savedTheme = localStorage.getItem('ownerTheme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            updateDarkModeIcon(true);
+        }
+
+        function updateDarkModeIcon(isDark) {
+            const toggleBtn = document.getElementById('darkModeToggle');
+            if (toggleBtn) {
+                toggleBtn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            }
+        }
+
+        document.getElementById('darkModeToggle').addEventListener('click', () => {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('ownerTheme', isDark ? 'dark' : 'light');
+            updateDarkModeIcon(isDark);
+            showToast(isDark ? 'Dark mode enabled' : 'Light mode enabled', 'success');
+        });
+
+        // ==================== UI HELPERS ====================
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.style.display = 'flex';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        // ==================== API HELPER ====================
+        async function apiFetch(url, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${url}`, {
+                    ...options,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+
+                if (response.status === 401) {
+                    sessionStorage.removeItem('accessToken');
+                    window.location.href = 'login.html';
+                    return null;
+                }
+
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({}));
+                    throw new Error(error.message || error.detail || `HTTP ${response.status}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+
+        // ==================== LOAD NOTIFICATIONS ====================
+        async function loadNotifications() {
+            showLoading();
+            try {
+                const data = await apiFetch('/notifications/');
+                messages = data.results || data || [];
+                
+                // Auto-delete messages older than 7 days
+                const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+                const oldMessages = messages.filter(m => new Date(m.created_at).getTime() < oneWeekAgo);
+                for (const old of oldMessages) {
+                    await apiFetch(`/notifications/${old.id}/delete/`, { method: 'DELETE' }).catch(() => {});
+                }
+                
+                // Reload after auto-delete
+                const freshData = await apiFetch('/notifications/');
+                messages = freshData.results || freshData || [];
+                
+                updateStats();
+                renderMessages();
+            } catch (error) {
+                console.error('Failed to load notifications:', error);
+                showToast('Failed to load messages', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function updateStats() {
+            const total = messages.length;
+            const unread = messages.filter(m => !m.is_read).length;
+            const admin = messages.filter(m => m.type === 'admin' || m.type === 'announcement').length;
+            const booking = messages.filter(m => m.type === 'booking' || m.type === 'booking_update').length;
+            
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('unreadCount').textContent = unread;
+            document.getElementById('adminCount').textContent = admin;
+            document.getElementById('bookingCount').textContent = booking;
+        }
+
+        function renderMessages() {
+            const container = document.getElementById('messagesList');
+            let filtered = [...messages];
+            
+            switch (currentFilter) {
+                case 'unread':
+                    filtered = filtered.filter(m => !m.is_read);
+                    break;
+                case 'admin':
+                    filtered = filtered.filter(m => m.type === 'admin' || m.type === 'announcement');
+                    break;
+                case 'booking':
+                    filtered = filtered.filter(m => m.type === 'booking' || m.type === 'booking_update');
+                    break;
+                case 'view':
+                    filtered = filtered.filter(m => m.type === 'view' || m.type === 'hostel_view');
+                    break;
+            }
+            
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>No messages to display</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = filtered.map(msg => `
+                <div class="message-item ${!msg.is_read ? 'unread' : ''}" data-id="${msg.id}">
+                    <div class="message-icon">
+                        <i class="fas ${getIconForType(msg.type)}"></i>
+                    </div>
+                    <div class="message-content" onclick="viewMessage('${msg.id}')">
+                        <div class="message-title">${escapeHtml(msg.title)}</div>
+                        <div class="message-preview">${escapeHtml(msg.message.substring(0, 100))}${msg.message.length > 100 ? '...' : ''}</div>
+                        <div class="message-meta">
+                            <span>${formatDate(msg.created_at)}</span>
+                            <span class="message-type">${msg.type || 'general'}</span>
+                        </div>
+                    </div>
+                    <div class="message-actions">
+                        ${!msg.is_read ? `<button onclick="markAsRead('${msg.id}')" title="Mark as read"><i class="fas fa-check"></i></button>` : ''}
+                        <button onclick="deleteMessage('${msg.id}')" class="delete-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getIconForType(type) {
+            const icons = {
+                'admin': 'fa-user-shield',
+                'announcement': 'fa-bullhorn',
+                'booking': 'fa-calendar-check',
+                'booking_update': 'fa-edit',
+                'hostel_view': 'fa-eye',
+                'view': 'fa-eye',
+                'default': 'fa-bell'
+            };
+            return icons[type] || icons.default;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins} min ago`;
+            if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
+            if (diffDays < 7) return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
+            return date.toLocaleDateString();
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ==================== MESSAGE ACTIONS ====================
+        async function markAsRead(id) {
+            try {
+                await apiFetch(`/notifications/${id}/mark-read/`, { method: 'POST' });
+                const msg = messages.find(m => m.id == id);
+                if (msg) msg.is_read = true;
+                updateStats();
+                renderMessages();
+                showToast('Marked as read', 'success');
+            } catch (error) {
+                showToast('Failed to mark as read', 'error');
+            }
+        }
+
+        async function deleteMessage(id) {
+            if (!confirm('Delete this message?')) return;
+            try {
+                await apiFetch(`/notifications/${id}/delete/`, { method: 'DELETE' });
+                messages = messages.filter(m => m.id != id);
+                updateStats();
+                renderMessages();
+                showToast('Message deleted', 'success');
+                closeModal();
+            } catch (error) {
+                showToast('Failed to delete message', 'error');
+            }
+        }
+
+        async function markAllRead() {
+            const unread = messages.filter(m => !m.is_read);
+            if (unread.length === 0) {
+                showToast('No unread messages', 'info');
+                return;
+            }
+            showLoading();
+            try {
+                for (const msg of unread) {
+                    await apiFetch(`/notifications/${msg.id}/mark-read/`, { method: 'POST' });
+                    msg.is_read = true;
+                }
+                updateStats();
+                renderMessages();
+                showToast('All messages marked as read', 'success');
+            } catch (error) {
+                showToast('Failed to mark all as read', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function deleteAllRead() {
+            const read = messages.filter(m => m.is_read);
+            if (read.length === 0) {
+                showToast('No read messages to delete', 'info');
+                return;
+            }
+            if (!confirm(`Delete ${read.length} read messages?`)) return;
+            showLoading();
+            try {
+                for (const msg of read) {
+                    await apiFetch(`/notifications/${msg.id}/delete/`, { method: 'DELETE' });
+                }
+                messages = messages.filter(m => !m.is_read);
+                updateStats();
+                renderMessages();
+                showToast('Read messages deleted', 'success');
+            } catch (error) {
+                showToast('Failed to delete messages', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function viewMessage(id) {
+            const msg = messages.find(m => m.id == id);
+            if (!msg) return;
+            currentMessageId = id;
+            document.getElementById('modalTitle').textContent = msg.title;
+            document.getElementById('modalBody').innerHTML = `
+                <p><strong>Type:</strong> ${msg.type || 'General'}</p>
+                <p><strong>Date:</strong> ${formatDate(msg.created_at)}</p>
+                <div style="margin-top: 1rem; padding: 1rem; background: var(--bg-light); border-radius: 12px;">
+                    ${escapeHtml(msg.message)}
+                </div>
+                ${msg.link ? `<p style="margin-top: 1rem;"><a href="${msg.link}" target="_blank" style="color: var(--kyu-green);">View Details →</a></p>` : ''}
+            `;
+            document.getElementById('messageModal').classList.add('active');
+            
+            if (!msg.is_read) {
+                markAsRead(id);
+            }
+        }
+
+        function markReadAndClose() {
+            if (currentMessageId) {
+                markAsRead(currentMessageId);
+            }
+            closeModal();
+        }
+
+        function deleteCurrentMessage() {
+            if (currentMessageId) {
+                deleteMessage(currentMessageId);
+            }
+            closeModal();
+        }
+
+        function closeModal() {
+            document.getElementById('messageModal').classList.remove('active');
+            currentMessageId = null;
+        }
+
+        // ==================== EVENT LISTENERS ====================
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            sessionStorage.removeItem('accessToken');
+            window.location.href = 'login.html';
+        });
+
+        document.getElementById('markAllReadBtn').addEventListener('click', markAllRead);
+        document.getElementById('deleteAllReadBtn').addEventListener('click', deleteAllRead);
+
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentFilter = tab.dataset.filter;
+                renderMessages();
+            });
+        });
+
+        // ==================== AUTO REFRESH ====================
+        loadNotifications();
+        setInterval(loadNotifications, 30000);
+        
+        window.closeModal = closeModal;
+        window.markReadAndClose = markReadAndClose;
+        window.deleteCurrentMessage = deleteCurrentMessage;
+        window.viewMessage = viewMessage;
+        window.markAsRead = markAsRead;
+        window.deleteMessage = deleteMessage;
+    </script>
+</body>
+</html>
