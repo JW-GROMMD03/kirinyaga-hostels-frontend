@@ -553,16 +553,31 @@
         const token = sessionStorage.getItem('accessToken');
         let currentFilter = 'all';
         let reviews = [];
+        let loadTimeout = null;
 
         if (!token) {
             window.location.href = 'login.html';
         }
 
-        // ==================== DARK MODE - PERSISTENT FROM DASHBOARD ====================
-        const savedTheme = localStorage.getItem('ownerTheme');
-        if (savedTheme === 'dark') {
-            document.body.classList.add('dark-mode');
+        // ==================== DARK MODE - SYNC WITH DASHBOARD ====================
+        function applyDarkMode() {
+            const savedTheme = localStorage.getItem('ownerTheme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
         }
+        
+        // Apply dark mode immediately on page load
+        applyDarkMode();
+        
+        // Listen for storage changes (if theme changes in another tab)
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'ownerTheme') {
+                applyDarkMode();
+            }
+        });
 
         // ==================== UI HELPERS ====================
         function showLoading() {
@@ -571,6 +586,9 @@
 
         function hideLoading() {
             document.getElementById('loadingOverlay').classList.remove('active');
+            if (loadTimeout) {
+                clearTimeout(loadTimeout);
+            }
         }
 
         function showToast(message, type = 'info') {
@@ -631,9 +649,17 @@
         // ==================== LOAD REVIEWS ====================
         async function loadReviews() {
             showLoading();
+            
+            // Set a timeout to stop loading after 5 seconds
+            loadTimeout = setTimeout(() => {
+                hideLoading();
+                showDemoReviews();
+                showToast('Reviews API is being set up. Showing demo data for now.', 'info');
+            }, 5000);
+            
             try {
-                // Try to fetch reviews from the API
                 const data = await apiFetch('/reviews/?owner=me');
+                clearTimeout(loadTimeout);
                 reviews = data.results || data || [];
                 
                 if (reviews.length === 0) {
@@ -644,7 +670,7 @@
                 }
             } catch (error) {
                 console.error('Failed to load reviews:', error);
-                // Show demo data since API endpoint doesn't exist yet
+                clearTimeout(loadTimeout);
                 showDemoReviews();
                 showToast('Reviews API is being set up. Showing demo data for now.', 'info');
             } finally {
@@ -652,7 +678,6 @@
             }
         }
 
-        // Show demo reviews for testing
         function showDemoReviews() {
             reviews = [
                 {
@@ -660,7 +685,7 @@
                     user_name: 'John Mwangi',
                     rating: 5,
                     created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-                    comment: 'Excellent hostel! Very clean and the owner is very responsive. The rooms are spacious and well maintained.',
+                    comment: 'Excellent hostel! Very clean and the owner is very responsive. The rooms are spacious and well maintained. Highly recommended for any student looking for quality accommodation.',
                     hostel_name: 'Green View Hostel',
                     reply: null
                 },
@@ -669,16 +694,16 @@
                     user_name: 'Sarah Wanjiku',
                     rating: 4,
                     created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-                    comment: 'Good value for money. The location is convenient and close to the university. Would recommend.',
+                    comment: 'Good value for money. The location is convenient and close to the university. Would recommend to friends and family.',
                     hostel_name: 'Campus Nest',
-                    reply: 'Thank you for your feedback! We're glad you enjoyed your stay.'
+                    reply: 'Thank you for your feedback! We appreciate your review and are glad you enjoyed your stay.'
                 },
                 {
                     id: '3',
                     user_name: 'Peter Omondi',
                     rating: 3,
                     created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-                    comment: 'Decent place but WiFi could be better. The staff was friendly though.',
+                    comment: 'Decent place but WiFi could be better. The staff was friendly though and the rooms were clean.',
                     hostel_name: 'Green View Hostel',
                     reply: null
                 },
@@ -687,9 +712,9 @@
                     user_name: 'Mary Kamau',
                     rating: 5,
                     created_at: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-                    comment: 'Amazing experience! The owner went above and beyond to make sure I was comfortable. Highly recommended!',
+                    comment: 'Amazing experience! The owner went above and beyond to make sure I was comfortable. The facilities are top-notch!',
                     hostel_name: 'Student Haven',
-                    reply: 'Thank you so much for the kind words! We strive to provide the best experience.'
+                    reply: 'Thank you so much for the kind words! We strive to provide the best experience for all our guests.'
                 }
             ];
             updateStats();
@@ -786,12 +811,10 @@
                                 <button onclick="submitReply('${review.id}')">Post Reply</button>
                             </div>
                         </div>
-                    `}
-                    ${!review.reply ? `
                         <div class="review-actions">
                             <button class="reply-btn" onclick="toggleReply('${review.id}')"><i class="fas fa-reply"></i> Reply to Review</button>
                         </div>
-                    ` : ''}
+                    `}
                 </div>
             `).join('');
         }
@@ -816,7 +839,6 @@
             
             showLoading();
             try {
-                // For demo, just update locally
                 const review = reviews.find(r => r.id == id);
                 if (review) {
                     review.reply = replyText;
@@ -870,7 +892,6 @@
         // ==================== INIT ====================
         loadReviews();
         
-        // Make functions global for onclick handlers
         window.toggleReply = toggleReply;
         window.submitReply = submitReply;
     </script>

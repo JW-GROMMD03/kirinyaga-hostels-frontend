@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service - Kirinyaga Hostels</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        :root {
+            --kyu-green: #006747;
+            --kyu-gold: #FFD700;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border-light: #e2e8f0;
+            --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        body.dark-mode {
+            --kyu-green: #2ecc71;
+            --kyu-gold: #f1c40f;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --bg-light: #0f172a;
+            --bg-white: #1e293b;
+            --border-light: #334155;
+        }
+
+        body {
+            background: var(--bg-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: var(--bg-white);
+            box-shadow: var(--shadow-sm);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--kyu-gold);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+        }
+
+        .logo img {
+            height: 50px;
+        }
+
+        .logo span {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--kyu-green);
+        }
+
+        .btn-back {
+            padding: 0.6rem 1.2rem;
+            border: 2px solid var(--kyu-green);
+            background: transparent;
+            color: var(--kyu-green);
+            border-radius: 40px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn-back:hover {
+            background: var(--kyu-green);
+            color: white;
+        }
+
+        .container {
+            flex: 1;
+            max-width: 1000px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .terms-card {
+            background: var(--bg-white);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .terms-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border-light);
+        }
+
+        .terms-header h1 {
+            font-size: 2rem;
+            color: var(--kyu-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .terms-header p {
+            color: var(--text-secondary);
+        }
+
+        .terms-section {
+            margin-bottom: 2rem;
+        }
+
+        .terms-section h2 {
+            font-size: 1.3rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .terms-section h3 {
+            font-size: 1.1rem;
+            color: var(--kyu-green);
+            margin: 1rem 0 0.5rem 0;
+        }
+
+        .terms-section p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 0.8rem;
+        }
+
+        .terms-section ul, .terms-section ol {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin: 0.8rem 0 0.8rem 1.5rem;
+        }
+
+        .terms-section li {
+            margin-bottom: 0.5rem;
+        }
+
+        .effective-date {
+            background: var(--bg-light);
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        footer {
+            background: #1e293b;
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
+            border-top: 3px solid var(--kyu-gold);
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .terms-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='dashboard.html'">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
+            <span>Kirinyaga Hostels</span>
+        </div>
+        <a href="dashboard.html" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </header>
+
+    <div class="container">
+        <div class="terms-card">
+            <div class="terms-header">
+                <h1>Terms of Service</h1>
+                <p>Effective Date: April 1, 2025</p>
+            </div>
+
+            <div class="terms-section">
+                <h2>1. Acceptance of Terms</h2>
+                <p>By accessing or using the Kirinyaga University Hostels platform ("Service"), you agree to be bound by these Terms of Service ("Terms"). If you disagree with any part of these Terms, you may not access the Service. These Terms constitute a legally binding agreement between you and Kirinyaga University Hostels.</p>
+            </div>
+
+            <div class="terms-section">
+                <h2>2. Eligibility</h2>
+                <p>To use our Service, you must:</p>
+                <ul>
+                    <li>Be at least 18 years of age</li>
+                    <li>Have the legal capacity to enter into a binding contract</li>
+                    <li>Provide accurate and complete registration information</li>
+                    <li>Not be prohibited from using the Service under applicable laws</li>
+                </ul>
+            </div>
+
+            <div class="terms-section">
+                <h2>3. Account Registration and Security</h2>
+                <p>You are responsible for:</p>
+                <ul>
+                    <li>Maintaining the confidentiality of your account credentials</li>
+                    <li>All activities that occur under your account</li>
+                    <li>Immediately notifying us of any unauthorized use</li>
+                    <li>Providing accurate and up-to-date information</li>
+                </ul>
+                <p>We reserve the right to suspend or terminate accounts that violate these Terms.</p>
+            </div>
+
+            <div class="terms-section">
+                <h2>4. Hostel Listings and Bookings</h2>
+                <h3>For Hostel Owners:</h3>
+                <ul>
+                    <li>You must provide accurate descriptions, photos, and pricing for your hostels</li>
+                    <li>You must maintain valid licenses and permits required under Kenyan law</li>
+                    <li>You are responsible for the safety and quality of your accommodations</li>
+                    <li>You must honor confirmed bookings or face penalties</li>
+                    <li>We may remove listings that violate our policies</li>
+                </ul>
+                <h3>For Students/Guests:</h3>
+                <ul>
+                    <li>Bookings are binding contracts once confirmed</li>
+                    <li>Cancellation policies apply as stated during booking</li>
+                    <li>You must provide accurate information for bookings</li>
+                    <li>You are responsible for payment and deposit requirements</li>
+                </ul>
+            </div>
+
+            <div class="terms-section">
+                <h2>5. Payments and Fees</h2>
+                <ul>
+                    <li>All payments are processed securely through our payment partners</li>
+                    <li>Fees are clearly displayed before booking confirmation</li>
+                    <li>We may charge service fees for using the platform</li>
+                    <li>Refunds are subject to the property's cancellation policy</li>
+                    <li>Fraudulent transactions will be reported to Kenyan authorities</li>
+                </ul>
+            </div>
+
+            <div class="terms-section">
+                <h2>6. Cancellation and Refund Policy</h2>
+                <p>Cancellation policies vary by hostel and are displayed during booking. Standard policies include:</p>
+                <ul>
+                    <li><strong>Flexible:</strong> Free cancellation up to 7 days before check-in</li>
+                    <li><strong>Moderate:</strong> Free cancellation up to 14 days before check-in</li>
+                    <li><strong>Strict:</strong> Cancellation fees apply after booking confirmation</li>
+                </ul>
+                <p>Refunds are processed within 5-10 business days after cancellation approval.</p>
+            </div>
+
+            <div class="terms-section">
+                <h2>7. User Conduct and Prohibited Activities</h2>
+                <p>You agree NOT to:</p>
+                <ul>
+                    <li>Post false, misleading, or fraudulent information</li>
+                    <li>Violate any applicable laws or regulations</li>
+                    <li>Infringe on intellectual property rights</li>
+                    <li>Harass, abuse, or harm others</li>
+                    <li>Attempt to bypass our security measures</li>
+                    <li>Use automated systems to access the Service</li>
+                    <li>Engage in money laundering or fraudulent activities</li>
+                </ul>
+            </div>
+
+            <div class="terms-section">
+                <h2>8. Reviews and Ratings</h2>
+                <ul>
+                    <li>Reviews must be honest and based on genuine experiences</li>
+                    <li>We reserve the right to remove fake or inappropriate reviews</li>
+                    <li>Hostels may not solicit fake positive reviews</li>
+                    <li>We may verify reviews for authenticity</li>
+                </ul>
+            </div>
+
+            <div class="terms-section">
+                <h2>9. Intellectual Property</h2>
+                <p>All content on the Service, including logos, designs, text, graphics, and software, is the property of Kirinyaga University Hostels or its licensors. You may not copy, modify, or distribute our content without permission.</p>
+            </div>
+
+            <div class="terms-section">
+                <h2>10. Limitation of Liability</h2>
+                <p>To the maximum extent permitted by Kenyan law:</p>
+                <ul>
+                    <li>We are not liable for any indirect, incidental, or consequential damages</li>
+                    <li>Our total liability is limited to the amount you paid in the last 12 months</li>
+                    <li>We do not guarantee the accuracy or completeness of listings</li>
+                    <li>We are not responsible for disputes between guests and hostel owners</li>
+                </ul>
+            </div>
+
+            <div class="terms-section">
+                <h2>11. Indemnification</h2>
+                <p>You agree to indemnify and hold harmless Kirinyaga University Hostels from any claims arising from your use of the Service, violation of these Terms, or infringement of any third-party rights.</p>
+            </div>
+
+            <div class="terms-section">
+                <h2>12. Termination</h2>
+                <p>We may terminate or suspend your account immediately, without notice, for conduct that violates these Terms, is harmful to other users, or is illegal under Kenyan law.</p>
+            </div>
+
+            <div class="terms-section">
+                <h2>13. Governing Law and Dispute Resolution</h2>
+                <p>These Terms are governed by the laws of the Republic of Kenya. Any disputes shall be resolved through:</p>
+                <ul>
+                    <li><strong>Informal Resolution:</strong> Contact our support team first</li>
+                    <li><strong>Mediation:</strong> If unresolved, we may attempt mediation</li>
+                    <li><strong>Arbitration:</strong> Binding arbitration under Kenyan law</li>
+                    <li><strong>Court Jurisdiction:</strong> Kenyan courts have exclusive jurisdiction</li>
+                </ul>
+            </div>
+
+            <div class="terms-section">
+                <h2>14. Force Majeure</h2>
+                <p>We are not liable for delays or failures caused by events beyond our reasonable control, including natural disasters, government actions, or internet disruptions.</p>
+            </div>
+
+            <div class="terms-section">
+                <h2>15. Modifications to Terms</h2>
+                <p>We may update these Terms from time to time. Continued use of the Service after changes constitutes acceptance of the modified Terms.</p>
+            </div>
+
+            <div class="terms-section">
+                <h2>16. Severability</h2>
+                <p>If any provision of these Terms is found to be unenforceable, the remaining provisions shall remain in full force and effect.</p>
+            </div>
+
+            <div class="terms-section">
+                <h2>17. Contact Information</h2>
+                <p>For questions about these Terms, contact us at:</p>
+                <ul>
+                    <li><strong>Email:</strong> dux.technicae941@gmail.com</li>
+                    <li><strong>Phone:</strong> 0703250550</li>
+                    <li><strong>Address:</strong> Kirinyaga University, P.O. Box 143-10300, Kerugoya, Kenya</li>
+                </ul>
+            </div>
+
+            <div class="effective-date">
+                <i class="fas fa-gavel"></i> These Terms of Service are effective as of April 1, 2025
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 Kirinyaga University Hostels. All rights reserved.</p>
+    </footer>
+
+    <script>
+        function applyDarkMode() {
+            const savedTheme = localStorage.getItem('ownerTheme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+        }
+        applyDarkMode();
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'ownerTheme') applyDarkMode();
+        });
+    </script>
+</body>
+</html>

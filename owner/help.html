@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help Center - Kirinyaga Hostels</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        :root {
+            --kyu-green: #006747;
+            --kyu-gold: #FFD700;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border-light: #e2e8f0;
+            --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        body.dark-mode {
+            --kyu-green: #2ecc71;
+            --kyu-gold: #f1c40f;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --bg-light: #0f172a;
+            --bg-white: #1e293b;
+            --border-light: #334155;
+        }
+
+        body {
+            background: var(--bg-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: var(--bg-white);
+            box-shadow: var(--shadow-sm);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--kyu-gold);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+        }
+
+        .logo img {
+            height: 50px;
+        }
+
+        .logo span {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--kyu-green);
+        }
+
+        .btn-back {
+            padding: 0.6rem 1.2rem;
+            border: 2px solid var(--kyu-green);
+            background: transparent;
+            color: var(--kyu-green);
+            border-radius: 40px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn-back:hover {
+            background: var(--kyu-green);
+            color: white;
+        }
+
+        .container {
+            flex: 1;
+            max-width: 1000px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .help-card {
+            background: var(--bg-white);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .help-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border-light);
+        }
+
+        .help-header h1 {
+            font-size: 2rem;
+            color: var(--kyu-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .help-header p {
+            color: var(--text-secondary);
+        }
+
+        .search-box {
+            background: var(--bg-light);
+            border-radius: 50px;
+            padding: 0.8rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .search-box i {
+            color: var(--text-secondary);
+        }
+
+        .search-box input {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+            color: var(--text-primary);
+        }
+
+        .faq-category {
+            margin-bottom: 2rem;
+        }
+
+        .faq-category h2 {
+            font-size: 1.3rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .faq-category h2 i {
+            color: var(--kyu-green);
+        }
+
+        .faq-item {
+            border-bottom: 1px solid var(--border-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .faq-question {
+            padding: 1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            color: var(--text-primary);
+            transition: background 0.3s;
+        }
+
+        .faq-question:hover {
+            background: var(--bg-light);
+        }
+
+        .faq-answer {
+            padding: 0 1rem 1rem 1rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            display: none;
+        }
+
+        .faq-answer.active {
+            display: block;
+        }
+
+        .contact-section {
+            background: var(--bg-light);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .contact-section h3 {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .contact-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .contact-btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 40px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .contact-btn.email {
+            background: var(--kyu-green);
+            color: white;
+        }
+
+        .contact-btn.whatsapp {
+            background: #25D366;
+            color: white;
+        }
+
+        .contact-btn.phone {
+            background: var(--info);
+            color: white;
+        }
+
+        .contact-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.95);
+        }
+
+        footer {
+            background: #1e293b;
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
+            border-top: 3px solid var(--kyu-gold);
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .help-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='dashboard.html'">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
+            <span>Kirinyaga Hostels</span>
+        </div>
+        <a href="dashboard.html" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </header>
+
+    <div class="container">
+        <div class="help-card">
+            <div class="help-header">
+                <h1><i class="fas fa-question-circle"></i> Help Center</h1>
+                <p>Find answers to common questions or contact our support team</p>
+            </div>
+
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search for help topics...">
+                <i class="fas fa-times" id="clearSearch" style="cursor: pointer; display: none;"></i>
+            </div>
+
+            <div id="faqContainer">
+                <!-- Getting Started -->
+                <div class="faq-category">
+                    <h2><i class="fas fa-rocket"></i> Getting Started</h2>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            How do I add a new hostel listing?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            To add a new hostel listing:<br>
+                            1. Click on "Add Hostel" from your dashboard<br>
+                            2. Fill in all required details (name, description, location, pricing)<br>
+                            3. Upload photos of your hostel<br>
+                            4. Submit for approval<br>
+                            5. Once approved, your listing will be visible to students<br>
+                            <br>Approval typically takes 24-48 hours.
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            How long does hostel approval take?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Hostel listings are reviewed within 24-48 hours. You'll receive an email notification once your listing is approved or if additional information is needed. You can check the status in your dashboard under "Manage Hostels".
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            What documents do I need to register as a hostel owner?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Required documents:<br>
+                            - National ID or Passport<br>
+                            - Business registration certificate<br>
+                            - County government license for accommodation<br>
+                            - Fire safety certificate<br>
+                            - Health inspection certificate<br>
+                            - KRA PIN certificate<br>
+                            Upload these during registration for verification.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bookings -->
+                <div class="faq-category">
+                    <h2><i class="fas fa-calendar-check"></i> Bookings</h2>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            How do I manage booking requests?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            You can manage bookings from your dashboard:<br>
+                            1. Go to "View Bookings"<br>
+                            2. See all pending and confirmed bookings<br>
+                            3. Click on any booking to view details<br>
+                            4. Confirm or cancel as needed<br>
+                            You'll receive email notifications for new bookings.
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            What is the cancellation policy?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            You can set your own cancellation policy. Common options:<br>
+                            - Flexible: Free cancellation up to 7 days before check-in<br>
+                            - Moderate: Free cancellation up to 14 days before check-in<br>
+                            - Strict: 50% refund up to 30 days before check-in<br>
+                            You can set this when creating or editing your hostel listing.
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            How do I receive payments from bookings?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Payments are processed through our secure payment system. Funds are released to your account 24 hours after guest check-in. You can view your payment history in the "Analytics" section. Withdrawals can be made to your M-Pesa or bank account.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hostel Management -->
+                <div class="faq-category">
+                    <h2><i class="fas fa-building"></i> Hostel Management</h2>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            How do I update my hostel information?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            To update hostel information:<br>
+                            1. Go to "Manage Hostels" from your dashboard<br>
+                            2. Click on the hostel you want to edit<br>
+                            3. Update the information (pricing, availability, photos, etc.)<br>
+                            4. Click "Save Changes"<br>
+                            Note: Major changes may require re-approval.
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            How do I respond to reviews?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            To respond to reviews:<br>
+                            1. Go to "Reviews" from your dashboard<br>
+                            2. Find the review you want to respond to<br>
+                            3. Click "Reply"<br>
+                            4. Type your response and submit<br>
+                            Professional responses help build trust with potential guests.
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            How can I track my hostel's performance?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Use the Analytics section to track:<br>
+                            - Number of views<br>
+                            - Booking conversion rates<br>
+                            - Revenue trends<br>
+                            - Guest reviews and ratings<br>
+                            - Occupancy rates<br>
+                            This data helps you optimize your listing and pricing.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account & Security -->
+                <div class="faq-category">
+                    <h2><i class="fas fa-shield-alt"></i> Account & Security</h2>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            How do I change my password?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            To change your password:<br>
+                            1. Click on your profile icon<br>
+                            2. Select "Edit Profile"<br>
+                            3. Enter your current password<br>
+                            4. Enter and confirm your new password<br>
+                            5. Click "Save Changes"<br>
+                            Use a strong password with at least 8 characters, including numbers and symbols.
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            How do I enable two-factor authentication?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            To enable 2FA:<br>
+                            1. Go to "Security" from your dashboard<br>
+                            2. Click "Enable Two-Factor Authentication"<br>
+                            3. Scan the QR code with your authenticator app<br>
+                            4. Enter the verification code<br>
+                            5. Save your backup codes in a safe place<br>
+                            2FA adds an extra layer of security to your account.
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            What should I do if I suspect unauthorized access?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            If you suspect unauthorized access:<br>
+                            1. Change your password immediately<br>
+                            2. Enable 2FA if not already enabled<br>
+                            3. Contact support at security@kirinyaga-hostels.ac.ke<br>
+                            4. Review recent activity logs<br>
+                            5. Log out of all devices from security settings<br>
+                            We'll investigate and help secure your account.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Technical Support -->
+                <div class="faq-category">
+                    <h2><i class="fas fa-tools"></i> Technical Support</h2>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            I'm having trouble uploading photos. What should I do?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Common issues and solutions:<br>
+                            - Ensure images are JPG or PNG format<br>
+                            - File size should be less than 5MB<br>
+                            - Try different browser (Chrome, Firefox, Edge)<br>
+                            - Clear your browser cache<br>
+                            - Check your internet connection<br>
+                            If issues persist, contact support with error details.
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            How do I report a bug or technical issue?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            To report technical issues:<br>
+                            1. Take screenshots of the issue<br>
+                            2. Note what steps led to the problem<br>
+                            3. Email support@kirinyaga-hostels.ac.ke<br>
+                            4. Include your browser and device information<br>
+                            5. We'll respond within 24 hours
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contact-section">
+                <h3><i class="fas fa-headset"></i> Still need help?</h3>
+                <p>Our support team is here to assist you</p>
+                <div class="contact-buttons">
+                    <a href="mailto:dux.technicae941@gmail.com" class="contact-btn email">
+                        <i class="fas fa-envelope"></i> Email Support
+                    </a>
+                    <a href="https://wa.me/254703250550" class="contact-btn whatsapp">
+                        <i class="fab fa-whatsapp"></i> WhatsApp
+                    </a>
+                    <a href="tel:+254703250550" class="contact-btn phone">
+                        <i class="fas fa-phone-alt"></i> Call Us
+                    </a>
+                </div>
+                <p style="margin-top: 1rem; font-size: 0.9rem;">Response time: Within 24 hours</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 Kirinyaga University Hostels. All rights reserved.</p>
+    </footer>
+
+    <script>
+        function applyDarkMode() {
+            const savedTheme = localStorage.getItem('ownerTheme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+        }
+        applyDarkMode();
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'ownerTheme') applyDarkMode();
+        });
+
+        // FAQ Toggle
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const answer = question.nextElementSibling;
+                const icon = question.querySelector('i:last-child');
+                
+                answer.classList.toggle('active');
+                icon.classList.toggle('fa-chevron-down');
+                icon.classList.toggle('fa-chevron-up');
+                
+                if (answer.classList.contains('active')) {
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-up');
+                } else {
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
+                }
+            });
+        });
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const clearSearch = document.getElementById('clearSearch');
+        const faqItems = document.querySelectorAll('.faq-item');
+        
+        searchInput.addEventListener('input', () => {
+            const searchTerm = searchInput.value.toLowerCase();
+            let hasResults = false;
+            
+            if (searchTerm) {
+                clearSearch.style.display = 'block';
+            } else {
+                clearSearch.style.display = 'none';
+            }
+            
+            faqItems.forEach(item => {
+                const question = item.querySelector('.faq-question').textContent.toLowerCase();
+                const answer = item.querySelector('.faq-answer').textContent.toLowerCase();
+                
+                if (question.includes(searchTerm) || answer.includes(searchTerm)) {
+                    item.style.display = 'block';
+                    hasResults = true;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            const categories = document.querySelectorAll('.faq-category');
+            categories.forEach(category => {
+                const visibleItems = category.querySelectorAll('.faq-item[style*="display: block"]').length;
+                if (visibleItems === 0 && searchTerm) {
+                    category.style.display = 'none';
+                } else {
+                    category.style.display = 'block';
+                }
+            });
+            
+            if (!hasResults && searchTerm) {
+                const container = document.getElementById('faqContainer');
+                let noResultsMsg = container.querySelector('.no-results');
+                if (!noResultsMsg) {
+                    noResultsMsg = document.createElement('div');
+                    noResultsMsg.className = 'no-results';
+                    noResultsMsg.style.textAlign = 'center';
+                    noResultsMsg.style.padding = '2rem';
+                    noResultsMsg.style.color = 'var(--text-secondary)';
+                    noResultsMsg.innerHTML = '<i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i><p>No results found. Try a different search term or contact support.</p>';
+                    container.appendChild(noResultsMsg);
+                }
+            } else {
+                const noResultsMsg = document.querySelector('.no-results');
+                if (noResultsMsg) noResultsMsg.remove();
+            }
+        });
+        
+        clearSearch.addEventListener('click', () => {
+            searchInput.value = '';
+            searchInput.dispatchEvent(new Event('input'));
+        });
+    </script>
+</body>
+</html>
