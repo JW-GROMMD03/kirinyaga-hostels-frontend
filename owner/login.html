@@ -7,6 +7,7 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* KEEP YOUR EXISTING CSS - NO CHANGES */
         * {
             margin: 0;
             padding: 0;
@@ -233,6 +234,18 @@
             background: #7f1a1a;
             color: #fecaca;
         }
+        .info-message {
+            background: #e6f7e6;
+            color: #2e7d32;
+            padding: 1rem;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+        body.dark-mode .info-message {
+            background: #14532d;
+            color: #86efac;
+        }
         .signup-link {
             text-align: center;
             margin-top: 2rem;
@@ -275,6 +288,7 @@
             <div class="subtitle">Manage your hostels</div>
 
             <div id="error-message" class="error-message"></div>
+            <div id="info-message" class="info-message"></div>
 
             <form id="login-form">
                 <div class="form-group">
@@ -365,9 +379,24 @@
         const loginBtn = document.getElementById('login-btn');
         const spinner = document.getElementById('spinner');
         const errorDiv = document.getElementById('error-message');
+        const infoDiv = document.getElementById('info-message');
 
         function getOtp() {
             return Array.from(otpInputs).map(i => i.value).join('');
+        }
+
+        function showError(message) {
+            errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+            errorDiv.style.display = 'block';
+            infoDiv.style.display = 'none';
+            setTimeout(() => errorDiv.style.display = 'none', 5000);
+        }
+
+        function showInfo(message, isSuccess = false) {
+            infoDiv.innerHTML = `<i class="fas fa-${isSuccess ? 'check-circle' : 'info-circle'}"></i> ${message}`;
+            infoDiv.style.display = 'block';
+            errorDiv.style.display = 'none';
+            setTimeout(() => infoDiv.style.display = 'none', 5000);
         }
 
         otpInputs.forEach((input, idx) => {
@@ -407,8 +436,7 @@
 
             if (otpGroup.style.display === 'block') {
                 if (getOtp().length !== 6) {
-                    errorDiv.textContent = 'Please enter the 6-digit verification code';
-                    errorDiv.style.display = 'block';
+                    showError('Please enter the 6-digit verification code');
                     return;
                 }
                 payload.otp_token = getOtp();
@@ -417,6 +445,7 @@
             loginBtn.disabled = true;
             spinner.style.display = 'block';
             errorDiv.style.display = 'none';
+            infoDiv.style.display = 'none';
 
             try {
                 const res = await fetch(`${API_BASE}/auth/owner/login/`, {
@@ -427,36 +456,77 @@
                 });
 
                 const data = await res.json();
+                console.log('Login response:', data);
 
                 if (!res.ok) {
-                    if (data.non_field_errors) {
-                        const msg = data.non_field_errors[0];
-                        if (msg && (msg.includes('OTP') || msg.includes('verification'))) {
-                            otpGroup.style.display = 'block';
-                            errorDiv.textContent = 'Verification code sent to your email. Please enter it below.';
-                            errorDiv.style.display = 'block';
-                        } else {
-                            errorDiv.textContent = msg;
-                            errorDiv.style.display = 'block';
+                    // Check for OTP requirement - look in non_field_errors structure
+                    let requiresOtp = false;
+                    let errorMsg = '';
+                    
+                    // Check if data.requires_otp exists
+                    if (data.requires_otp === true) {
+                        requiresOtp = true;
+                        errorMsg = data.message || 'Verification code required';
+                    }
+                    
+                    // Check non_field_errors array (this is where DRF puts the error)
+                    if (data.non_field_errors && data.non_field_errors.length > 0) {
+                        const firstError = data.non_field_errors[0];
+                        // Check if firstError is an object with requires_otp
+                        if (typeof firstError === 'object' && firstError.requires_otp === true) {
+                            requiresOtp = true;
+                            errorMsg = firstError.message || 'Verification code sent to your email';
+                        } else if (typeof firstError === 'string') {
+                            errorMsg = firstError;
+                            if (errorMsg.toLowerCase().includes('otp') || errorMsg.toLowerCase().includes('verification')) {
+                                requiresOtp = true;
+                            }
                         }
-                    } else if (data.error) {
-                        errorDiv.textContent = data.error;
-                        errorDiv.style.display = 'block';
-                    } else if (data.email) {
-                        errorDiv.textContent = 'Email: ' + (Array.isArray(data.email) ? data.email[0] : data.email);
-                        errorDiv.style.display = 'block';
-                    } else if (data.password) {
-                        errorDiv.textContent = 'Password: ' + (Array.isArray(data.password) ? data.password[0] : data.password);
-                        errorDiv.style.display = 'block';
+                    }
+                    
+                    // Check message field
+                    if (data.message && !errorMsg) {
+                        errorMsg = data.message;
+                        if (errorMsg.toLowerCase().includes('otp') || errorMsg.toLowerCase().includes('verification')) {
+                            requiresOtp = true;
+                        }
+                    }
+                    
+                    // If OTP is required, show the OTP field
+                    if (requiresOtp) {
+                        otpGroup.style.display = 'block';
+                        showInfo('Verification code sent to your email. Please enter it below.');
+                        loginBtn.disabled = false;
+                        spinner.style.display = 'none';
+                        return;
+                    }
+                    
+                    // Check for lockout
+                    if (data.locked === true) {
+                        showError(data.message);
+                        loginBtn.disabled = true;
+                        if (data.remaining_seconds) {
+                            setTimeout(() => {
+                                loginBtn.disabled = false;
+                                showInfo('You can now try again.');
+                            }, data.remaining_seconds * 1000);
+                        }
+                        spinner.style.display = 'none';
+                        return;
+                    }
+                    
+                    // Show attempts warning
+                    if (data.attempts_left) {
+                        showError(`${errorMsg || 'Invalid email or password'} (${data.attempts_left} attempt(s) remaining)`);
                     } else {
-                        errorDiv.textContent = 'Login failed. Please try again.';
-                        errorDiv.style.display = 'block';
+                        showError(errorMsg || 'Invalid email or password. Please try again.');
                     }
                     loginBtn.disabled = false;
                     spinner.style.display = 'none';
                     return;
                 }
 
+                // Login successful
                 if (data.access) {
                     sessionStorage.setItem('accessToken', data.access);
                     if (remember.checked) {
@@ -475,11 +545,13 @@
                     localStorage.setItem('userRole', data.role);
                 }
                 
-                window.location.href = 'dashboard.html';
+                showInfo('Login successful! Redirecting...', true);
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
             } catch (err) {
                 console.error('Login error:', err);
-                errorDiv.textContent = 'Network error. Unable to connect to server. Please check your connection.';
-                errorDiv.style.display = 'block';
+                showError('Network error. Unable to connect to server. Please check your connection.');
                 loginBtn.disabled = false;
                 spinner.style.display = 'none';
             }

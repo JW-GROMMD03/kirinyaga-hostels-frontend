@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Login - Kirinyaga University Hostels</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='white' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* KEEP YOUR EXISTING CSS - NO CHANGES */
         * {
             margin: 0;
             padding: 0;
@@ -346,6 +348,16 @@
             border-left: 5px solid #22543d;
         }
 
+        .info-message {
+            background: #e6f7e6;
+            color: #2e7d32;
+            padding: 1rem;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            display: none;
+            border-left: 5px solid #2e7d32;
+        }
+
         .signup-link {
             text-align: center;
             margin-top: 2rem;
@@ -448,6 +460,7 @@
 
             <div id="error-message" class="error-message"></div>
             <div id="success-message" class="success-message"></div>
+            <div id="info-message" class="info-message"></div>
 
             <form id="login-form">
                 <div class="form-group">
@@ -461,7 +474,7 @@
                 </div>
 
                 <!-- OTP Field (hidden initially) -->
-                <div class="form-group" id="otp-group">
+                <div class="form-group" id="otp-group" style="display: none;">
                     <label><i>🔑</i> Verification Code</label>
                     <div class="otp-group">
                         <input type="text" class="otp-input" id="otp1" maxlength="1" pattern="[0-9]" inputmode="numeric">
@@ -473,6 +486,9 @@
                     </div>
                     <input type="hidden" id="otp" name="otp_token">
                     <p style="font-size:0.9rem; color:#666; margin-top:0.5rem;">Check your email for the 6-digit code.</p>
+                    <button type="button" id="resend-otp-btn" style="margin-top: 0.5rem; background: none; border: none; color: #006747; cursor: pointer;">
+                        <i class="fas fa-redo-alt"></i> Didn't receive code? Resend
+                    </button>
                 </div>
 
                 <div class="remember-forgot">
@@ -530,10 +546,9 @@
             const spinner = document.getElementById('spinner');
             const errorDiv = document.getElementById('error-message');
             const successDiv = document.getElementById('success-message');
+            const infoDiv = document.getElementById('info-message');
+            const resendBtn = document.getElementById('resend-otp-btn');
 
-            // ============================================
-            // CORRECT API ENDPOINT FOR STUDENT LOGIN
-            // ============================================
             const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
 
             function hideError() {
@@ -545,6 +560,7 @@
                 errorDiv.textContent = message;
                 errorDiv.style.display = 'block';
                 successDiv.style.display = 'none';
+                infoDiv.style.display = 'none';
                 setTimeout(() => {
                     if (errorDiv.style.display === 'block') {
                         errorDiv.style.display = 'none';
@@ -556,11 +572,20 @@
                 successDiv.textContent = message;
                 successDiv.style.display = 'block';
                 errorDiv.style.display = 'none';
+                infoDiv.style.display = 'none';
                 setTimeout(() => {
                     if (successDiv.style.display === 'block') {
                         successDiv.style.display = 'none';
                     }
                 }, 3000);
+            }
+
+            function showInfo(message, isSuccess = false) {
+                infoDiv.innerHTML = `<i class="fas fa-${isSuccess ? 'check-circle' : 'info-circle'}"></i> ${message}`;
+                infoDiv.style.display = 'block';
+                errorDiv.style.display = 'none';
+                successDiv.style.display = 'none';
+                setTimeout(() => infoDiv.style.display = 'none', 5000);
             }
 
             function setLoading(isLoading) {
@@ -593,6 +618,9 @@
                         otpInputs[index + 1].focus();
                     }
                     otpHidden.value = getOtpToken();
+                    if (getOtpToken().length === 6) {
+                        setTimeout(() => form.dispatchEvent(new Event('submit')), 100);
+                    }
                 });
 
                 input.addEventListener('keydown', function(e) {
@@ -612,6 +640,7 @@
                         }
                         otpHidden.value = pasteData.substring(0, 6);
                         otpInputs[5].focus();
+                        setTimeout(() => form.dispatchEvent(new Event('submit')), 100);
                     }
                 });
             });
@@ -624,6 +653,30 @@
                     otpGroup.style.display = 'none';
                     clearOtp();
                 }
+            }
+
+            // Resend OTP
+            if (resendBtn) {
+                resendBtn.addEventListener('click', async () => {
+                    resendBtn.disabled = true;
+                    resendBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Sending...';
+                    try {
+                        const res = await fetch(`${API_BASE}/auth/2fa/send-otp/`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email: emailInput.value })
+                        });
+                        if (res.ok) {
+                            showInfo('New verification code sent to your email!', true);
+                        } else {
+                            showError('Failed to resend code. Please try again.');
+                        }
+                    } catch (err) {
+                        showError('Network error. Please try again.');
+                    }
+                    resendBtn.disabled = false;
+                    resendBtn.innerHTML = '<i class="fas fa-redo-alt"></i> Didn\'t receive code? Resend';
+                });
             }
 
             form.addEventListener('submit', async function(e) {
@@ -669,7 +722,6 @@
                 }
 
                 try {
-                    // CORRECT ENDPOINT: /api/auth/student/login/
                     const response = await fetch(`${API_BASE}/auth/student/login/`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -680,34 +732,62 @@
                     const data = await response.json();
 
                     if (!response.ok) {
-                        if (data.non_field_errors) {
-                            const errorMsg = data.non_field_errors[0];
-                            // If backend tells us to request OTP, show OTP field
-                            if (errorMsg && (errorMsg.includes('OTP') || errorMsg.includes('verification'))) {
-                                otpGroup.style.display = 'block';
-                                showError('Verification code sent to your email. Please enter it below.');
-                                setLoading(false);
-                                return;
-                            } else {
-                                showError(errorMsg);
+                        // Check for OTP requirement
+                        let requiresOtp = false;
+                        let errorMsg = '';
+                        
+                        // Check data.requires_otp
+                        if (data.requires_otp === true) {
+                            requiresOtp = true;
+                            errorMsg = data.message || 'Verification code required';
+                        }
+                        
+                        // Check non_field_errors array
+                        if (data.non_field_errors && data.non_field_errors.length > 0) {
+                            const firstError = data.non_field_errors[0];
+                            if (typeof firstError === 'object' && firstError.requires_otp === true) {
+                                requiresOtp = true;
+                                errorMsg = firstError.message || 'Verification code sent to your email';
+                            } else if (typeof firstError === 'string') {
+                                errorMsg = firstError;
+                                if (errorMsg.toLowerCase().includes('otp') || errorMsg.toLowerCase().includes('verification')) {
+                                    requiresOtp = true;
+                                }
                             }
-                        } else if (data.email) {
-                            showError('Email: ' + (Array.isArray(data.email) ? data.email[0] : data.email));
-                        } else if (data.password) {
-                            showError('Password: ' + (Array.isArray(data.password) ? data.password[0] : data.password));
-                        } else if (data.detail) {
-                            showError(data.detail);
+                        }
+                        
+                        // Check message field
+                        if (data.message && !errorMsg) {
+                            errorMsg = data.message;
+                            if (errorMsg.toLowerCase().includes('otp') || errorMsg.toLowerCase().includes('verification')) {
+                                requiresOtp = true;
+                            }
+                        }
+                        
+                        if (requiresOtp) {
+                            otpGroup.style.display = 'block';
+                            showInfo('Verification code sent to your email. Please enter it below.');
+                            setLoading(false);
+                            return;
+                        }
+                        
+                        if (data.locked === true) {
+                            showError(data.message);
+                            setLoading(false);
+                            return;
+                        }
+                        
+                        if (data.attempts_left) {
+                            showError(`${errorMsg || 'Invalid email or password'} (${data.attempts_left} attempt(s) remaining)`);
                         } else {
-                            showError('Login failed. Please try again.');
+                            showError(errorMsg || 'Invalid email or password. Please try again.');
                         }
                         setLoading(false);
                         return;
                     }
 
-                    // Login successful
                     const { access, refresh, role, requires_2fa_setup } = data;
 
-                    // Store tokens
                     if (access) {
                         localStorage.setItem('accessToken', access);
                         sessionStorage.setItem('accessToken', access);
@@ -716,8 +796,6 @@
                         localStorage.setItem('refreshToken', refresh);
                         sessionStorage.setItem('refreshToken', refresh);
                     }
-                    
-                    // Store user role
                     if (role) {
                         localStorage.setItem('userRole', role);
                     }
@@ -766,22 +844,6 @@
                     } catch (e) {}
                 }
             });
-
-            // Demo credentials for local testing only
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                const demoDiv = document.createElement('div');
-                demoDiv.style.marginTop = '15px';
-                demoDiv.style.padding = '10px';
-                demoDiv.style.background = '#f0f9ff';
-                demoDiv.style.borderRadius = '8px';
-                demoDiv.style.fontSize = '0.9rem';
-                demoDiv.style.color = '#0369a1';
-                demoDiv.style.border = '1px solid #bae6fd';
-                demoDiv.innerHTML = '<strong>Demo Credentials:</strong><br>Email: student@kyu.ac.ke<br>Password: Demo@123';
-                document.querySelector('.login-card').appendChild(demoDiv);
-            }
-
-            console.log('Student login page loaded - API endpoint: /api/auth/student/login/');
         })();
     </script>
 </body>
