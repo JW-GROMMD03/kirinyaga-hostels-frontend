@@ -7,7 +7,6 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='white' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* KEEP YOUR EXISTING CSS - NO CHANGES */
         * {
             margin: 0;
             padding: 0;
@@ -42,6 +41,9 @@
             position: relative;
             z-index: 10;
             border-bottom: 3px solid #FFD700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .back-btn {
@@ -67,6 +69,24 @@
         .back-btn span {
             font-size: 1.4rem;
             line-height: 1;
+        }
+
+        .dark-mode-toggle {
+            background: rgba(0,103,71,0.1);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #006747;
+            transition: all 0.3s;
+        }
+
+        .dark-mode-toggle:hover {
+            background: #006747;
+            color: white;
+            transform: rotate(15deg);
         }
 
         .container {
@@ -174,7 +194,6 @@
             font-size: 0.95rem;
         }
 
-        /* OTP input group */
         .otp-group {
             display: flex;
             gap: 8px;
@@ -240,7 +259,6 @@
             text-decoration: none;
         }
 
-        /* OTP Field (hidden initially) */
         #otp-group {
             display: none;
             animation: slideDown 0.4s ease;
@@ -327,13 +345,11 @@
             font-weight: 500;
             display: none;
             border-left: 5px solid #c53030;
-            animation: shake 0.5s ease;
         }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-5px); }
-            40%, 80% { transform: translateX(5px); }
+        body.dark-mode .error-message {
+            background: #7f1a1a;
+            color: #fecaca;
         }
 
         .success-message {
@@ -348,6 +364,11 @@
             border-left: 5px solid #22543d;
         }
 
+        body.dark-mode .success-message {
+            background: #14532d;
+            color: #86efac;
+        }
+
         .info-message {
             background: #e6f7e6;
             color: #2e7d32;
@@ -356,6 +377,34 @@
             margin-bottom: 1.5rem;
             display: none;
             border-left: 5px solid #2e7d32;
+        }
+
+        body.dark-mode .info-message {
+            background: #14532d;
+            color: #86efac;
+        }
+
+        .rate-limit-message {
+            background: #fef3c7;
+            color: #b45309;
+            padding: 1rem;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            display: none;
+            text-align: center;
+            border-left: 5px solid #b45309;
+        }
+
+        body.dark-mode .rate-limit-message {
+            background: #78350f;
+            color: #fde047;
+        }
+
+        .countdown-timer {
+            font-size: 1.2rem;
+            font-weight: bold;
+            font-family: monospace;
+            margin-top: 0.5rem;
         }
 
         .signup-link {
@@ -415,6 +464,10 @@
             border-top: 3px solid #FFD700;
         }
 
+        body.dark-mode footer {
+            background: #0f172a;
+        }
+
         footer a {
             color: #FFD700;
             text-decoration: none;
@@ -447,6 +500,9 @@
         <a href="../index.html" class="back-btn">
             <span>←</span> Back to Home
         </a>
+        <button class="dark-mode-toggle" id="darkModeToggle">
+            <i class="fas fa-moon"></i>
+        </button>
     </div>
 
     <div class="container">
@@ -461,6 +517,7 @@
             <div id="error-message" class="error-message"></div>
             <div id="success-message" class="success-message"></div>
             <div id="info-message" class="info-message"></div>
+            <div id="rate-limit-message" class="rate-limit-message"></div>
 
             <form id="login-form">
                 <div class="form-group">
@@ -473,18 +530,17 @@
                     <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
                 </div>
 
-                <!-- OTP Field (hidden initially) -->
                 <div class="form-group" id="otp-group" style="display: none;">
-                    <label><i>🔑</i> Verification Code</label>
+                    <label><i>🔑</i> Verification Code <span id="otp-timer" style="font-size: 0.8rem;"></span></label>
                     <div class="otp-group">
-                        <input type="text" class="otp-input" id="otp1" maxlength="1" pattern="[0-9]" inputmode="numeric">
-                        <input type="text" class="otp-input" id="otp2" maxlength="1" pattern="[0-9]" inputmode="numeric">
-                        <input type="text" class="otp-input" id="otp3" maxlength="1" pattern="[0-9]" inputmode="numeric">
-                        <input type="text" class="otp-input" id="otp4" maxlength="1" pattern="[0-9]" inputmode="numeric">
-                        <input type="text" class="otp-input" id="otp5" maxlength="1" pattern="[0-9]" inputmode="numeric">
-                        <input type="text" class="otp-input" id="otp6" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                        <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                        <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                        <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                        <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                        <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                        <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
                     </div>
-                    <input type="hidden" id="otp" name="otp_token">
+                    <input type="hidden" id="otp">
                     <p style="font-size:0.9rem; color:#666; margin-top:0.5rem;">Check your email for the 6-digit code.</p>
                     <button type="button" id="resend-otp-btn" style="margin-top: 0.5rem; background: none; border: none; color: #006747; cursor: pointer;">
                         <i class="fas fa-redo-alt"></i> Didn't receive code? Resend
@@ -535,6 +591,25 @@
 
     <script>
         (function() {
+            function applyDarkMode() {
+                const savedTheme = localStorage.getItem('ownerTheme');
+                if (savedTheme === 'dark') {
+                    document.body.classList.add('dark-mode');
+                    const toggleBtn = document.getElementById('darkModeToggle');
+                    if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
+                }
+            }
+            applyDarkMode();
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'ownerTheme') applyDarkMode();
+            });
+            document.getElementById('darkModeToggle').addEventListener('click', () => {
+                const isDark = document.body.classList.toggle('dark-mode');
+                localStorage.setItem('ownerTheme', isDark ? 'dark' : 'light');
+                document.getElementById('darkModeToggle').innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            });
+
+            const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
             const form = document.getElementById('login-form');
             const emailInput = document.getElementById('email');
             const passwordInput = document.getElementById('password');
@@ -547,45 +622,61 @@
             const errorDiv = document.getElementById('error-message');
             const successDiv = document.getElementById('success-message');
             const infoDiv = document.getElementById('info-message');
+            const rateLimitDiv = document.getElementById('rate-limit-message');
             const resendBtn = document.getElementById('resend-otp-btn');
+            
+            let otpTimer = null;
+            let rateLimitTimer = null;
 
-            const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
-
-            function hideError() {
-                errorDiv.style.display = 'none';
-                errorDiv.textContent = '';
-            }
-
-            function showError(message) {
-                errorDiv.textContent = message;
+            function showError(msg) {
+                errorDiv.textContent = msg;
                 errorDiv.style.display = 'block';
                 successDiv.style.display = 'none';
                 infoDiv.style.display = 'none';
-                setTimeout(() => {
-                    if (errorDiv.style.display === 'block') {
-                        errorDiv.style.display = 'none';
-                    }
-                }, 5000);
+                rateLimitDiv.style.display = 'none';
+                setTimeout(() => errorDiv.style.display = 'none', 5000);
             }
 
-            function showSuccess(message) {
-                successDiv.textContent = message;
-                successDiv.style.display = 'block';
-                errorDiv.style.display = 'none';
-                infoDiv.style.display = 'none';
-                setTimeout(() => {
-                    if (successDiv.style.display === 'block') {
-                        successDiv.style.display = 'none';
-                    }
-                }, 3000);
-            }
-
-            function showInfo(message, isSuccess = false) {
-                infoDiv.innerHTML = `<i class="fas fa-${isSuccess ? 'check-circle' : 'info-circle'}"></i> ${message}`;
+            function showInfo(msg, isSuccess = false) {
+                infoDiv.innerHTML = `<i class="fas fa-${isSuccess ? 'check-circle' : 'info-circle'}"></i> ${msg}`;
                 infoDiv.style.display = 'block';
                 errorDiv.style.display = 'none';
                 successDiv.style.display = 'none';
+                rateLimitDiv.style.display = 'none';
                 setTimeout(() => infoDiv.style.display = 'none', 5000);
+            }
+
+            function showSuccess(msg) {
+                successDiv.textContent = msg;
+                successDiv.style.display = 'block';
+                errorDiv.style.display = 'none';
+                infoDiv.style.display = 'none';
+                rateLimitDiv.style.display = 'none';
+                setTimeout(() => successDiv.style.display = 'none', 3000);
+            }
+
+            function showRateLimit() {
+                rateLimitDiv.innerHTML = `<i class="fas fa-clock"></i> Too many login attempts. Please wait 5 minutes before trying again.<br><div class="countdown-timer" id="rate-countdown">5:00</div>`;
+                rateLimitDiv.style.display = 'block';
+                errorDiv.style.display = 'none';
+                infoDiv.style.display = 'none';
+                successDiv.style.display = 'none';
+                loginBtn.disabled = true;
+                
+                let remaining = 300;
+                if (rateLimitTimer) clearInterval(rateLimitTimer);
+                rateLimitTimer = setInterval(() => {
+                    if (remaining <= 0) {
+                        clearInterval(rateLimitTimer);
+                        rateLimitDiv.style.display = 'none';
+                        loginBtn.disabled = false;
+                    } else {
+                        const mins = Math.floor(remaining / 60);
+                        const secs = remaining % 60;
+                        document.getElementById('rate-countdown').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+                        remaining--;
+                    }
+                }, 1000);
             }
 
             function setLoading(isLoading) {
@@ -596,66 +687,52 @@
             }
 
             function getOtpToken() {
-                let token = '';
-                otpInputs.forEach(input => {
-                    token += input.value;
-                });
-                return token;
+                return Array.from(otpInputs).map(i => i.value).join('');
             }
 
             function clearOtp() {
-                otpInputs.forEach(input => {
-                    input.value = '';
-                });
+                otpInputs.forEach(i => i.value = '');
                 otpHidden.value = '';
             }
 
-            // OTP input navigation
-            otpInputs.forEach((input, index) => {
-                input.addEventListener('input', function(e) {
-                    this.value = this.value.replace(/[^0-9]/g, '');
-                    if (this.value.length === 1 && index < otpInputs.length - 1) {
-                        otpInputs[index + 1].focus();
+            function startOtpTimer() {
+                if (otpTimer) clearInterval(otpTimer);
+                let remaining = 600;
+                const timerEl = document.getElementById('otp-timer');
+                otpTimer = setInterval(() => {
+                    if (remaining <= 0) {
+                        clearInterval(otpTimer);
+                        timerEl.textContent = '';
+                        if (resendBtn) resendBtn.disabled = false;
+                    } else {
+                        const mins = Math.floor(remaining / 60);
+                        const secs = remaining % 60;
+                        timerEl.textContent = `(expires in ${mins}:${secs.toString().padStart(2, '0')})`;
+                        remaining--;
+                        if (resendBtn) resendBtn.disabled = true;
                     }
+                }, 1000);
+            }
+
+            otpInputs.forEach((input, idx) => {
+                input.addEventListener('input', (e) => {
+                    e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                    if (e.target.value && idx < 5) otpInputs[idx + 1].focus();
                     otpHidden.value = getOtpToken();
-                    if (getOtpToken().length === 6) {
-                        setTimeout(() => form.dispatchEvent(new Event('submit')), 100);
-                    }
+                    if (getOtpToken().length === 6) setTimeout(() => form.dispatchEvent(new Event('submit')), 100);
                 });
-
-                input.addEventListener('keydown', function(e) {
-                    if (e.key === 'Backspace' && !this.value && index > 0) {
-                        otpInputs[index - 1].focus();
-                    }
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && !e.target.value && idx > 0) otpInputs[idx - 1].focus();
                 });
-
-                input.addEventListener('paste', function(e) {
+                input.addEventListener('paste', (e) => {
                     e.preventDefault();
-                    const pasteData = e.clipboardData.getData('text').replace(/[^0-9]/g, '');
-                    if (pasteData.length >= 6) {
-                        for (let i = 0; i < 6; i++) {
-                            if (otpInputs[i]) {
-                                otpInputs[i].value = pasteData[i] || '';
-                            }
-                        }
-                        otpHidden.value = pasteData.substring(0, 6);
-                        otpInputs[5].focus();
-                        setTimeout(() => form.dispatchEvent(new Event('submit')), 100);
-                    }
+                    const paste = e.clipboardData.getData('text').replace(/[^0-9]/g, '');
+                    for (let i = 0; i < paste.length && i < 6; i++) otpInputs[i].value = paste[i];
+                    otpHidden.value = paste.substring(0, 6);
+                    if (paste.length >= 6) setTimeout(() => form.dispatchEvent(new Event('submit')), 100);
                 });
             });
 
-            emailInput.addEventListener('input', resetTwoFactor);
-            passwordInput.addEventListener('input', resetTwoFactor);
-
-            function resetTwoFactor() {
-                if (otpGroup.style.display === 'block') {
-                    otpGroup.style.display = 'none';
-                    clearOtp();
-                }
-            }
-
-            // Resend OTP
             if (resendBtn) {
                 resendBtn.addEventListener('click', async () => {
                     resendBtn.disabled = true;
@@ -668,6 +745,7 @@
                         });
                         if (res.ok) {
                             showInfo('New verification code sent to your email!', true);
+                            startOtpTimer();
                         } else {
                             showError('Failed to resend code. Please try again.');
                         }
@@ -675,11 +753,11 @@
                         showError('Network error. Please try again.');
                     }
                     resendBtn.disabled = false;
-                    resendBtn.innerHTML = '<i class="fas fa-redo-alt"></i> Didn\'t receive code? Resend';
+                    resendBtn.innerHTML = '<i class="fas fa-redo-alt"></i> Resend code';
                 });
             }
 
-            form.addEventListener('submit', async function(e) {
+            form.addEventListener('submit', async (e) => {
                 e.preventDefault();
 
                 const email = emailInput.value.trim();
@@ -692,80 +770,47 @@
                     return;
                 }
 
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(email)) {
-                    showError('Please enter a valid email address');
+                if (otpGroup.style.display === 'block' && otpToken.length !== 6) {
+                    showError('Please enter the 6-digit verification code');
                     return;
                 }
 
-                if (otpGroup.style.display === 'block') {
-                    if (otpToken.length !== 6) {
-                        showError('Please enter the 6-digit verification code');
-                        return;
-                    }
-                }
-
                 setLoading(true);
-                hideError();
-
-                const payload = {
-                    email: email,
-                    password: password
-                };
-
-                if (remember) {
-                    payload.remember = true;
-                }
-
-                if (otpGroup.style.display === 'block' && otpToken.length === 6) {
-                    payload.otp_token = otpToken;
-                }
+                const payload = { email, password, remember };
+                if (otpGroup.style.display === 'block' && otpToken.length === 6) payload.otp_token = otpToken;
 
                 try {
-                    const response = await fetch(`${API_BASE}/auth/student/login/`, {
+                    const res = await fetch(`${API_BASE}/auth/student/login/`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         credentials: 'include',
                         body: JSON.stringify(payload)
                     });
 
-                    const data = await response.json();
+                    // Handle rate limiting (429)
+                    if (res.status === 429) {
+                        showRateLimit();
+                        setLoading(false);
+                        return;
+                    }
 
-                    if (!response.ok) {
-                        // Check for OTP requirement
+                    const data = await res.json();
+
+                    if (!res.ok) {
                         let requiresOtp = false;
                         let errorMsg = '';
                         
-                        // Check data.requires_otp
-                        if (data.requires_otp === true) {
-                            requiresOtp = true;
-                            errorMsg = data.message || 'Verification code required';
-                        }
-                        
-                        // Check non_field_errors array
+                        if (data.requires_otp === true) requiresOtp = true;
                         if (data.non_field_errors && data.non_field_errors.length > 0) {
                             const firstError = data.non_field_errors[0];
-                            if (typeof firstError === 'object' && firstError.requires_otp === true) {
-                                requiresOtp = true;
-                                errorMsg = firstError.message || 'Verification code sent to your email';
-                            } else if (typeof firstError === 'string') {
-                                errorMsg = firstError;
-                                if (errorMsg.toLowerCase().includes('otp') || errorMsg.toLowerCase().includes('verification')) {
-                                    requiresOtp = true;
-                                }
-                            }
+                            if (typeof firstError === 'object' && firstError.requires_otp === true) requiresOtp = true;
+                            else if (typeof firstError === 'string') errorMsg = firstError;
                         }
-                        
-                        // Check message field
-                        if (data.message && !errorMsg) {
-                            errorMsg = data.message;
-                            if (errorMsg.toLowerCase().includes('otp') || errorMsg.toLowerCase().includes('verification')) {
-                                requiresOtp = true;
-                            }
-                        }
+                        if (data.message && !errorMsg) errorMsg = data.message;
                         
                         if (requiresOtp) {
                             otpGroup.style.display = 'block';
+                            startOtpTimer();
                             showInfo('Verification code sent to your email. Please enter it below.');
                             setLoading(false);
                             return;
@@ -777,72 +822,50 @@
                             return;
                         }
                         
-                        if (data.attempts_left) {
-                            showError(`${errorMsg || 'Invalid email or password'} (${data.attempts_left} attempt(s) remaining)`);
-                        } else {
-                            showError(errorMsg || 'Invalid email or password. Please try again.');
-                        }
+                        showError(errorMsg || 'Invalid email or password');
                         setLoading(false);
                         return;
                     }
 
-                    const { access, refresh, role, requires_2fa_setup } = data;
-
-                    if (access) {
-                        localStorage.setItem('accessToken', access);
-                        sessionStorage.setItem('accessToken', access);
+                    if (data.access) {
+                        localStorage.setItem('accessToken', data.access);
+                        sessionStorage.setItem('accessToken', data.access);
                     }
-                    if (refresh) {
-                        localStorage.setItem('refreshToken', refresh);
-                        sessionStorage.setItem('refreshToken', refresh);
+                    if (data.refresh) {
+                        localStorage.setItem('refreshToken', data.refresh);
+                        sessionStorage.setItem('refreshToken', data.refresh);
                     }
-                    if (role) {
-                        localStorage.setItem('userRole', role);
-                    }
+                    if (data.role) localStorage.setItem('userRole', data.role);
 
                     showSuccess('Login successful! Redirecting...');
-
-                    if (requires_2fa_setup) {
-                        setTimeout(() => {
-                            window.location.href = '2fa-setup.html';
-                        }, 1500);
-                        return;
-                    }
-
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 1500);
-
-                } catch (error) {
-                    console.error('Login error:', error);
-                    if (!navigator.onLine) {
-                        showError('You are offline. Please check your internet connection.');
-                    } else {
-                        showError('Network error. Unable to connect to server. Please try again.');
-                    }
+                    setTimeout(() => window.location.href = 'dashboard.html', 1500);
+                } catch (err) {
+                    console.error('Login error:', err);
+                    showError('Network error. Unable to connect to server.');
                     setLoading(false);
                 }
             });
 
-            // Remember me functionality
-            try {
-                const rememberedEmail = localStorage.getItem('rememberedEmail');
-                if (rememberedEmail) {
-                    emailInput.value = rememberedEmail;
-                    rememberCheck.checked = true;
+            emailInput.addEventListener('input', () => {
+                if (otpGroup.style.display === 'block') {
+                    otpGroup.style.display = 'none';
+                    clearOtp();
+                    if (otpTimer) clearInterval(otpTimer);
                 }
-            } catch (e) {}
+            });
+            passwordInput.addEventListener('input', () => {
+                if (otpGroup.style.display === 'block') {
+                    otpGroup.style.display = 'none';
+                    clearOtp();
+                    if (otpTimer) clearInterval(otpTimer);
+                }
+            });
 
-            form.addEventListener('submit', function() {
-                if (rememberCheck.checked) {
-                    try {
-                        localStorage.setItem('rememberedEmail', emailInput.value.trim());
-                    } catch (e) {}
-                } else {
-                    try {
-                        localStorage.removeItem('rememberedEmail');
-                    } catch (e) {}
-                }
+            const remembered = localStorage.getItem('rememberedStudentEmail');
+            if (remembered) { emailInput.value = remembered; rememberCheck.checked = true; }
+            form.addEventListener('submit', () => {
+                if (rememberCheck.checked) localStorage.setItem('rememberedStudentEmail', emailInput.value.trim());
+                else localStorage.removeItem('rememberedStudentEmail');
             });
         })();
     </script>
