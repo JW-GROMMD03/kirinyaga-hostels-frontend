@@ -426,6 +426,7 @@
                     const secs = remaining % 60;
                     timerEl.textContent = `(expires in ${mins}:${secs.toString().padStart(2, '0')})`;
                     remaining--;
+                    if (resendBtn) resendBtn.disabled = true;
                 }
             }, 1000);
         }
@@ -525,23 +526,24 @@
                 console.log('Response status:', res.status);
 
                 if (!res.ok) {
-                    // Check for OTP requirement in various response formats
+                    // CRITICAL FIX: Check for OTP requirement in the correct structure
                     let requiresOtp = false;
                     let errorMsg = '';
                     
-                    // Check if data has requires_otp flag
-                    if (data.requires_otp === true) {
-                        requiresOtp = true;
-                        errorMsg = data.message || 'Verification code required';
-                    }
-                    
-                    // Check non_field_errors
-                    if (data.non_field_errors && data.non_field_errors.length > 0) {
+                    // Check if non_field_errors exists and is an array
+                    if (data.non_field_errors && Array.isArray(data.non_field_errors) && data.non_field_errors.length > 0) {
                         const firstError = data.non_field_errors[0];
-                        if (typeof firstError === 'object' && firstError.requires_otp === true) {
-                            requiresOtp = true;
-                            errorMsg = firstError.message || 'Verification code sent';
-                        } else if (typeof firstError === 'string') {
+                        
+                        // If firstError is an object with requires_otp property
+                        if (typeof firstError === 'object' && firstError !== null) {
+                            // Check for requires_otp (could be string "True" or boolean true)
+                            if (firstError.requires_otp === true || firstError.requires_otp === "True") {
+                                requiresOtp = true;
+                                errorMsg = firstError.message || 'Verification code sent to your email';
+                            }
+                        } 
+                        // If firstError is a string
+                        else if (typeof firstError === 'string') {
                             errorMsg = firstError;
                             if (errorMsg.toLowerCase().includes('otp') || 
                                 errorMsg.toLowerCase().includes('verification') ||
@@ -551,19 +553,15 @@
                         }
                     }
                     
+                    // Also check if there's a direct requires_otp field
+                    if (data.requires_otp === true || data.requires_otp === "True") {
+                        requiresOtp = true;
+                        errorMsg = data.message || 'Verification code required';
+                    }
+                    
                     // Check message field
                     if (data.message && !errorMsg) {
                         errorMsg = data.message;
-                        if (errorMsg.toLowerCase().includes('otp') || 
-                            errorMsg.toLowerCase().includes('verification') ||
-                            errorMsg.toLowerCase().includes('code sent')) {
-                            requiresOtp = true;
-                        }
-                    }
-                    
-                    // Check error field
-                    if (data.error && !errorMsg) {
-                        errorMsg = data.error;
                         if (errorMsg.toLowerCase().includes('otp') || 
                             errorMsg.toLowerCase().includes('verification')) {
                             requiresOtp = true;
