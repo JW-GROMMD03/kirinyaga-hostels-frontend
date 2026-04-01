@@ -985,7 +985,7 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
     // API FETCH WRAPPER
     // ============================================
     async function apiFetch(url, options = {}) {
-        const currentToken = localStorage.getItem('token') || sessionStorage.getItem('token');
+        const currentToken = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
         if (!currentToken) { 
             window.location.href = 'login.html'; 
             return null; 
@@ -1017,7 +1017,7 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
         formData.append('avatar', file);
         
         try {
-            const currentToken = localStorage.getItem('token') || sessionStorage.getItem('token');
+            const currentToken = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
             const response = await fetch(`${API_BASE}/profile/avatar/`, {
                 method: 'POST',
                 headers: {
@@ -1045,7 +1045,7 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
     // ============================================
     // AUTHENTICATION CHECK
     // ============================================
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const token = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
     if (!token) { 
         window.location.href = 'login.html'; 
         return; 
@@ -1869,7 +1869,7 @@ window.verifyStudent = async function(id) {
         try {
             const data = await apiFetch('/impersonate/start/', { method: 'POST', body: JSON.stringify({ email, user_id: userId }) });
             if (data && data.access_token) {
-                const currentToken = localStorage.getItem('token') || sessionStorage.getItem('token');
+                const currentToken = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
                 sessionStorage.setItem('original_token', currentToken);
                 sessionStorage.setItem('token', data.access_token);
                 sessionStorage.setItem('impersonating', data.user_email);
