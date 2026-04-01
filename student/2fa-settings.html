@@ -5,51 +5,180 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2FA Settings - Kirinyaga Hostels</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* (same base styles as dashboard, plus specific for this page) */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
+
         :root {
             --kyu-green: #006747;
             --kyu-gold: #FFD700;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border-light: #e2e8f0;
+            --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --danger: #dc2626;
+            --success: #16a34a;
+            --warning: #ca8a04;
+            --info: #2563eb;
         }
+
+        body.dark-mode {
+            --kyu-green: #2ecc71;
+            --kyu-gold: #f1c40f;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --bg-light: #0f172a;
+            --bg-white: #1e293b;
+            --border-light: #334155;
+        }
+
         body {
-            background: linear-gradient(145deg, #0b3b2a 0%, #1a4f3a 100%);
+            background: var(--bg-light);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            transition: background 0.3s ease;
         }
-        .top-bar {
-            background: rgba(255,255,255,0.98);
-            backdrop-filter: blur(10px);
+
+        header {
+            background: var(--bg-white);
+            box-shadow: var(--shadow-sm);
             padding: 1rem 2rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             border-bottom: 3px solid var(--kyu-gold);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+        }
+
+        .logo img {
+            height: 50px;
+        }
+
+        .logo span {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--kyu-green);
+        }
+
+        .user-menu {
             display: flex;
             align-items: center;
             gap: 20px;
         }
-        .back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-            color: var(--kyu-green);
-            font-weight: 600;
-            padding: 8px 16px;
-            border-radius: 40px;
-            background: rgba(0,103,71,0.1);
+
+        .dark-mode-toggle {
+            background: var(--bg-light);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
             transition: all 0.3s;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .back-btn:hover {
+
+        .dark-mode-toggle:hover {
+            background: var(--border-light);
+            transform: rotate(15deg);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 5px 15px;
+            background: var(--bg-light);
+            border-radius: 40px;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
             background: var(--kyu-green);
             color: white;
-            transform: translateX(-5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
         }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-role {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .btn-logout {
+            padding: 0.6rem 1.2rem;
+            border: 2px solid var(--danger);
+            background: transparent;
+            color: var(--danger);
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-logout:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-back {
+            padding: 0.6rem 1.2rem;
+            border: 2px solid var(--kyu-green);
+            background: transparent;
+            color: var(--kyu-green);
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-back:hover {
+            background: var(--kyu-green);
+            color: white;
+        }
+
         .container {
             flex: 1;
             display: flex;
@@ -57,289 +186,622 @@
             align-items: center;
             padding: 2rem;
         }
+
         .settings-card {
-            background: white;
-            border-radius: 40px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
-            padding: 3rem;
+            background: var(--bg-white);
+            border-radius: 32px;
+            box-shadow: var(--shadow-md);
+            padding: 2.5rem;
             width: 100%;
-            max-width: 500px;
+            max-width: 550px;
+            transition: background 0.3s ease;
+            border: 1px solid var(--border-light);
         }
+
         h2 {
             color: var(--kyu-green);
+            font-size: 1.8rem;
             margin-bottom: 1.5rem;
             text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
+
         .info-box {
-            background: #e8f4fd;
-            border-left: 5px solid var(--kyu-gold);
+            background: rgba(0,103,71,0.1);
+            border-left: 4px solid var(--kyu-gold);
             padding: 1rem;
             border-radius: 16px;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-        .status-box {
+
+        .info-box i {
+            font-size: 1.5rem;
+            color: var(--kyu-gold);
+        }
+
+        .info-box p {
+            color: var(--text-secondary);
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        .status-card {
+            background: var(--bg-light);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1.5rem;
-            background: #f7fafc;
-            border-radius: 20px;
-            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+            border: 1px solid var(--border-light);
         }
+
         .status-label {
             font-weight: 600;
-            color: #333;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
+
         .status-value {
             font-weight: 700;
-            color: var(--kyu-green);
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
         }
+
+        .status-enabled {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-disabled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        body.dark-mode .status-enabled {
+            background: #14532d;
+            color: #86efac;
+        }
+
+        body.dark-mode .status-disabled {
+            background: #7f1a1a;
+            color: #fecaca;
+        }
+
         .btn {
-            background: var(--kyu-green);
-            color: white;
-            border: none;
             padding: 0.8rem 1.5rem;
             border-radius: 40px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
         }
-        .btn:hover {
+
+        .btn-primary {
+            background: var(--kyu-green);
+            color: white;
+        }
+
+        .btn-primary:hover {
             background: #004d33;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
         }
+
         .btn-danger {
-            background: #e53e3e;
+            background: var(--danger);
+            color: white;
         }
+
         .btn-danger:hover {
-            background: #c53030;
+            background: #b91c1c;
+            transform: translateY(-2px);
         }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--kyu-green);
+            color: var(--kyu-green);
+        }
+
+        .btn-outline:hover {
+            background: var(--kyu-green);
+            color: white;
+        }
+
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.2rem;
         }
+
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 600;
+            color: var(--text-primary);
         }
+
         .form-group input {
             width: 100%;
             padding: 1rem;
-            border: 2px solid #e2e8f0;
+            border: 2px solid var(--border-light);
             border-radius: 16px;
             font-size: 1rem;
-            letter-spacing: 2px;
+            background: var(--bg-white);
+            color: var(--text-primary);
             text-align: center;
+            letter-spacing: 4px;
+            font-family: monospace;
+            font-size: 1.2rem;
         }
+
         .form-group input:focus {
             outline: none;
             border-color: var(--kyu-green);
         }
+
+        .otp-section {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-light);
+        }
+
         .message {
             padding: 1rem;
             border-radius: 16px;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             display: none;
+            font-size: 0.95rem;
         }
+
         .message.success {
-            background: #c6f6d5;
-            color: #22543d;
-            border-left: 5px solid #22543d;
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
         }
+
         .message.error {
-            background: #fed7d7;
-            color: #c53030;
-            border-left: 5px solid #c53030;
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
         }
+
+        .message.info {
+            background: #dbeafe;
+            color: #1e40af;
+            border-left: 4px solid #3b82f6;
+        }
+
+        body.dark-mode .message.success {
+            background: #14532d;
+            color: #86efac;
+        }
+
+        body.dark-mode .message.error {
+            background: #7f1a1a;
+            color: #fecaca;
+        }
+
+        body.dark-mode .message.info {
+            background: #1e3a8a;
+            color: #93c5fd;
+        }
+
         .spinner {
-            display: none;
-            width: 40px;
-            height: 40px;
-            margin: 20px auto;
-            border: 4px solid rgba(0,103,71,0.2);
+            border: 4px solid rgba(0,103,71,0.1);
             border-left-color: var(--kyu-green);
             border-radius: 50%;
+            width: 40px;
+            height: 40px;
             animation: spin 1s linear infinite;
+            margin: 1rem auto;
+            display: none;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        footer {
+            background: #1e293b;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+            border-top: 3px solid var(--kyu-gold);
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .settings-card {
+                padding: 1.5rem;
+            }
+            .status-card {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="top-bar">
-        <a href="dashboard.html" class="back-btn"><span>←</span> Back to Dashboard</a>
-    </div>
+    <header>
+        <div class="logo" onclick="window.location.href='dashboard.html'">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
+            <span>Kirinyaga Hostels</span>
+        </div>
+        <div class="user-menu">
+            <button class="dark-mode-toggle" id="darkModeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+            <div class="user-info" id="profileBtn">
+                <div class="user-avatar" id="userAvatar">S</div>
+                <div class="user-details">
+                    <span class="user-name" id="userName">Student</span>
+                    <span class="user-role">Student</span>
+                </div>
+            </div>
+            <a href="dashboard.html" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Dashboard
+            </a>
+            <button class="btn-logout" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </header>
+
     <div class="container">
         <div class="settings-card">
-            <h2>Two‑Factor Authentication</h2>
+            <h2><i class="fas fa-shield-alt"></i> Two-Factor Authentication</h2>
+
             <div class="info-box">
-                <i>🔐</i> Add an extra layer of security to your account. When enabled, you'll need a 6‑digit code sent to your email in addition to your password.
+                <i class="fas fa-info-circle"></i>
+                <p>Add an extra layer of security to your account. When enabled, you'll need a 6-digit code sent to your email in addition to your password.</p>
             </div>
 
             <div id="message" class="message"></div>
 
-            <div class="status-box">
-                <span class="status-label">Current Status:</span>
-                <span class="status-value" id="statusText">Loading...</span>
+            <div class="status-card">
+                <div class="status-label">
+                    <i class="fas fa-lock"></i>
+                    Current Status:
+                </div>
+                <div class="status-value" id="statusText">Loading...</div>
             </div>
 
-            <div id="actionArea">
-                <!-- dynamic content based on current status -->
-            </div>
+            <div id="loadingSpinner" class="spinner"></div>
+            <div id="actionArea"></div>
         </div>
     </div>
 
-    <script>
-        (function() {
-            const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
-            const accessToken = sessionStorage.getItem('accessToken');
-            if (!accessToken) window.location.href = 'login.html';
+    <footer>
+        <p>© 2025 Kirinyaga University Hostels. All rights reserved.</p>
+    </footer>
 
+    <script>
+        const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
+        const token = sessionStorage.getItem('accessToken');
+        
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        // ==================== DARK MODE SYNC ====================
+        function applyDarkMode() {
+            const savedTheme = localStorage.getItem('studentTheme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                const toggleBtn = document.getElementById('darkModeToggle');
+                if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                document.body.classList.remove('dark-mode');
+                const toggleBtn = document.getElementById('darkModeToggle');
+                if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+        }
+        
+        applyDarkMode();
+        
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'studentTheme') applyDarkMode();
+        });
+
+        document.getElementById('darkModeToggle').addEventListener('click', () => {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('studentTheme', isDark ? 'dark' : 'light');
+            const toggleBtn = document.getElementById('darkModeToggle');
+            toggleBtn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+
+        // ==================== UI HELPERS ====================
+        function showMessage(text, type = 'info') {
             const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i> ${text}`;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function showLoading() {
+            document.getElementById('loadingSpinner').style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+        }
+
+        // ==================== API HELPER ====================
+        async function apiFetch(url, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${url}`, {
+                    ...options,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+
+                if (response.status === 401) {
+                    sessionStorage.removeItem('accessToken');
+                    window.location.href = 'login.html';
+                    return null;
+                }
+
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({}));
+                    throw new Error(error.message || error.detail || `HTTP ${response.status}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+
+        // ==================== LOAD PROFILE ====================
+        async function loadProfile() {
+            try {
+                const data = await apiFetch('/auth/profile/');
+                if (data) {
+                    document.getElementById('userName').textContent = data.full_name || 'Student';
+                    const initials = (data.full_name || 'S').split(' ').map(n => n[0]).join('').toUpperCase();
+                    document.getElementById('userAvatar').textContent = initials.slice(0, 2);
+                }
+            } catch (error) {
+                console.error('Failed to load profile:', error);
+            }
+        }
+
+        // ==================== LOAD 2FA STATUS ====================
+        async function load2FAStatus() {
             const statusSpan = document.getElementById('statusText');
             const actionArea = document.getElementById('actionArea');
-
-            async function fetchStatus() {
-                try {
-                    const res = await fetch(`${API_BASE}/2fa/status/`, {
-                        headers: { 'Authorization': `Bearer ${accessToken}` }
-                    });
-                    const data = await res.json();
-                    const isEnabled = data.is_2fa_enabled;
-                    statusSpan.textContent = isEnabled ? 'Enabled' : 'Disabled';
-                    renderAction(isEnabled);
-                } catch (e) {
-                    showMessage('Failed to load status', 'error');
-                }
+            
+            showLoading();
+            try {
+                // FIXED: Added /auth/ prefix
+                const data = await apiFetch('/auth/2fa/status/');
+                const isEnabled = data.is_2fa_enabled;
+                
+                statusSpan.textContent = isEnabled ? 'Enabled' : 'Disabled';
+                statusSpan.className = isEnabled ? 'status-value status-enabled' : 'status-value status-disabled';
+                
+                renderActionArea(isEnabled);
+            } catch (error) {
+                console.error('Failed to load 2FA status:', error);
+                statusSpan.textContent = 'Error';
+                statusSpan.className = 'status-value status-disabled';
+                actionArea.innerHTML = `
+                    <div class="message error" style="display: block;">
+                        <i class="fas fa-exclamation-circle"></i> Failed to load 2FA status. Please refresh the page.
+                    </div>
+                `;
+            } finally {
+                hideLoading();
             }
+        }
 
-            function showMessage(text, type) {
-                messageDiv.textContent = text;
-                messageDiv.className = `message ${type}`;
-                messageDiv.style.display = 'block';
-            }
-
-            function renderAction(isEnabled) {
-                if (isEnabled) {
-                    actionArea.innerHTML = `
-                        <p style="margin-bottom:1rem;">To disable 2FA, click below and enter the code sent to your email.</p>
-                        <button id="disableBtn" class="btn btn-danger">Disable 2FA</button>
-                        <div id="disableOtpSection" style="display:none; margin-top:1.5rem;">
-                            <div class="form-group">
-                                <label>Enter 6-digit code</label>
-                                <input type="text" id="otpCode" maxlength="6" pattern="[0-9]{6}" inputmode="numeric">
-                            </div>
-                            <button id="confirmDisableBtn" class="btn btn-danger">Confirm Disable</button>
+        function renderActionArea(isEnabled) {
+            const actionArea = document.getElementById('actionArea');
+            
+            if (isEnabled) {
+                actionArea.innerHTML = `
+                    <div style="margin-bottom: 1rem;">
+                        <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                            <i class="fas fa-check-circle" style="color: var(--success);"></i> Your account is protected with two-factor authentication.
+                        </p>
+                        <button id="disable2FABtn" class="btn btn-danger">
+                            <i class="fas fa-lock-open"></i> Disable 2FA
+                        </button>
+                    </div>
+                    <div id="disableOtpSection" style="display: none; margin-top: 1.5rem;">
+                        <div class="form-group">
+                            <label><i class="fas fa-key"></i> Enter 6-digit verification code</label>
+                            <input type="text" id="disableOtpCode" maxlength="6" pattern="[0-9]{6}" inputmode="numeric" placeholder="000000">
+                            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                                <i class="fas fa-envelope"></i> Check your email for the verification code
+                            </p>
                         </div>
-                    `;
-                    document.getElementById('disableBtn').addEventListener('click', requestDisable);
-                } else {
-                    actionArea.innerHTML = `
-                        <p style="margin-bottom:1rem;">Enable two-factor authentication to secure your account.</p>
-                        <button id="enableBtn" class="btn">Enable 2FA</button>
-                        <div id="enableOtpSection" style="display:none; margin-top:1.5rem;">
-                            <div class="form-group">
-                                <label>Enter 6-digit code</label>
-                                <input type="text" id="otpCode" maxlength="6" pattern="[0-9]{6}" inputmode="numeric">
-                            </div>
-                            <button id="confirmEnableBtn" class="btn">Confirm Enable</button>
+                        <div style="display: flex; gap: 1rem;">
+                            <button id="confirmDisableBtn" class="btn btn-danger">
+                                <i class="fas fa-check"></i> Confirm Disable
+                            </button>
+                            <button id="cancelDisableBtn" class="btn btn-outline">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
                         </div>
-                    `;
-                    document.getElementById('enableBtn').addEventListener('click', requestEnable);
-                }
+                    </div>
+                `;
+                
+                document.getElementById('disable2FABtn').addEventListener('click', requestDisable2FA);
+                document.getElementById('confirmDisableBtn')?.addEventListener('click', confirmDisable2FA);
+                document.getElementById('cancelDisableBtn')?.addEventListener('click', () => {
+                    document.getElementById('disableOtpSection').style.display = 'none';
+                    document.getElementById('disable2FABtn').style.display = 'block';
+                    document.getElementById('disableOtpCode').value = '';
+                });
+            } else {
+                actionArea.innerHTML = `
+                    <div style="margin-bottom: 1rem;">
+                        <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                            <i class="fas fa-exclamation-triangle" style="color: var(--warning);"></i> Your account is not protected with two-factor authentication.
+                        </p>
+                        <button id="enable2FABtn" class="btn btn-primary">
+                            <i class="fas fa-lock"></i> Enable 2FA
+                        </button>
+                    </div>
+                    <div id="enableOtpSection" style="display: none; margin-top: 1.5rem;">
+                        <div class="form-group">
+                            <label><i class="fas fa-key"></i> Enter 6-digit verification code</label>
+                            <input type="text" id="enableOtpCode" maxlength="6" pattern="[0-9]{6}" inputmode="numeric" placeholder="000000">
+                            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                                <i class="fas fa-envelope"></i> Check your email for the verification code
+                            </p>
+                        </div>
+                        <div style="display: flex; gap: 1rem;">
+                            <button id="confirmEnableBtn" class="btn btn-primary">
+                                <i class="fas fa-check"></i> Confirm Enable
+                            </button>
+                            <button id="cancelEnableBtn" class="btn btn-outline">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('enable2FABtn').addEventListener('click', requestEnable2FA);
+                document.getElementById('confirmEnableBtn')?.addEventListener('click', confirmEnable2FA);
+                document.getElementById('cancelEnableBtn')?.addEventListener('click', () => {
+                    document.getElementById('enableOtpSection').style.display = 'none';
+                    document.getElementById('enable2FABtn').style.display = 'block';
+                    document.getElementById('enableOtpCode').value = '';
+                });
             }
+        }
 
-            async function requestEnable() {
-                try {
-                    const res = await fetch(`${API_BASE}/2fa/enable-request/`, {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' }
-                    });
-                    const data = await res.json();
-                    if (res.ok) {
-                        showMessage('OTP sent to your email. Enter it below.', 'success');
-                        document.getElementById('enableBtn').style.display = 'none';
-                        document.getElementById('enableOtpSection').style.display = 'block';
-                        document.getElementById('confirmEnableBtn').addEventListener('click', confirmEnable);
-                    } else {
-                        showMessage(data.message || 'Failed to request OTP', 'error');
-                    }
-                } catch (e) {
-                    showMessage('Network error', 'error');
+        // ==================== ENABLE 2FA ====================
+        async function requestEnable2FA() {
+            showLoading();
+            try {
+                // FIXED: Added /auth/ prefix
+                const data = await apiFetch('/auth/2fa/enable-request/', { method: 'POST' });
+                if (data) {
+                    showMessage('Verification code sent to your email! Please enter it below.', 'success');
+                    document.getElementById('enable2FABtn').style.display = 'none';
+                    document.getElementById('enableOtpSection').style.display = 'block';
                 }
+            } catch (error) {
+                showMessage(error.message || 'Failed to request 2FA setup', 'error');
+            } finally {
+                hideLoading();
             }
+        }
 
-            async function confirmEnable() {
-                const otp = document.getElementById('otpCode').value.trim();
-                if (!otp || otp.length !== 6 || !/^\d+$/.test(otp)) {
-                    showMessage('Enter a valid 6-digit code', 'error');
-                    return;
-                }
-                try {
-                    const res = await fetch(`${API_BASE}/2fa/enable-confirm/`, {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ otp })
-                    });
-                    const data = await res.json();
-                    if (res.ok) {
-                        showMessage('2FA enabled successfully!', 'success');
-                        fetchStatus();
-                    } else {
-                        if (data.otp) showMessage(data.otp[0], 'error');
-                        else showMessage(data.message || 'Verification failed', 'error');
-                    }
-                } catch (e) {
-                    showMessage('Network error', 'error');
-                }
+        async function confirmEnable2FA() {
+            const otpCode = document.getElementById('enableOtpCode').value.trim();
+            if (!otpCode || otpCode.length !== 6 || !/^\d+$/.test(otpCode)) {
+                showMessage('Please enter a valid 6-digit code', 'error');
+                return;
             }
-
-            async function requestDisable() {
-                try {
-                    const res = await fetch(`${API_BASE}/2fa/disable-request/`, {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' }
-                    });
-                    const data = await res.json();
-                    if (res.ok) {
-                        showMessage('OTP sent to your email. Enter it below to confirm disable.', 'success');
-                        document.getElementById('disableBtn').style.display = 'none';
-                        document.getElementById('disableOtpSection').style.display = 'block';
-                        document.getElementById('confirmDisableBtn').addEventListener('click', confirmDisable);
-                    } else {
-                        showMessage(data.message || 'Failed to request OTP', 'error');
-                    }
-                } catch (e) {
-                    showMessage('Network error', 'error');
+            
+            showLoading();
+            try {
+                // FIXED: Added /auth/ prefix
+                const data = await apiFetch('/auth/2fa/enable-confirm/', {
+                    method: 'POST',
+                    body: JSON.stringify({ otp: otpCode })
+                });
+                if (data) {
+                    showMessage('2FA enabled successfully! Your account is now more secure.', 'success');
+                    load2FAStatus(); // Refresh status
                 }
+            } catch (error) {
+                showMessage(error.message || 'Failed to enable 2FA', 'error');
+            } finally {
+                hideLoading();
             }
+        }
 
-            async function confirmDisable() {
-                const otp = document.getElementById('otpCode').value.trim();
-                if (!otp || otp.length !== 6 || !/^\d+$/.test(otp)) {
-                    showMessage('Enter a valid 6-digit code', 'error');
-                    return;
+        // ==================== DISABLE 2FA ====================
+        async function requestDisable2FA() {
+            showLoading();
+            try {
+                // FIXED: Added /auth/ prefix
+                const data = await apiFetch('/auth/2fa/disable-request/', { method: 'POST' });
+                if (data) {
+                    showMessage('Verification code sent to your email! Please enter it to confirm disable.', 'info');
+                    document.getElementById('disable2FABtn').style.display = 'none';
+                    document.getElementById('disableOtpSection').style.display = 'block';
                 }
-                try {
-                    const res = await fetch(`${API_BASE}/2fa/disable-confirm/`, {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ otp })
-                    });
-                    const data = await res.json();
-                    if (res.ok) {
-                        showMessage('2FA disabled successfully!', 'success');
-                        fetchStatus();
-                    } else {
-                        if (data.otp) showMessage(data.otp[0], 'error');
-                        else showMessage(data.message || 'Verification failed', 'error');
-                    }
-                } catch (e) {
-                    showMessage('Network error', 'error');
-                }
+            } catch (error) {
+                showMessage(error.message || 'Failed to request 2FA disable', 'error');
+            } finally {
+                hideLoading();
             }
+        }
 
-            fetchStatus();
-        })();
+        async function confirmDisable2FA() {
+            const otpCode = document.getElementById('disableOtpCode').value.trim();
+            if (!otpCode || otpCode.length !== 6 || !/^\d+$/.test(otpCode)) {
+                showMessage('Please enter a valid 6-digit code', 'error');
+                return;
+            }
+            
+            showLoading();
+            try {
+                // FIXED: Added /auth/ prefix
+                const data = await apiFetch('/auth/2fa/disable-confirm/', {
+                    method: 'POST',
+                    body: JSON.stringify({ otp: otpCode })
+                });
+                if (data) {
+                    showMessage('2FA disabled successfully.', 'success');
+                    load2FAStatus(); // Refresh status
+                }
+            } catch (error) {
+                showMessage(error.message || 'Failed to disable 2FA', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // ==================== EVENT LISTENERS ====================
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            sessionStorage.removeItem('accessToken');
+            window.location.href = 'login.html';
+        });
+        
+        document.getElementById('profileBtn').addEventListener('click', () => {
+            window.location.href = 'profile.html';
+        });
+
+        // ==================== INITIALIZE ====================
+        async function init() {
+            await loadProfile();
+            await load2FAStatus();
+        }
+        
+        init();
     </script>
 </body>
 </html>
