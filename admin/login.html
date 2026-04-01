@@ -849,9 +849,11 @@
                             }
                         } else if (typeof firstError === 'string') {
                             errorMsg = firstError;
-                            if (errorMsg.toLowerCase().includes('otp') || 
-                                errorMsg.toLowerCase().includes('verification') ||
-                                errorMsg.toLowerCase().includes('code sent')) {
+                            // SAFE: Only call toLowerCase if it's a string
+                            const lowerMsg = errorMsg.toLowerCase();
+                            if (lowerMsg.includes('otp') || 
+                                lowerMsg.includes('verification') ||
+                                lowerMsg.includes('code sent')) {
                                 requiresOtp = true;
                             }
                         }
@@ -866,8 +868,12 @@
                     // Check message field safely
                     if (data.message && !errorMsg) {
                         errorMsg = safeGetErrorMessage(data.message);
-                        if (typeof errorMsg === 'string' && (errorMsg.toLowerCase().includes('otp') || errorMsg.toLowerCase().includes('verification'))) {
-                            requiresOtp = true;
+                        // SAFE: Check type before calling toLowerCase
+                        if (typeof errorMsg === 'string') {
+                            const lowerMsg = errorMsg.toLowerCase();
+                            if (lowerMsg.includes('otp') || lowerMsg.includes('verification')) {
+                                requiresOtp = true;
+                            }
                         }
                     }
                     
