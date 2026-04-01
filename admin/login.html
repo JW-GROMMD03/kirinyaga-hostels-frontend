@@ -849,7 +849,6 @@
                             }
                         } else if (typeof firstError === 'string') {
                             errorMsg = firstError;
-                            // SAFE: Only call toLowerCase if it's a string
                             const lowerMsg = errorMsg.toLowerCase();
                             if (lowerMsg.includes('otp') || 
                                 lowerMsg.includes('verification') ||
@@ -868,7 +867,6 @@
                     // Check message field safely
                     if (data.message && !errorMsg) {
                         errorMsg = safeGetErrorMessage(data.message);
-                        // SAFE: Check type before calling toLowerCase
                         if (typeof errorMsg === 'string') {
                             const lowerMsg = errorMsg.toLowerCase();
                             if (lowerMsg.includes('otp') || lowerMsg.includes('verification')) {
@@ -906,8 +904,10 @@
                     return;
                 }
 
-                // Login successful
+                // ==================== CRITICAL FIX ====================
+                // Store tokens with ADMIN role explicitly
                 if (data.access) {
+                    // Store access token
                     sessionStorage.setItem('accessToken', data.access);
                     if (remember.checked) {
                         localStorage.setItem('accessToken', data.access);
@@ -919,12 +919,31 @@
                         localStorage.setItem('refreshToken', data.refresh);
                     }
                 }
+                
+                // CRITICAL: Store user role as 'admin' for admin users
                 if (data.role) {
                     sessionStorage.setItem('userRole', data.role);
                     localStorage.setItem('userRole', data.role);
+                } else {
+                    // If role not in response, set as 'admin' for admin login
+                    sessionStorage.setItem('userRole', 'admin');
+                    localStorage.setItem('userRole', 'admin');
                 }
                 
-                showInfo('✅ Admin login successful! Redirecting to dashboard...', true);
+                // Also store the email for debugging
+                sessionStorage.setItem('userEmail', email.value);
+                localStorage.setItem('userEmail', email.value);
+                
+                console.log('Admin login successful. Stored tokens and role:', {
+                    accessToken: data.access ? 'stored' : 'missing',
+                    refreshToken: data.refresh ? 'stored' : 'missing',
+                    role: data.role || 'admin',
+                    remember: remember.checked
+                });
+                
+                showInfo('✅ Admin login successful! Redirecting to admin dashboard...', true);
+                
+                // Redirect to admin dashboard after a short delay
                 setTimeout(() => {
                     window.location.href = 'dashboard.html';
                 }, 1500);
