@@ -532,6 +532,18 @@
         let rateLimitTimer = null;
         let otpExpiryTime = null;
 
+        // Helper function to safely get string from error
+        function safeGetErrorMessage(error) {
+            if (typeof error === 'string') return error;
+            if (typeof error === 'object' && error !== null) {
+                if (error.message) return error.message;
+                if (error.error) return error.error;
+                if (error.detail) return error.detail;
+                return JSON.stringify(error);
+            }
+            return 'Unknown error occurred';
+        }
+
         function showError(message) {
             errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
             errorDiv.style.display = 'block';
@@ -630,7 +642,8 @@
                 } else {
                     const mins = Math.floor(remaining / 60);
                     const secs = remaining % 60;
-                    document.getElementById('rate-countdown').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+                    const countdownEl = document.getElementById('rate-countdown');
+                    if (countdownEl) countdownEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
                     remaining--;
                 }
             }, 1000);
@@ -672,12 +685,12 @@
                 
                 if (remainingSecs <= 0) {
                     clearInterval(otpTimer);
-                    timerElement.textContent = '';
+                    if (timerElement) timerElement.textContent = '';
                     if (resendBtn) resendBtn.style.display = 'inline-block';
                 } else {
                     const minutes = Math.floor(remainingSecs / 60);
                     const seconds = remainingSecs % 60;
-                    timerElement.textContent = `(expires in ${minutes}:${seconds.toString().padStart(2, '0')})`;
+                    if (timerElement) timerElement.textContent = `(expires in ${minutes}:${seconds.toString().padStart(2, '0')})`;
                     if (resendBtn) resendBtn.style.display = 'none';
                 }
             }
@@ -766,7 +779,6 @@
             });
         }
 
-        // Check internet connection
         function isOnline() {
             return navigator.onLine;
         }
@@ -774,7 +786,6 @@
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Check if online
             if (!isOnline()) {
                 showError('📡 No internet connection. Please check your network and try again.');
                 return;
@@ -798,7 +809,6 @@
             lockoutDiv.style.display = 'none';
             rateLimitDiv.style.display = 'none';
 
-            // Set timeout for slow connection
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 30000);
 
@@ -813,7 +823,6 @@
 
                 clearTimeout(timeoutId);
 
-                // Handle rate limiting (429)
                 if (res.status === 429) {
                     showRateLimit();
                     loginBtn.disabled = false;
@@ -825,24 +834,20 @@
                 console.log('Admin login response:', data);
 
                 if (!res.ok) {
-                    // CRITICAL FIX: Check for OTP requirement in the correct structure
                     let requiresOtp = false;
                     let errorMsg = '';
                     
-                    // Check non_field_errors array (this is where DRF puts the error)
+                    // Check non_field_errors array safely
                     if (data.non_field_errors && Array.isArray(data.non_field_errors) && data.non_field_errors.length > 0) {
                         const firstError = data.non_field_errors[0];
                         
-                        // If firstError is an object with requires_otp property
                         if (typeof firstError === 'object' && firstError !== null) {
-                            // Check for requires_otp (could be string "True" or boolean true)
+                            // Check for requires_otp flag
                             if (firstError.requires_otp === true || firstError.requires_otp === "True") {
                                 requiresOtp = true;
                                 errorMsg = firstError.message || 'Verification code sent to your email';
                             }
-                        } 
-                        // If firstError is a string
-                        else if (typeof firstError === 'string') {
+                        } else if (typeof firstError === 'string') {
                             errorMsg = firstError;
                             if (errorMsg.toLowerCase().includes('otp') || 
                                 errorMsg.toLowerCase().includes('verification') ||
@@ -852,17 +857,16 @@
                         }
                     }
                     
-                    // Also check if there's a direct requires_otp field
+                    // Check direct requires_otp field
                     if (data.requires_otp === true || data.requires_otp === "True") {
                         requiresOtp = true;
                         errorMsg = data.message || 'Verification code required';
                     }
                     
-                    // Check message field
+                    // Check message field safely
                     if (data.message && !errorMsg) {
-                        errorMsg = data.message;
-                        if (errorMsg.toLowerCase().includes('otp') || 
-                            errorMsg.toLowerCase().includes('verification')) {
+                        errorMsg = safeGetErrorMessage(data.message);
+                        if (typeof errorMsg === 'string' && (errorMsg.toLowerCase().includes('otp') || errorMsg.toLowerCase().includes('verification'))) {
                             requiresOtp = true;
                         }
                     }
@@ -887,9 +891,9 @@
                     // Show attempts warning
                     if (data.attempts_left) {
                         showAttemptsWarning(data.attempts_left);
-                        showError(`${errorMsg || 'Invalid email or password'} (${data.attempts_left} attempt(s) remaining)`);
+                        showError(`${safeGetErrorMessage(errorMsg) || 'Invalid email or password'} (${data.attempts_left} attempt(s) remaining)`);
                     } else {
-                        showError(errorMsg || '❌ Invalid email or password. Please try again.');
+                        showError(safeGetErrorMessage(errorMsg) || '❌ Invalid email or password. Please try again.');
                     }
                     loginBtn.disabled = false;
                     spinner.style.display = 'none';
