@@ -69,9 +69,6 @@
             color: white;
             transform: translateX(-5px);
         }
-        .back-btn span {
-            font-size: 1.4rem;
-        }
         .dark-mode-toggle {
             background: rgba(0,103,71,0.1);
             border: none;
@@ -165,10 +162,6 @@
             background: var(--bg-white);
             color: var(--text-primary);
         }
-        .otp-input:focus {
-            border-color: var(--kyu-green);
-            outline: none;
-        }
         .remember-forgot {
             display: flex;
             justify-content: space-between;
@@ -229,9 +222,28 @@
             margin-bottom: 1.5rem;
             display: none;
         }
+        .lockout-message {
+            background: #fef3c7;
+            color: #b45309;
+            padding: 1rem;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            display: none;
+            text-align: center;
+        }
+        .countdown-timer {
+            font-size: 1.5rem;
+            font-weight: bold;
+            font-family: monospace;
+            margin-top: 0.5rem;
+        }
         body.dark-mode .error-message {
             background: #7f1a1a;
             color: #fecaca;
+        }
+        body.dark-mode .lockout-message {
+            background: #78350f;
+            color: #fde047;
         }
         .signup-link {
             text-align: center;
@@ -252,6 +264,12 @@
         }
         body.dark-mode footer {
             background: #0f172a;
+        }
+        .attempts-warning {
+            font-size: 0.85rem;
+            color: var(--warning);
+            margin-top: 0.5rem;
+            display: none;
         }
     </style>
 </head>
@@ -275,6 +293,7 @@
             <div class="subtitle">Manage your hostels</div>
 
             <div id="error-message" class="error-message"></div>
+            <div id="lockout-message" class="lockout-message"></div>
 
             <form id="login-form">
                 <div class="form-group">
@@ -286,6 +305,8 @@
                     <label>Password</label>
                     <input type="password" id="password" required>
                 </div>
+
+                <div id="attempts-warning" class="attempts-warning"></div>
 
                 <!-- OTP Field (hidden initially) -->
                 <div class="form-group" id="otp-group" style="display: none;">
@@ -365,9 +386,98 @@
         const loginBtn = document.getElementById('login-btn');
         const spinner = document.getElementById('spinner');
         const errorDiv = document.getElementById('error-message');
+        const lockoutDiv = document.getElementById('lockout-message');
+        const attemptsWarning = document.getElementById('attempts-warning');
+        
+        let countdownInterval = null;
+
+        function hideError() {
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+        }
+
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            lockoutDiv.style.display = 'none';
+            setTimeout(() => {
+                if (errorDiv.style.display === 'block') {
+                    errorDiv.style.display = 'none';
+                }
+            }, 5000);
+        }
+
+        function showLockout(message, remainingSeconds) {
+            lockoutDiv.style.display = 'block';
+            errorDiv.style.display = 'none';
+            
+            if (countdownInterval) clearInterval(countdownInterval);
+            
+            const startTime = Date.now();
+            const endTime = startTime + (remainingSeconds * 1000);
+            
+            function updateCountdown() {
+                const now = Date.now();
+                const remaining = Math.max(0, Math.floor((endTime - now) / 1000));
+                
+                if (remaining <= 0) {
+                    clearInterval(countdownInterval);
+                    lockoutDiv.style.display = 'none';
+                    loginBtn.disabled = false;
+                    email.disabled = false;
+                    password.disabled = false;
+                    lockoutDiv.innerHTML = '';
+                    return;
+                }
+                
+                const hours = Math.floor(remaining / 3600);
+                const minutes = Math.floor((remaining % 3600) / 60);
+                const seconds = remaining % 60;
+                
+                let timeString = '';
+                if (hours > 0) {
+                    timeString = `${hours}h ${minutes}m ${seconds}s`;
+                } else if (minutes > 0) {
+                    timeString = `${minutes}m ${seconds}s`;
+                } else {
+                    timeString = `${seconds}s`;
+                }
+                
+                lockoutDiv.innerHTML = `
+                    <i class="fas fa-clock"></i> ${message}<br>
+                    <div class="countdown-timer">${timeString}</div>
+                `;
+            }
+            
+            updateCountdown();
+            countdownInterval = setInterval(updateCountdown, 1000);
+            
+            loginBtn.disabled = true;
+            email.disabled = true;
+            password.disabled = true;
+        }
+
+        function showAttemptsWarning(attemptsLeft) {
+            attemptsWarning.style.display = 'block';
+            if (attemptsLeft === 1) {
+                attemptsWarning.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Warning: 1 attempt remaining before account lockout for 30 minutes!`;
+                attemptsWarning.style.color = '#dc2626';
+            } else {
+                attemptsWarning.innerHTML = `<i class="fas fa-info-circle"></i> ${attemptsLeft} attempts remaining before lockout.`;
+                attemptsWarning.style.color = '#ca8a04';
+            }
+            setTimeout(() => {
+                attemptsWarning.style.display = 'none';
+            }, 5000);
+        }
 
         function getOtp() {
             return Array.from(otpInputs).map(i => i.value).join('');
+        }
+
+        function resetOtp() {
+            otpInputs.forEach(input => input.value = '');
+            otpHidden.value = '';
         }
 
         otpInputs.forEach((input, idx) => {
@@ -407,8 +517,7 @@
 
             if (otpGroup.style.display === 'block') {
                 if (getOtp().length !== 6) {
-                    errorDiv.textContent = 'Please enter the 6-digit verification code';
-                    errorDiv.style.display = 'block';
+                    showError('Please enter the 6-digit verification code');
                     return;
                 }
                 payload.otp_token = getOtp();
@@ -416,7 +525,7 @@
 
             loginBtn.disabled = true;
             spinner.style.display = 'block';
-            errorDiv.style.display = 'none';
+            hideError();
 
             try {
                 const res = await fetch(`${API_BASE}/auth/owner/login/`, {
@@ -429,28 +538,42 @@
                 const data = await res.json();
 
                 if (!res.ok) {
+                    // Check for lockout
+                    if (data.locked === true) {
+                        showLockout(data.message, data.remaining_seconds);
+                        loginBtn.disabled = false;
+                        spinner.style.display = 'none';
+                        return;
+                    }
+                    
+                    // Check for OTP requirement
+                    if (data.requires_otp) {
+                        otpGroup.style.display = 'block';
+                        showError(data.message);
+                        loginBtn.disabled = false;
+                        spinner.style.display = 'none';
+                        return;
+                    }
+                    
+                    // Show attempts warning
+                    if (data.attempts_left) {
+                        showAttemptsWarning(data.attempts_left);
+                    }
+                    
                     if (data.non_field_errors) {
                         const msg = data.non_field_errors[0];
                         if (msg && (msg.includes('OTP') || msg.includes('verification'))) {
                             otpGroup.style.display = 'block';
-                            errorDiv.textContent = 'Verification code sent to your email. Please enter it below.';
-                            errorDiv.style.display = 'block';
+                            showError('Verification code sent to your email. Please enter it below.');
                         } else {
-                            errorDiv.textContent = msg;
-                            errorDiv.style.display = 'block';
+                            showError(msg);
                         }
+                    } else if (data.message) {
+                        showError(data.message);
                     } else if (data.error) {
-                        errorDiv.textContent = data.error;
-                        errorDiv.style.display = 'block';
-                    } else if (data.email) {
-                        errorDiv.textContent = 'Email: ' + (Array.isArray(data.email) ? data.email[0] : data.email);
-                        errorDiv.style.display = 'block';
-                    } else if (data.password) {
-                        errorDiv.textContent = 'Password: ' + (Array.isArray(data.password) ? data.password[0] : data.password);
-                        errorDiv.style.display = 'block';
+                        showError(data.error);
                     } else {
-                        errorDiv.textContent = 'Login failed. Please try again.';
-                        errorDiv.style.display = 'block';
+                        showError('Login failed. Please try again.');
                     }
                     loginBtn.disabled = false;
                     spinner.style.display = 'none';
@@ -478,10 +601,24 @@
                 window.location.href = 'dashboard.html';
             } catch (err) {
                 console.error('Login error:', err);
-                errorDiv.textContent = 'Network error. Unable to connect to server. Please check your connection.';
-                errorDiv.style.display = 'block';
+                showError('Network error. Unable to connect to server. Please check your connection.');
                 loginBtn.disabled = false;
                 spinner.style.display = 'none';
+            }
+        });
+
+        // Reset OTP group when email or password changes
+        email.addEventListener('input', () => {
+            if (otpGroup.style.display === 'block') {
+                otpGroup.style.display = 'none';
+                resetOtp();
+            }
+        });
+        
+        password.addEventListener('input', () => {
+            if (otpGroup.style.display === 'block') {
+                otpGroup.style.display = 'none';
+                resetOtp();
             }
         });
     </script>
