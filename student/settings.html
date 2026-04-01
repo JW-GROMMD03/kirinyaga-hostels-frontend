@@ -5,40 +5,325 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings - Kirinyaga Hostels</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Roboto,sans-serif; }
-        :root { --kyu-green:#006747; --kyu-gold:#FFD700; }
-        body { background:#f8f9fa; }
-        header { background:white; box-shadow:0 4px 20px rgba(0,0,0,0.1); padding:1rem 2rem; display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid var(--kyu-gold); }
-        .logo { display:flex; align-items:center; gap:15px; }
-        .logo img { height:50px; }
-        .logo span { font-size:1.5rem; font-weight:700; color:var(--kyu-green); }
-        .container { max-width:600px; margin:2rem auto; padding:0 2rem; }
-        .settings-card { background:white; border-radius:30px; padding:2rem; box-shadow:0 10px 30px rgba(0,0,0,0.05); }
-        h1 { color:var(--kyu-green); margin-bottom:2rem; }
-        .form-group { margin-bottom:1.5rem; }
-        label { display:block; font-weight:600; margin-bottom:0.5rem; }
-        input { width:100%; padding:1rem; border:2px solid #e2e8f0; border-radius:16px; font-size:1rem; }
-        input:focus { outline:none; border-color:var(--kyu-green); }
-        .btn-save { background:var(--kyu-green); color:white; border:none; padding:1rem 2rem; border-radius:40px; font-size:1rem; font-weight:600; cursor:pointer; width:100%; }
-        .message { padding:1rem; border-radius:16px; margin-bottom:1.5rem; display:none; }
-        .message.success { background:#c6f6d5; color:#22543d; }
-        .message.error { background:#fed7d7; color:#c53030; }
-        footer { background:#1a2e3a; color:#e2e8f0; padding:2rem; text-align:center; margin-top:3rem; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        :root {
+            --kyu-green: #006747;
+            --kyu-gold: #FFD700;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border-light: #e2e8f0;
+            --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --danger: #dc2626;
+            --success: #16a34a;
+        }
+
+        body.dark-mode {
+            --kyu-green: #2ecc71;
+            --kyu-gold: #f1c40f;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --bg-light: #0f172a;
+            --bg-white: #1e293b;
+            --border-light: #334155;
+        }
+
+        body {
+            background: var(--bg-light);
+            min-height: 100vh;
+            transition: background 0.3s ease;
+        }
+
+        header {
+            background: var(--bg-white);
+            box-shadow: var(--shadow-sm);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--kyu-gold);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+        }
+
+        .logo img {
+            height: 50px;
+        }
+
+        .logo span {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--kyu-green);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .dark-mode-toggle {
+            background: var(--bg-light);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dark-mode-toggle:hover {
+            background: var(--border-light);
+            transform: rotate(15deg);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 5px 15px;
+            background: var(--bg-light);
+            border-radius: 40px;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--kyu-green);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-role {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .btn-logout {
+            padding: 0.6rem 1.2rem;
+            border: 2px solid var(--danger);
+            background: transparent;
+            color: var(--danger);
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-logout:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-back {
+            padding: 0.6rem 1.2rem;
+            border: 2px solid var(--kyu-green);
+            background: transparent;
+            color: var(--kyu-green);
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-back:hover {
+            background: var(--kyu-green);
+            color: white;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .settings-card {
+            background: var(--bg-white);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        h1 {
+            color: var(--kyu-green);
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid var(--border-light);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: var(--bg-white);
+            color: var(--text-primary);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--kyu-green);
+        }
+
+        input:disabled {
+            background: var(--bg-light);
+            cursor: not-allowed;
+        }
+
+        .btn-save {
+            background: var(--kyu-green);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .btn-save:hover {
+            background: #004d33;
+            transform: translateY(-2px);
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .message.success {
+            background: #c6f6d5;
+            color: #22543d;
+            border-left: 4px solid #22543d;
+        }
+
+        .message.error {
+            background: #fed7d7;
+            color: #c53030;
+            border-left: 4px solid #c53030;
+        }
+
+        body.dark-mode .message.success {
+            background: #14532d;
+            color: #86efac;
+        }
+
+        body.dark-mode .message.error {
+            background: #7f1a1a;
+            color: #fecaca;
+        }
+
+        hr {
+            margin: 2rem 0;
+            border-color: var(--border-light);
+        }
+
+        footer {
+            background: #1e293b;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+            border-top: 3px solid var(--kyu-gold);
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .settings-card {
+                padding: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body>
     <header>
-        <div class="logo">
+        <div class="logo" onclick="window.location.href='dashboard.html'">
             <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
             <span>Kirinyaga Hostels</span>
         </div>
-        <a href="dashboard.html" style="color:var(--kyu-green); text-decoration:none;">← Back to Dashboard</a>
+        <div class="user-menu">
+            <button class="dark-mode-toggle" id="darkModeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+            <a href="dashboard.html" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Dashboard
+            </a>
+            <button class="btn-logout" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
     </header>
+
     <div class="container">
         <div class="settings-card">
-            <h1>Account Settings</h1>
+            <h1><i class="fas fa-cog"></i> Account Settings</h1>
+            
             <div id="message" class="message"></div>
+            
             <form id="profileForm">
                 <div class="form-group">
                     <label>Full Name</label>
@@ -46,7 +331,7 @@
                 </div>
                 <div class="form-group">
                     <label>Email</label>
-                    <input type="email" id="email" readonly disabled>
+                    <input type="email" id="email" disabled>
                 </div>
                 <div class="form-group">
                     <label>Phone Number</label>
@@ -54,13 +339,15 @@
                 </div>
                 <div class="form-group">
                     <label>Registration Number</label>
-                    <input type="text" id="regNumber" readonly disabled>
+                    <input type="text" id="regNumber" disabled>
                 </div>
                 <button type="submit" class="btn-save">Update Profile</button>
             </form>
-            <hr style="margin:2rem 0;">
-            <h2>Change Password</h2>
-            <form id="passwordForm">
+            
+            <hr>
+            
+            <h2><i class="fas fa-key"></i> Change Password</h2>
+            <form id="passwordForm" style="margin-top: 1rem;">
                 <div class="form-group">
                     <label>Current Password</label>
                     <input type="password" id="currentPassword" required>
@@ -77,99 +364,174 @@
             </form>
         </div>
     </div>
+
     <footer>
-        <p>© 2025 Kirinyaga University Hostels</p>
+        <p>© 2025 Kirinyaga University Hostels. All rights reserved.</p>
     </footer>
+
     <script>
-        (function() {
-            const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
-            const accessToken = sessionStorage.getItem('accessToken');
-            if (!accessToken) window.location.href = 'login.html';
+        const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
+        const token = sessionStorage.getItem('accessToken');
+        
+        if (!token) {
+            window.location.href = 'login.html';
+        }
 
+        // ==================== DARK MODE SYNC ====================
+        function applyDarkMode() {
+            const savedTheme = localStorage.getItem('studentTheme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                const toggleBtn = document.getElementById('darkModeToggle');
+                if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                document.body.classList.remove('dark-mode');
+                const toggleBtn = document.getElementById('darkModeToggle');
+                if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+        }
+        
+        applyDarkMode();
+        
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'studentTheme') applyDarkMode();
+        });
+
+        document.getElementById('darkModeToggle').addEventListener('click', () => {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('studentTheme', isDark ? 'dark' : 'light');
+            const toggleBtn = document.getElementById('darkModeToggle');
+            toggleBtn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+
+        // ==================== API HELPER ====================
+        async function apiFetch(url, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${url}`, {
+                    ...options,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+
+                if (response.status === 401) {
+                    sessionStorage.removeItem('accessToken');
+                    window.location.href = 'login.html';
+                    return null;
+                }
+
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({}));
+                    throw new Error(error.message || error.detail || `HTTP ${response.status}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+
+        function showMessage(text, type) {
             const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${text}`;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
 
-            function showMessage(text, type) {
-                messageDiv.textContent = text;
-                messageDiv.className = `message ${type}`;
-                messageDiv.style.display = 'block';
-                setTimeout(() => messageDiv.style.display = 'none', 5000);
-            }
-
-            // Load profile
-            async function loadProfile() {
-                try {
-                    const res = await fetch(`${API_BASE}/auth/profile/`, {
-                        headers: { 'Authorization': `Bearer ${accessToken}` }
-                    });
-                    const data = await res.json();
-                    document.getElementById('fullName').value = data.full_name;
-                    document.getElementById('email').value = data.email;
+        // ==================== LOAD PROFILE ====================
+        async function loadProfile() {
+            try {
+                const data = await apiFetch('/auth/profile/');
+                if (data) {
+                    document.getElementById('fullName').value = data.full_name || '';
+                    document.getElementById('email').value = data.email || '';
+                    
                     if (data.student_profile) {
-                        document.getElementById('phone').value = data.student_profile.phone_number;
-                        document.getElementById('regNumber').value = data.student_profile.registration_number;
+                        document.getElementById('phone').value = data.student_profile.phone_number || '';
+                        document.getElementById('regNumber').value = data.student_profile.registration_number || '';
                     }
-                } catch (e) {
-                    showMessage('Failed to load profile', 'error');
                 }
+            } catch (error) {
+                console.error('Failed to load profile:', error);
+                showMessage('Failed to load profile', 'error');
             }
-            loadProfile();
+        }
 
-            // Update profile
-            document.getElementById('profileForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const fullName = document.getElementById('fullName').value;
-                const phone = document.getElementById('phone').value;
-                try {
-                    const res = await fetch(`${API_BASE}/auth/profile/`, {
-                        method: 'PUT',
-                        headers: {
-                            'Authorization': `Bearer ${accessToken}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ full_name: fullName, phone_number: phone })
-                    });
-                    if (res.ok) {
-                        showMessage('Profile updated successfully', 'success');
-                    } else {
-                        const err = await res.json();
-                        showMessage('Error: ' + (err.detail || 'Update failed'), 'error');
-                    }
-                } catch (e) {
-                    showMessage('Network error', 'error');
+        // ==================== UPDATE PROFILE ====================
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const fullName = document.getElementById('fullName').value;
+            const phone = document.getElementById('phone').value;
+            
+            try {
+                const result = await apiFetch('/auth/profile/', {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        full_name: fullName,
+                        phone_number: phone
+                    })
+                });
+                
+                if (result) {
+                    showMessage('Profile updated successfully!', 'success');
+                    loadProfile();
                 }
-            });
+            } catch (error) {
+                showMessage(error.message || 'Failed to update profile', 'error');
+            }
+        });
 
-            // Change password
-            document.getElementById('passwordForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const current = document.getElementById('currentPassword').value;
-                const newPass = document.getElementById('newPassword').value;
-                const confirm = document.getElementById('confirmPassword').value;
-                if (newPass !== confirm) {
-                    showMessage('New passwords do not match', 'error');
-                    return;
+        // ==================== CHANGE PASSWORD ====================
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (newPassword !== confirmPassword) {
+                showMessage('New passwords do not match', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 8) {
+                showMessage('Password must be at least 8 characters', 'error');
+                return;
+            }
+            
+            try {
+                const result = await apiFetch('/auth/change-password/', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        old_password: currentPassword,
+                        new_password: newPassword
+                    })
+                });
+                
+                if (result) {
+                    showMessage('Password changed successfully!', 'success');
+                    document.getElementById('passwordForm').reset();
                 }
-                try {
-                    const res = await fetch(`${API_BASE}/auth/change-password/`, {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${accessToken}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ old_password: current, new_password: newPass })
-                    });
-                    if (res.ok) {
-                        showMessage('Password changed successfully', 'success');
-                        document.getElementById('passwordForm').reset();
-                    } else {
-                        const err = await res.json();
-                        showMessage('Error: ' + (err.old_password || err.new_password || 'Change failed'), 'error');
-                    }
-                } catch (e) {
-                    showMessage('Network error', 'error');
-                }
-            });
-        })();
+            } catch (error) {
+                showMessage(error.message || 'Failed to change password', 'error');
+            }
+        });
+
+        // ==================== LOGOUT ====================
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            sessionStorage.removeItem('accessToken');
+            window.location.href = 'login.html';
+        });
+
+        // Initialize
+        loadProfile();
     </script>
 </body>
 </html>

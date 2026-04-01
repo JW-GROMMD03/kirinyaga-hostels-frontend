@@ -5,52 +5,386 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Roommate Finder - Kirinyaga Hostels</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* (similar styling) */
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Roboto,sans-serif; }
-        :root { --kyu-green:#006747; --kyu-gold:#FFD700; }
-        body { background:#f8f9fa; }
-        header { background:white; box-shadow:0 4px 20px rgba(0,0,0,0.1); padding:1rem 2rem; display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid var(--kyu-gold); }
-        .logo { display:flex; align-items:center; gap:15px; }
-        .logo img { height:50px; }
-        .logo span { font-size:1.5rem; font-weight:700; color:var(--kyu-green); }
-        .container { max-width:1200px; margin:2rem auto; padding:0 2rem; }
-        h1, h2 { color:var(--kyu-green); margin-bottom:1rem; }
-        .form-section, .ads-section { background:white; border-radius:30px; padding:2rem; box-shadow:0 10px 30px rgba(0,0,0,0.05); margin-bottom:2rem; }
-        .form-group { margin-bottom:1.5rem; }
-        label { display:block; font-weight:600; margin-bottom:0.5rem; }
-        input, select, textarea { width:100%; padding:1rem; border:2px solid #e2e8f0; border-radius:16px; font-size:1rem; }
-        input:focus, select:focus, textarea:focus { outline:none; border-color:var(--kyu-green); }
-        .photo-inputs { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:1rem; }
-        .amenities-checkboxes { display:flex; flex-wrap:wrap; gap:1rem; margin-top:0.5rem; }
-        .amenity-check { display:flex; align-items:center; gap:0.3rem; }
-        .btn-submit { background:var(--kyu-green); color:white; border:none; padding:1rem 2rem; border-radius:40px; font-size:1rem; font-weight:600; cursor:pointer; }
-        .ad-card { border:1px solid #e2e8f0; border-radius:20px; padding:1.5rem; margin-bottom:1.5rem; }
-        .ad-photos { display:flex; gap:1rem; flex-wrap:wrap; margin:1rem 0; }
-        .ad-photo { width:100px; height:100px; object-fit:cover; border-radius:10px; }
-        .contact-info { background:#f1f5f9; padding:1rem; border-radius:16px; margin:1rem 0; }
-        .btn-report { background:#e53e3e; color:white; border:none; padding:0.5rem 1rem; border-radius:30px; cursor:pointer; }
-        .report-section { margin-top:1rem; }
-        textarea.report-reason { width:100%; padding:0.5rem; border:1px solid #ccc; border-radius:8px; }
-        .spinner { display:none; border:4px solid rgba(0,0,0,0.1); border-left-color:var(--kyu-green); border-radius:50%; width:40px; height:40px; animation:spin 1s linear infinite; margin:2rem auto; }
-        @keyframes spin { to { transform:rotate(360deg); } }
-        footer { background:#1a2e3a; color:#e2e8f0; padding:2rem; text-align:center; margin-top:3rem; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        :root {
+            --kyu-green: #006747;
+            --kyu-gold: #FFD700;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border-light: #e2e8f0;
+            --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --danger: #dc2626;
+            --success: #16a34a;
+        }
+
+        body.dark-mode {
+            --kyu-green: #2ecc71;
+            --kyu-gold: #f1c40f;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --bg-light: #0f172a;
+            --bg-white: #1e293b;
+            --border-light: #334155;
+        }
+
+        body {
+            background: var(--bg-light);
+            min-height: 100vh;
+            transition: background 0.3s ease;
+        }
+
+        header {
+            background: var(--bg-white);
+            box-shadow: var(--shadow-sm);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--kyu-gold);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+        }
+
+        .logo img {
+            height: 50px;
+        }
+
+        .logo span {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--kyu-green);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .dark-mode-toggle {
+            background: var(--bg-light);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dark-mode-toggle:hover {
+            background: var(--border-light);
+            transform: rotate(15deg);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 5px 15px;
+            background: var(--bg-light);
+            border-radius: 40px;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--kyu-green);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-role {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .btn-logout {
+            padding: 0.6rem 1.2rem;
+            border: 2px solid var(--danger);
+            background: transparent;
+            color: var(--danger);
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-logout:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-back {
+            padding: 0.6rem 1.2rem;
+            border: 2px solid var(--kyu-green);
+            background: transparent;
+            color: var(--kyu-green);
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-back:hover {
+            background: var(--kyu-green);
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        h1, h2 {
+            color: var(--kyu-green);
+            margin-bottom: 1rem;
+        }
+
+        .form-section, .ads-section {
+            background: var(--bg-white);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid var(--border-light);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: var(--bg-white);
+            color: var(--text-primary);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--kyu-green);
+        }
+
+        .photo-inputs {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .amenities-checkboxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .amenity-check {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .btn-submit {
+            background: var(--kyu-green);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-submit:hover {
+            background: #004d33;
+            transform: translateY(-2px);
+        }
+
+        .ad-card {
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .ad-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .ad-photos {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+
+        .ad-photo {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .contact-info {
+            background: var(--bg-light);
+            padding: 1rem;
+            border-radius: 16px;
+            margin: 1rem 0;
+        }
+
+        .btn-report {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-report:hover {
+            background: #b91c1c;
+        }
+
+        .report-section {
+            margin-top: 1rem;
+            display: none;
+        }
+
+        textarea.report-reason {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0,103,71,0.1);
+            border-left-color: var(--kyu-green);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        footer {
+            background: #1e293b;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+            border-top: 3px solid var(--kyu-gold);
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .photo-inputs {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
     <header>
-        <div class="logo">
+        <div class="logo" onclick="window.location.href='dashboard.html'">
             <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
             <span>Kirinyaga Hostels</span>
         </div>
-        <a href="dashboard.html" style="color:var(--kyu-green); text-decoration:none;">← Back to Dashboard</a>
+        <div class="user-menu">
+            <button class="dark-mode-toggle" id="darkModeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+            <div class="user-info" id="profileBtn">
+                <div class="user-avatar" id="userAvatar">S</div>
+                <div class="user-details">
+                    <span class="user-name" id="userName">Student</span>
+                    <span class="user-role">Student</span>
+                </div>
+            </div>
+            <a href="dashboard.html" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Dashboard
+            </a>
+            <button class="btn-logout" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
     </header>
+
     <div class="container">
-        <h1>Roommate Finder</h1>
+        <h1><i class="fas fa-users"></i> Roommate Finder</h1>
 
         <!-- Post an Ad Form -->
         <div class="form-section">
-            <h2>Post a Roommate Wanted Ad</h2>
+            <h2><i class="fas fa-plus-circle"></i> Post a Roommate Wanted Ad</h2>
             <form id="adForm" enctype="multipart/form-data">
                 <div class="form-group">
                     <label>Hostel Name / Desired Hostel</label>
@@ -72,7 +406,7 @@
                 </div>
                 <div class="form-group">
                     <label>Description (optional)</label>
-                    <textarea id="description" rows="3"></textarea>
+                    <textarea id="description" rows="3" placeholder="Tell potential roommates about yourself, habits, preferences..."></textarea>
                 </div>
                 <div class="form-group">
                     <label>Amenities (select all that apply)</label>
@@ -97,179 +431,255 @@
 
         <!-- List of Ads -->
         <div class="ads-section">
-            <h2>Current Roommate Wanted Ads</h2>
+            <h2><i class="fas fa-list"></i> Current Roommate Wanted Ads</h2>
             <div id="adsList"></div>
             <div class="spinner" id="adsSpinner"></div>
         </div>
     </div>
 
     <footer>
-        <p>© 2025 Kirinyaga University Hostels</p>
+        <p>© 2025 Kirinyaga University Hostels. All rights reserved.</p>
     </footer>
 
     <script>
-        (function() {
-            const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
-            const accessToken = sessionStorage.getItem('accessToken');
-            if (!accessToken) window.location.href = 'login.html';
+        const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
+        const token = sessionStorage.getItem('accessToken');
+        
+        if (!token) {
+            window.location.href = 'login.html';
+        }
 
-            const amenitiesListDiv = document.getElementById('amenitiesList');
-            const adsListDiv = document.getElementById('adsList');
+        // ==================== DARK MODE SYNC ====================
+        function applyDarkMode() {
+            const savedTheme = localStorage.getItem('studentTheme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                const toggleBtn = document.getElementById('darkModeToggle');
+                if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                document.body.classList.remove('dark-mode');
+                const toggleBtn = document.getElementById('darkModeToggle');
+                if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+        }
+        
+        applyDarkMode();
+        
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'studentTheme') applyDarkMode();
+        });
+
+        document.getElementById('darkModeToggle').addEventListener('click', () => {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('studentTheme', isDark ? 'dark' : 'light');
+            const toggleBtn = document.getElementById('darkModeToggle');
+            toggleBtn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+
+        // ==================== LOAD PROFILE ====================
+        async function loadProfile() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/profile/`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('userName').textContent = data.full_name || 'Student';
+                    const initials = (data.full_name || 'S').split(' ').map(n => n[0]).join('').toUpperCase();
+                    document.getElementById('userAvatar').textContent = initials.slice(0, 2);
+                }
+            } catch (error) {
+                console.error('Failed to load profile:', error);
+            }
+        }
+
+        // ==================== LOAD AMENITIES ====================
+        async function loadAmenities() {
+            try {
+                const res = await fetch(`${API_BASE}/hostels/amenities/`);
+                const amenities = await res.json();
+                let html = '';
+                amenities.forEach(a => {
+                    html += `<label class="amenity-check">
+                        <input type="checkbox" value="${a.id}" class="amenity-checkbox"> ${a.name}
+                    </label>`;
+                });
+                document.getElementById('amenitiesList').innerHTML = html;
+            } catch (e) {
+                console.error('Failed to load amenities', e);
+            }
+        }
+
+        // ==================== LOAD ADS ====================
+        async function loadAds() {
             const adsSpinner = document.getElementById('adsSpinner');
-            const adForm = document.getElementById('adForm');
-
-            // Load amenities for checkboxes
-            async function loadAmenities() {
-                try {
-                    const res = await fetch(`${API_BASE}/hostels/amenities/`);
-                    const amenities = await res.json();
-                    let html = '';
-                    amenities.forEach(a => {
-                        html += `<label class="amenity-check">
-                            <input type="checkbox" value="${a.id}" class="amenity-checkbox"> ${a.name}
-                        </label>`;
-                    });
-                    amenitiesListDiv.innerHTML = html;
-                } catch (e) {
-                    console.error('Failed to load amenities', e);
+            const adsListDiv = document.getElementById('adsList');
+            adsSpinner.style.display = 'block';
+            try {
+                const res = await fetch(`${API_BASE}/roommate/`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const ads = await res.json();
+                adsSpinner.style.display = 'none';
+                
+                if (ads.length === 0) {
+                    adsListDiv.innerHTML = '<p style="text-align: center; padding: 2rem;">No ads yet. Be the first to post!</p>';
+                    return;
                 }
-            }
-            loadAmenities();
-
-            // Load ads
-            async function loadAds() {
-                adsSpinner.style.display = 'block';
-                try {
-                    const res = await fetch(`${API_BASE}/roommate/`);
-                    const ads = await res.json();
-                    adsSpinner.style.display = 'none';
-                    if (ads.length === 0) {
-                        adsListDiv.innerHTML = '<p>No ads yet. Be the first to post!</p>';
-                        return;
+                
+                let html = '';
+                ads.forEach(ad => {
+                    let photosHtml = '';
+                    if (ad.photo_urls && ad.photo_urls.length) {
+                        photosHtml = '<div class="ad-photos">';
+                        ad.photo_urls.forEach(url => {
+                            photosHtml += `<img src="${url}" class="ad-photo" onerror="this.src='https://placehold.co/100x100/006747/white?text=No+Image'">`;
+                        });
+                        photosHtml += '</div>';
                     }
-                    let html = '';
-                    ads.forEach(ad => {
-                        // Format photos
-                        let photosHtml = '';
-                        if (ad.photo_urls && ad.photo_urls.length) {
-                            photosHtml = '<div class="ad-photos">';
-                            ad.photo_urls.forEach(url => {
-                                photosHtml += `<img src="${url}" class="ad-photo">`;
-                            });
-                            photosHtml += '</div>';
-                        }
-                        // Amenities list
-                        const amenityNames = ad.amenities ? ad.amenities.map(id => {
-                            // need to get names – but we have only ids; could fetch separately, but for simplicity just show ids
-                            return `Amenity #${id}`;
-                        }).join(', ') : 'None';
-                        html += `
-                            <div class="ad-card" data-id="${ad.id}">
-                                <h3>${ad.hostel_name}</h3>
-                                <p><strong>Location:</strong> ${ad.location}</p>
-                                <p><strong>Room Type:</strong> ${ad.room_type}</p>
-                                <p><strong>Description:</strong> ${ad.description || 'No description'}</p>
-                                <p><strong>Amenities:</strong> ${amenityNames}</p>
-                                ${photosHtml}
-                                <div class="contact-info">
-                                    <p><strong>Posted by:</strong> ${ad.user_name} (${ad.user_email})</p>
-                                    <p><strong>Contact:</strong> ${ad.contact_phone}</p>
-                                </div>
-                                <button class="btn-report" data-id="${ad.id}">Report Scam</button>
-                                <div class="report-section" id="report-${ad.id}" style="display:none;">
-                                    <textarea class="report-reason" placeholder="Reason for report..."></textarea>
-                                    <button class="btn-submit-report" data-id="${ad.id}">Submit Report</button>
-                                </div>
+                    
+                    let amenitiesHtml = '';
+                    if (ad.amenities && ad.amenities.length) {
+                        amenitiesHtml = `<p><strong>Amenities:</strong> ${ad.amenities.join(', ')}</p>`;
+                    }
+                    
+                    html += `
+                        <div class="ad-card" data-id="${ad.id}">
+                            <h3>${escapeHtml(ad.hostel_name)}</h3>
+                            <p><strong>Location:</strong> ${escapeHtml(ad.location)}</p>
+                            <p><strong>Room Type:</strong> ${ad.room_type}</p>
+                            <p><strong>Description:</strong> ${escapeHtml(ad.description || 'No description')}</p>
+                            ${amenitiesHtml}
+                            ${photosHtml}
+                            <div class="contact-info">
+                                <p><strong>Posted by:</strong> ${escapeHtml(ad.user_name)}</p>
+                                <p><strong>Contact:</strong> ${escapeHtml(ad.contact_phone)}</p>
                             </div>
-                        `;
-                    });
-                    adsListDiv.innerHTML = html;
+                            <button class="btn-report" data-id="${ad.id}">⚠️ Report Scam</button>
+                            <div class="report-section" id="report-${ad.id}">
+                                <textarea class="report-reason" placeholder="Reason for report..."></textarea>
+                                <button class="btn-submit-report" data-id="${ad.id}">Submit Report</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                adsListDiv.innerHTML = html;
 
-                    // Report buttons
-                    document.querySelectorAll('.btn-report').forEach(btn => {
-                        btn.addEventListener('click', (e) => {
-                            const adId = btn.dataset.id;
-                            document.getElementById(`report-${adId}`).style.display = 'block';
-                        });
+                // Report buttons
+                document.querySelectorAll('.btn-report').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const adId = btn.dataset.id;
+                        const reportSection = document.getElementById(`report-${adId}`);
+                        reportSection.style.display = reportSection.style.display === 'none' ? 'block' : 'none';
                     });
+                });
 
-                    // Submit report
-                    document.querySelectorAll('.btn-submit-report').forEach(btn => {
-                        btn.addEventListener('click', async (e) => {
-                            const adId = btn.dataset.id;
-                            const reason = document.querySelector(`#report-${adId} .report-reason`).value;
-                            if (!reason) {
-                                alert('Please enter a reason.');
-                                return;
-                            }
-                            try {
-                                await fetch(`${API_BASE}/roommate/${adId}/report/`, {
-                                    method: 'POST',
-                                    headers: {
-                                        'Authorization': `Bearer ${accessToken}`,
-                                        'Content-Type': 'application/json'
-                                    },
-                                    body: JSON.stringify({ reason })
-                                });
-                                alert('Report submitted. Thank you.');
-                                document.getElementById(`report-${adId}`).style.display = 'none';
-                            } catch (e) {
-                                alert('Failed to submit report.');
-                            }
-                        });
+                // Submit report
+                document.querySelectorAll('.btn-submit-report').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const adId = btn.dataset.id;
+                        const reason = document.querySelector(`#report-${adId} .report-reason`).value;
+                        if (!reason) {
+                            alert('Please enter a reason for the report.');
+                            return;
+                        }
+                        try {
+                            await fetch(`${API_BASE}/roommate/${adId}/report/`, {
+                                method: 'POST',
+                                headers: {
+                                    'Authorization': `Bearer ${token}`,
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ reason })
+                            });
+                            alert('Report submitted. Thank you for helping keep the community safe!');
+                            document.getElementById(`report-${adId}`).style.display = 'none';
+                            document.querySelector(`#report-${adId} .report-reason`).value = '';
+                        } catch (e) {
+                            alert('Failed to submit report. Please try again.');
+                        }
                     });
-                } catch (e) {
-                    adsSpinner.style.display = 'none';
-                    adsListDiv.innerHTML = '<p>Error loading ads.</p>';
+                });
+            } catch (e) {
+                console.error('Error loading ads:', e);
+                adsSpinner.style.display = 'none';
+                adsListDiv.innerHTML = '<p class="error-message">Error loading ads. Please refresh the page.</p>';
+            }
+        }
+
+        // ==================== POST AD FORM ====================
+        document.getElementById('adForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData();
+            formData.append('hostel_name', document.getElementById('hostelName').value);
+            formData.append('location', document.getElementById('location').value);
+            formData.append('room_type', document.getElementById('roomType').value);
+            formData.append('description', document.getElementById('description').value);
+            formData.append('contact_phone', document.getElementById('contactPhone').value);
+
+            // Amenities: collect checked boxes
+            const checkedAmenities = Array.from(document.querySelectorAll('.amenity-checkbox:checked')).map(cb => cb.value);
+            checkedAmenities.forEach(id => formData.append('amenities', id));
+
+            // Photos
+            for (let i = 1; i <= 4; i++) {
+                const fileInput = document.getElementById(`photo${i}`);
+                if (fileInput.files[0]) {
+                    formData.append(`photo${i}`, fileInput.files[0]);
                 }
             }
-            loadAds();
 
-            // Handle ad form submission (multipart)
-            adForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
+            const submitBtn = document.querySelector('#adForm .btn-submit');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Posting...';
 
-                const formData = new FormData();
-                formData.append('hostel_name', document.getElementById('hostelName').value);
-                formData.append('location', document.getElementById('location').value);
-                formData.append('room_type', document.getElementById('roomType').value);
-                formData.append('description', document.getElementById('description').value);
-                formData.append('contact_phone', document.getElementById('contactPhone').value);
-
-                // Amenities: collect checked boxes
-                const checkedAmenities = Array.from(document.querySelectorAll('.amenity-checkbox:checked')).map(cb => cb.value);
-                checkedAmenities.forEach(id => formData.append('amenities', id));
-
-                // Photos
-                for (let i = 1; i <= 4; i++) {
-                    const fileInput = document.getElementById(`photo${i}`);
-                    if (fileInput.files[0]) {
-                        formData.append(`photo${i}`, fileInput.files[0]);
-                    }
+            try {
+                const res = await fetch(`${API_BASE}/roommate/`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+                
+                if (res.ok) {
+                    alert('Ad posted successfully!');
+                    document.getElementById('adForm').reset();
+                    loadAds();
+                } else {
+                    const err = await res.json();
+                    alert('Error: ' + (err.detail || err.message || 'Failed to post ad'));
                 }
+            } catch (e) {
+                console.error('Error posting ad:', e);
+                alert('Network error. Please try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        });
 
-                try {
-                    const res = await fetch(`${API_BASE}/roommate/`, {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${accessToken}`
-                            // No Content-Type – let browser set multipart boundary
-                        },
-                        body: formData
-                    });
-                    if (res.ok) {
-                        alert('Ad posted successfully!');
-                        adForm.reset();
-                        loadAds(); // refresh list
-                    } else {
-                        const err = await res.json();
-                        alert('Error: ' + (err.detail || 'Failed to post ad'));
-                    }
-                } catch (e) {
-                    alert('Network error. Please try again.');
-                }
-            });
-        })();
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ==================== LOGOUT ====================
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            sessionStorage.removeItem('accessToken');
+            window.location.href = 'login.html';
+        });
+        
+        document.getElementById('profileBtn').addEventListener('click', () => {
+            window.location.href = 'profile.html';
+        });
+
+        // Initialize
+        loadProfile();
+        loadAmenities();
+        loadAds();
     </script>
 </body>
 </html>
