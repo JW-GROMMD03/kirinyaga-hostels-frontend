@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login - Kirinyaga Hostels</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -12,27 +13,52 @@
             box-sizing: border-box;
             font-family: 'Segoe UI', Roboto, sans-serif;
         }
+
         :root {
             --kyu-green: #006747;
             --kyu-gold: #FFD700;
-            --admin-dark: #1a2639;
+            --bg-white: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-light: #e2e8f0;
+            --warning: #ca8a04;
+            --danger: #dc2626;
         }
+
+        body.dark-mode {
+            --kyu-green: #2ecc71;
+            --kyu-gold: #f1c40f;
+            --bg-white: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border-light: #334155;
+            --warning: #fbbf24;
+            --danger: #f87171;
+        }
+
         body {
-            background: linear-gradient(145deg, var(--admin-dark) 0%, #2c3e50 100%);
+            background: linear-gradient(145deg, #0b3b2a 0%, #1a4f3a 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            transition: background 0.3s ease;
         }
+
         .top-bar {
-            background: rgba(255,255,255,0.98);
+            background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(10px);
             padding: 1rem 2rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
             border-bottom: 3px solid var(--kyu-gold);
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 20px;
         }
+
+        body.dark-mode .top-bar {
+            background: rgba(30, 41, 59, 0.98);
+        }
+
         .back-btn {
             display: inline-flex;
             align-items: center;
@@ -42,17 +68,38 @@
             font-weight: 600;
             padding: 8px 16px;
             border-radius: 40px;
-            background: rgba(0,103,71,0.1);
+            background: rgba(0, 103, 71, 0.1);
             transition: all 0.3s;
         }
+
+        body.dark-mode .back-btn {
+            background: rgba(46, 204, 113, 0.1);
+        }
+
         .back-btn:hover {
             background: var(--kyu-green);
             color: white;
             transform: translateX(-5px);
         }
-        .back-btn span {
-            font-size: 1.4rem;
+
+        .dark-mode-toggle {
+            background: rgba(0, 103, 71, 0.1);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--kyu-green);
+            transition: all 0.3s;
         }
+
+        .dark-mode-toggle:hover {
+            background: var(--kyu-green);
+            color: white;
+            transform: rotate(15deg);
+        }
+
         .container {
             flex: 1;
             display: flex;
@@ -60,107 +107,137 @@
             align-items: center;
             padding: 2rem;
         }
+
         .login-card {
-            background: white;
-            border-radius: 40px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
-            padding: 3rem;
+            background: var(--bg-white);
+            border-radius: 32px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+            padding: 2.8rem;
             width: 100%;
             max-width: 450px;
+            transition: transform 0.3s;
+            border: 1px solid rgba(255, 215, 0, 0.2);
         }
-        .admin-badge {
-            text-align: center;
-            margin-bottom: 1rem;
-            color: var(--admin-dark);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+
+        .login-card:hover {
+            transform: translateY(-5px);
         }
+
         .university-emblem {
             text-align: center;
             margin-bottom: 1.5rem;
         }
+
         .university-emblem img {
             width: 80px;
             height: 80px;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
         }
+
         h2 {
             color: var(--kyu-green);
             font-size: 2rem;
             text-align: center;
             margin-bottom: 0.5rem;
         }
+
         .subtitle {
             text-align: center;
-            color: #666;
+            color: var(--text-secondary);
             margin-bottom: 2rem;
             border-bottom: 2px solid var(--kyu-gold);
             padding-bottom: 1rem;
+            display: inline-block;
+            width: auto;
+            margin-left: auto;
+            margin-right: auto;
+            display: table;
         }
-        .warning-box {
-            background: #fff3cd;
-            color: #856404;
-            padding: 1rem;
-            border-radius: 16px;
-            margin-bottom: 2rem;
-            font-size: 0.9rem;
-            border-left: 5px solid #ffc107;
-        }
+
         .form-group {
             margin-bottom: 1.5rem;
         }
+
         label {
             display: block;
             font-weight: 600;
             margin-bottom: 0.5rem;
-            color: #333;
+            color: var(--text-primary);
         }
+
         input {
             width: 100%;
             padding: 1rem;
-            border: 2px solid #e2e8f0;
+            border: 2px solid var(--border-light);
             border-radius: 16px;
             font-size: 1rem;
-            transition: border-color 0.3s;
+            transition: all 0.3s;
+            background: var(--bg-white);
+            color: var(--text-primary);
         }
+
         input:focus {
             outline: none;
             border-color: var(--kyu-green);
+            box-shadow: 0 0 0 3px rgba(0, 103, 71, 0.2);
         }
+
         .otp-group {
             display: flex;
             gap: 8px;
             justify-content: center;
             margin-top: 0.5rem;
         }
+
         .otp-input {
             width: 50px;
             height: 60px;
             text-align: center;
             font-size: 1.8rem;
             font-weight: 700;
-            border: 2px solid #e2e8f0;
+            border: 2px solid var(--border-light);
             border-radius: 12px;
+            background: var(--bg-white);
+            color: var(--text-primary);
         }
+
         .otp-input:focus {
             border-color: var(--kyu-green);
             outline: none;
         }
+
         .remember-forgot {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin: 1.5rem 0;
+            flex-wrap: wrap;
+            gap: 10px;
         }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .remember-me input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--kyu-green);
+        }
+
         .forgot-password a {
             color: var(--kyu-green);
             text-decoration: none;
             font-weight: 600;
+            font-size: 0.9rem;
         }
+
         .btn-login {
             width: 100%;
-            padding: 1.1rem;
+            padding: 1rem;
             background: linear-gradient(145deg, var(--kyu-green), #008355);
             color: white;
             border: none;
@@ -169,29 +246,35 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 8px 20px rgba(0,103,71,0.4);
+            box-shadow: 0 8px 20px rgba(0, 103, 71, 0.4);
         }
+
         .btn-login:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 25px rgba(0,103,71,0.6);
+            box-shadow: 0 12px 25px rgba(0, 103, 71, 0.6);
         }
+
         .btn-login:disabled {
             opacity: 0.7;
             cursor: not-allowed;
+            transform: none;
         }
+
         .spinner {
             display: none;
             width: 40px;
             height: 40px;
-            margin: 1rem auto;
-            border: 4px solid rgba(0,0,0,0.1);
+            margin: 15px auto 0;
+            border: 4px solid rgba(0, 103, 71, 0.2);
             border-left-color: var(--kyu-green);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
+
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
         .error-message {
             background: #fed7d7;
             color: #c53030;
@@ -199,31 +282,95 @@
             border-radius: 16px;
             margin-bottom: 1.5rem;
             display: none;
+            border-left: 5px solid #c53030;
         }
-        .success-message {
-            background: #c6f6d5;
-            color: #22543d;
+
+        body.dark-mode .error-message {
+            background: #7f1a1a;
+            color: #fecaca;
+        }
+
+        .lockout-message {
+            background: #fef3c7;
+            color: #b45309;
             padding: 1rem;
             border-radius: 16px;
             margin-bottom: 1.5rem;
             display: none;
-        }
-        .security-note {
             text-align: center;
-            margin-top: 2rem;
-            color: #666;
-            font-size: 0.9rem;
+            border-left: 5px solid #b45309;
         }
-        .security-note i {
+
+        body.dark-mode .lockout-message {
+            background: #78350f;
+            color: #fde047;
+        }
+
+        .countdown-timer {
+            font-size: 1.5rem;
+            font-weight: bold;
+            font-family: monospace;
+            margin-top: 0.5rem;
+        }
+
+        .attempts-warning {
+            font-size: 0.85rem;
+            margin-top: -0.5rem;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            display: none;
+            text-align: center;
+        }
+
+        .attempts-warning.warning {
+            background: rgba(202, 138, 4, 0.1);
+            color: var(--warning);
+        }
+
+        .attempts-warning.danger {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--danger);
+        }
+
+        .admin-badge {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .admin-badge i {
             color: var(--kyu-green);
         }
+
         footer {
             background: #1a2e3a;
             color: #e2e8f0;
             padding: 1.5rem;
             text-align: center;
-            font-size: 0.9rem;
+            margin-top: 2rem;
             border-top: 3px solid var(--kyu-gold);
+        }
+
+        body.dark-mode footer {
+            background: #0f172a;
+        }
+
+        @media (max-width: 600px) {
+            .login-card {
+                padding: 1.8rem;
+            }
+            
+            h2 {
+                font-size: 1.8rem;
+            }
+            
+            .otp-input {
+                width: 40px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
@@ -232,39 +379,38 @@
         <a href="../index.html" class="back-btn">
             <span>←</span> Back to Home
         </a>
+        <button class="dark-mode-toggle" id="darkModeToggle">
+            <i class="fas fa-moon"></i>
+        </button>
     </div>
 
     <div class="container">
         <div class="login-card">
-            <div class="admin-badge">🔐 ADMIN PORTAL</div>
             <div class="university-emblem">
                 <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
             </div>
 
-            <h2>Admin Login</h2>
-            <div class="subtitle">Restricted Access</div>
-
-            <div class="warning-box">
-                <i>⚠️ This area is for authorized personnel only. All actions are logged.</i>
-            </div>
+            <h2><i class="fas fa-user-shield"></i> Admin Login</h2>
+            <div class="subtitle">System Administration Portal</div>
 
             <div id="error-message" class="error-message"></div>
-            <div id="success-message" class="success-message"></div>
+            <div id="lockout-message" class="lockout-message"></div>
+            <div id="attempts-warning" class="attempts-warning"></div>
 
             <form id="login-form">
                 <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" id="email" placeholder="admin@kirinyagahostels.com" required autocomplete="email">
+                    <label><i class="fas fa-envelope"></i> Admin Email</label>
+                    <input type="email" id="email" placeholder="admin@kirinyaga-hostels.ac.ke" required autocomplete="email">
                 </div>
 
                 <div class="form-group">
-                    <label>Password</label>
+                    <label><i class="fas fa-lock"></i> Password</label>
                     <input type="password" id="password" placeholder="Enter your password" required autocomplete="current-password">
                 </div>
 
                 <!-- OTP Field (hidden initially) -->
                 <div class="form-group" id="otp-group" style="display: none;">
-                    <label>Verification Code</label>
+                    <label><i class="fas fa-key"></i> Verification Code</label>
                     <div class="otp-group">
                         <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
                         <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
@@ -274,314 +420,347 @@
                         <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
                     </div>
                     <input type="hidden" id="otp">
-                    <p style="font-size: 0.8rem; color: #666; margin-top: 0.5rem;">Enter the 6-digit code sent to your email</p>
+                    <p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.5rem;">
+                        <i class="fas fa-info-circle"></i> Check your email for the 6-digit code.
+                    </p>
                 </div>
 
                 <div class="remember-forgot">
-                    <label style="display: flex; align-items: center; gap: 8px;">
+                    <label class="remember-me">
                         <input type="checkbox" id="remember"> Remember me
                     </label>
                     <div class="forgot-password">
-                        <a href="forgot-password.html">Forgot Password?</a>
+                        <a href="forgot-password.html"><i class="fas fa-key"></i> Forgot Password?</a>
                     </div>
                 </div>
 
-                <button type="submit" class="btn-login" id="login-btn">Log In to Admin</button>
+                <button type="submit" class="btn-login" id="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Access Admin Panel
+                </button>
                 <div class="spinner" id="spinner"></div>
             </form>
 
-            <div class="security-note">
-                <i>🛡️</i> Multi-factor authentication protected • IP logging enabled
+            <div class="admin-badge">
+                <i class="fas fa-shield-alt"></i> Authorized personnel only
             </div>
         </div>
     </div>
 
     <footer>
         <p>© 2025 Kirinyaga University Hostels. All rights reserved.</p>
+        <p>
+            <a href="../privacy.html">Privacy Policy</a> • 
+            <a href="../terms.html">Terms of Service</a> • 
+            <a href="../contact.html">Contact Us</a>
+        </p>
     </footer>
 
     <script>
-        (function() {
-            // ============================================
-            // BACKEND API CONFIGURATION
-            // ============================================
-            const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
-            
-            const form = document.getElementById('login-form');
-            const email = document.getElementById('email');
-            const password = document.getElementById('password');
-            const otpGroup = document.getElementById('otp-group');
-            const otpInputs = document.querySelectorAll('.otp-input');
-            const otpHidden = document.getElementById('otp');
-            const remember = document.getElementById('remember');
-            const loginBtn = document.getElementById('login-btn');
-            const spinner = document.getElementById('spinner');
-            const errorDiv = document.getElementById('error-message');
-            const successDiv = document.getElementById('success-message');
-
-            function hideMessages() {
-                errorDiv.style.display = 'none';
-                successDiv.style.display = 'none';
-                errorDiv.textContent = '';
-                successDiv.textContent = '';
+        // ==================== DARK MODE SYNC ====================
+        function applyDarkMode() {
+            const savedTheme = localStorage.getItem('ownerTheme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                const toggleBtn = document.getElementById('darkModeToggle');
+                if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                document.body.classList.remove('dark-mode');
+                const toggleBtn = document.getElementById('darkModeToggle');
+                if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
             }
+        }
+        
+        applyDarkMode();
+        
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'ownerTheme') applyDarkMode();
+        });
 
-            function showError(message) {
-                errorDiv.textContent = message;
-                errorDiv.style.display = 'block';
-                successDiv.style.display = 'none';
-                setTimeout(() => {
-                    if (errorDiv.style.display === 'block') {
-                        errorDiv.style.display = 'none';
-                    }
-                }, 5000);
-            }
+        document.getElementById('darkModeToggle').addEventListener('click', () => {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('ownerTheme', isDark ? 'dark' : 'light');
+            const toggleBtn = document.getElementById('darkModeToggle');
+            toggleBtn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
 
-            function showSuccess(message) {
-                successDiv.textContent = message;
-                successDiv.style.display = 'block';
-                errorDiv.style.display = 'none';
-                setTimeout(() => {
-                    if (successDiv.style.display === 'block') {
-                        successDiv.style.display = 'none';
-                    }
-                }, 3000);
-            }
+        // ==================== ADMIN LOGIN FUNCTIONALITY ====================
+        const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
+        
+        const form = document.getElementById('login-form');
+        const email = document.getElementById('email');
+        const password = document.getElementById('password');
+        const otpGroup = document.getElementById('otp-group');
+        const otpInputs = document.querySelectorAll('.otp-input');
+        const otpHidden = document.getElementById('otp');
+        const remember = document.getElementById('remember');
+        const loginBtn = document.getElementById('login-btn');
+        const spinner = document.getElementById('spinner');
+        const errorDiv = document.getElementById('error-message');
+        const lockoutDiv = document.getElementById('lockout-message');
+        const attemptsWarning = document.getElementById('attempts-warning');
+        
+        let countdownInterval = null;
 
-            function getOtp() {
-                return Array.from(otpInputs).map(i => i.value).join('');
-            }
+        function hideError() {
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+        }
 
-            function clearOtp() {
-                otpInputs.forEach(input => {
-                    input.value = '';
-                });
-                otpHidden.value = '';
-            }
-
-            // OTP input navigation
-            otpInputs.forEach((input, idx) => {
-                input.addEventListener('input', (e) => {
-                    e.target.value = e.target.value.replace(/[^0-9]/g, '');
-                    if (e.target.value && idx < otpInputs.length - 1) {
-                        otpInputs[idx + 1].focus();
-                    }
-                    otpHidden.value = getOtp();
-                });
-
-                input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Backspace' && !e.target.value && idx > 0) {
-                        otpInputs[idx - 1].focus();
-                    }
-                });
-
-                input.addEventListener('paste', (e) => {
-                    e.preventDefault();
-                    const paste = e.clipboardData.getData('text').replace(/[^0-9]/g, '');
-                    for (let i = 0; i < paste.length && i < otpInputs.length; i++) {
-                        otpInputs[i].value = paste[i];
-                    }
-                    otpHidden.value = paste.substring(0, 6);
-                    if (paste.length >= 6) otpInputs[5].focus();
-                });
-            });
-
-            // Reset OTP when email/password changes
-            email.addEventListener('input', () => {
-                if (otpGroup.style.display === 'block') {
-                    otpGroup.style.display = 'none';
-                    clearOtp();
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            lockoutDiv.style.display = 'none';
+            setTimeout(() => {
+                if (errorDiv.style.display === 'block') {
+                    errorDiv.style.display = 'none';
                 }
-                hideMessages();
-            });
+            }, 5000);
+        }
+
+        function showLockout(message, remainingSeconds) {
+            lockoutDiv.style.display = 'block';
+            errorDiv.style.display = 'none';
+            attemptsWarning.style.display = 'none';
             
-            password.addEventListener('input', () => {
-                if (otpGroup.style.display === 'block') {
-                    otpGroup.style.display = 'none';
-                    clearOtp();
-                }
-                hideMessages();
-            });
-
-            function setLoading(isLoading) {
-                loginBtn.disabled = isLoading;
-                spinner.style.display = isLoading ? 'block' : 'none';
-                loginBtn.style.opacity = isLoading ? '0.7' : '1';
-                loginBtn.textContent = isLoading ? 'Logging in...' : 'Log In to Admin';
-            }
-
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-
-                const emailValue = email.value.trim();
-                const passwordValue = password.value;
-                const rememberValue = remember.checked;
-                const otpValue = getOtp();
-
-                // Basic validation
-                if (!emailValue || !passwordValue) {
-                    showError('Please enter both email and password');
+            if (countdownInterval) clearInterval(countdownInterval);
+            
+            const startTime = Date.now();
+            const endTime = startTime + (remainingSeconds * 1000);
+            
+            function updateCountdown() {
+                const now = Date.now();
+                const remaining = Math.max(0, Math.floor((endTime - now) / 1000));
+                
+                if (remaining <= 0) {
+                    clearInterval(countdownInterval);
+                    lockoutDiv.style.display = 'none';
+                    loginBtn.disabled = false;
+                    email.disabled = false;
+                    password.disabled = false;
+                    lockoutDiv.innerHTML = '';
                     return;
                 }
-
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(emailValue)) {
-                    showError('Please enter a valid email address');
-                    return;
-                }
-
-                if (otpGroup.style.display === 'block') {
-                    if (otpValue.length !== 6) {
-                        showError('Please enter the 6-digit verification code');
-                        return;
-                    }
-                }
-
-                setLoading(true);
-                hideMessages();
-
-                const payload = {
-                    email: emailValue,
-                    password: passwordValue,
-                    remember: rememberValue
-                };
-
-                if (otpGroup.style.display === 'block') {
-                    payload.otp_token = otpValue;
-                }
-
-                console.log('Attempting admin login to:', `${API_BASE}/auth/admin/login/`);
-
-                try {
-                    const res = await fetch(`${API_BASE}/auth/admin/login/`, {
-                        method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        credentials: 'include',
-                        body: JSON.stringify(payload)
-                    });
-
-                    const data = await res.json();
-
-                    if (!res.ok) {
-                        // Handle different error formats
-                        let errorMessage = '';
-                        
-                        if (data.non_field_errors && data.non_field_errors.length > 0) {
-                            errorMessage = data.non_field_errors[0];
-                        } else if (data.error) {
-                            errorMessage = data.error;
-                        } else if (data.detail) {
-                            errorMessage = data.detail;
-                        } else if (data.message) {
-                            errorMessage = data.message;
-                        } else if (typeof data === 'string') {
-                            errorMessage = data;
-                        } else {
-                            errorMessage = 'Login failed. Please check your credentials.';
-                        }
-                        
-                        // Check if OTP is required
-                        if (errorMessage.toLowerCase().includes('otp') || 
-                            errorMessage.toLowerCase().includes('verification') ||
-                            errorMessage.toLowerCase().includes('2fa')) {
-                            otpGroup.style.display = 'block';
-                            showError('Verification code required. Please check your email.');
-                        } else {
-                            showError(errorMessage);
-                        }
-                        
-                        setLoading(false);
-                        return;
-                    }
-
-                    // Login successful
-                    const { access, refresh, role, requires_2fa_setup, user } = data;
-
-                    // Store tokens
-                    if (access) {
-                        sessionStorage.setItem('accessToken', access);
-                        sessionStorage.setItem('token', access);
-                        if (rememberValue) {
-                            localStorage.setItem('accessToken', access);
-                            localStorage.setItem('token', access);
-                        }
-                    }
-                    
-                    if (refresh) {
-                        sessionStorage.setItem('refreshToken', refresh);
-                        if (rememberValue) {
-                            localStorage.setItem('refreshToken', refresh);
-                        }
-                    }
-                    
-                    // Store user info
-                    if (user) {
-                        sessionStorage.setItem('user', JSON.stringify(user));
-                        if (rememberValue) {
-                            localStorage.setItem('user', JSON.stringify(user));
-                        }
-                    }
-                    
-                    if (role) {
-                        sessionStorage.setItem('userRole', role);
-                        localStorage.setItem('userRole', role);
-                    }
-
-                    showSuccess('Login successful! Redirecting to dashboard...');
-
-                    // Check if 2FA setup is required
-                    if (requires_2fa_setup) {
-                        setTimeout(() => {
-                            window.location.href = '2fa-setup.html';
-                        }, 1500);
-                        return;
-                    }
-
-                    // Redirect to admin dashboard
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 1500);
-
-                } catch (err) {
-                    console.error('Login error:', err);
-                    
-                    if (!navigator.onLine) {
-                        showError('You are offline. Please check your internet connection.');
-                    } else if (err.message === 'Failed to fetch') {
-                        showError('Unable to connect to server. Please check if the backend is running.');
-                    } else {
-                        showError('Network error. Please try again later.');
-                    }
-                    setLoading(false);
-                }
-            });
-
-            // Remember me functionality
-            try {
-                const rememberedEmail = localStorage.getItem('rememberedEmail');
-                if (rememberedEmail) {
-                    email.value = rememberedEmail;
-                    remember.checked = true;
-                }
-            } catch (e) {}
-
-            form.addEventListener('submit', function() {
-                if (remember.checked) {
-                    try {
-                        localStorage.setItem('rememberedEmail', email.value.trim());
-                    } catch (e) {}
+                
+                const hours = Math.floor(remaining / 3600);
+                const minutes = Math.floor((remaining % 3600) / 60);
+                const seconds = remaining % 60;
+                
+                let timeString = '';
+                if (hours > 0) {
+                    timeString = `${hours}h ${minutes}m ${seconds}s`;
+                } else if (minutes > 0) {
+                    timeString = `${minutes}m ${seconds}s`;
                 } else {
-                    try {
-                        localStorage.removeItem('rememberedEmail');
-                    } catch (e) {}
+                    timeString = `${seconds}s`;
+                }
+                
+                lockoutDiv.innerHTML = `
+                    <i class="fas fa-clock"></i> ${message}<br>
+                    <div class="countdown-timer">${timeString}</div>
+                `;
+            }
+            
+            updateCountdown();
+            countdownInterval = setInterval(updateCountdown, 1000);
+            
+            loginBtn.disabled = true;
+            email.disabled = true;
+            password.disabled = true;
+        }
+
+        function showAttemptsWarning(attemptsLeft) {
+            attemptsWarning.style.display = 'block';
+            if (attemptsLeft === 1) {
+                attemptsWarning.className = 'attempts-warning danger';
+                attemptsWarning.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Warning: 1 attempt remaining before account lockout for 1 hour!`;
+            } else {
+                attemptsWarning.className = 'attempts-warning warning';
+                attemptsWarning.innerHTML = `<i class="fas fa-info-circle"></i> ${attemptsLeft} attempts remaining before lockout.`;
+            }
+            setTimeout(() => {
+                attemptsWarning.style.display = 'none';
+            }, 5000);
+        }
+
+        function getOtp() {
+            return Array.from(otpInputs).map(i => i.value).join('');
+        }
+
+        function resetOtp() {
+            otpInputs.forEach(input => input.value = '');
+            otpHidden.value = '';
+        }
+
+        otpInputs.forEach((input, idx) => {
+            input.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                if (e.target.value && idx < otpInputs.length - 1) {
+                    otpInputs[idx + 1].focus();
+                }
+                otpHidden.value = getOtp();
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+                    otpInputs[idx - 1].focus();
                 }
             });
 
-            console.log('Admin login page loaded - API endpoint:', `${API_BASE}/auth/admin/login/`);
-        })();
+            input.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const paste = e.clipboardData.getData('text').replace(/[^0-9]/g, '');
+                for (let i = 0; i < paste.length && i < otpInputs.length; i++) {
+                    otpInputs[i].value = paste[i];
+                }
+                otpHidden.value = paste.substring(0, 6);
+                if (paste.length >= 6) otpInputs[5].focus();
+            });
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const payload = {
+                email: email.value,
+                password: password.value,
+                remember: remember.checked
+            };
+
+            if (otpGroup.style.display === 'block') {
+                if (getOtp().length !== 6) {
+                    showError('Please enter the 6-digit verification code');
+                    return;
+                }
+                payload.otp_token = getOtp();
+            }
+
+            loginBtn.disabled = true;
+            spinner.style.display = 'block';
+            hideError();
+
+            try {
+                const res = await fetch(`${API_BASE}/auth/admin/login/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    // Check for lockout
+                    if (data.locked === true) {
+                        showLockout(data.message, data.remaining_seconds);
+                        loginBtn.disabled = false;
+                        spinner.style.display = 'none';
+                        return;
+                    }
+                    
+                    // Check for OTP requirement
+                    if (data.requires_otp) {
+                        otpGroup.style.display = 'block';
+                        showError(data.message);
+                        loginBtn.disabled = false;
+                        spinner.style.display = 'none';
+                        return;
+                    }
+                    
+                    // Show attempts warning
+                    if (data.attempts_left) {
+                        showAttemptsWarning(data.attempts_left);
+                    }
+                    
+                    if (data.non_field_errors) {
+                        const msg = data.non_field_errors[0];
+                        if (msg && (msg.includes('OTP') || msg.includes('verification'))) {
+                            otpGroup.style.display = 'block';
+                            showError('Verification code sent to your email. Please enter it below.');
+                        } else {
+                            showError(msg);
+                        }
+                    } else if (data.message) {
+                        showError(data.message);
+                    } else if (data.error) {
+                        showError(data.error);
+                    } else {
+                        showError('Login failed. Please try again.');
+                    }
+                    loginBtn.disabled = false;
+                    spinner.style.display = 'none';
+                    return;
+                }
+
+                if (data.access) {
+                    sessionStorage.setItem('accessToken', data.access);
+                    if (remember.checked) {
+                        localStorage.setItem('accessToken', data.access);
+                    }
+                }
+                if (data.refresh) {
+                    sessionStorage.setItem('refreshToken', data.refresh);
+                    if (remember.checked) {
+                        localStorage.setItem('refreshToken', data.refresh);
+                    }
+                }
+                
+                if (data.role) {
+                    sessionStorage.setItem('userRole', data.role);
+                    localStorage.setItem('userRole', data.role);
+                }
+                
+                // Show success message before redirect
+                errorDiv.style.background = '#c6f6d5';
+                errorDiv.style.color = '#22543d';
+                errorDiv.innerHTML = '<i class="fas fa-check-circle"></i> Admin login successful! Redirecting to dashboard...';
+                errorDiv.style.display = 'block';
+                
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+            } catch (err) {
+                console.error('Login error:', err);
+                showError('Network error. Unable to connect to server. Please check your connection.');
+                loginBtn.disabled = false;
+                spinner.style.display = 'none';
+            }
+        });
+
+        // Reset OTP group when email or password changes
+        email.addEventListener('input', () => {
+            if (otpGroup.style.display === 'block') {
+                otpGroup.style.display = 'none';
+                resetOtp();
+            }
+        });
+        
+        password.addEventListener('input', () => {
+            if (otpGroup.style.display === 'block') {
+                otpGroup.style.display = 'none';
+                resetOtp();
+            }
+        });
+
+        // Remember me functionality
+        try {
+            const rememberedEmail = localStorage.getItem('rememberedAdminEmail');
+            if (rememberedEmail) {
+                email.value = rememberedEmail;
+                remember.checked = true;
+            }
+        } catch (e) {}
+
+        form.addEventListener('submit', function() {
+            if (remember.checked) {
+                try {
+                    localStorage.setItem('rememberedAdminEmail', email.value.trim());
+                } catch (e) {}
+            } else {
+                try {
+                    localStorage.removeItem('rememberedAdminEmail');
+                } catch (e) {}
+            }
+        });
     </script>
 </body>
 </html>
