@@ -7,13 +7,13 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* (Include the same base styles as your hostels page for consistency) */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
+
         :root {
             --kyu-green: #006747;
             --kyu-gold: #FFD700;
@@ -30,13 +30,26 @@
             --warning: #ca8a04;
             --info: #2563eb;
         }
+
+        body.dark-mode {
+            --kyu-green: #2ecc71;
+            --kyu-gold: #f1c40f;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --bg-light: #0f172a;
+            --bg-white: #1e293b;
+            --border-light: #334155;
+        }
+
         body {
             background: var(--bg-light);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            transition: background 0.3s ease;
         }
-        .header {
+
+        header {
             background: var(--bg-white);
             box-shadow: var(--shadow-sm);
             padding: 1rem 2rem;
@@ -48,82 +61,106 @@
             top: 0;
             z-index: 100;
         }
+
         .logo {
             display: flex;
             align-items: center;
             gap: 15px;
+            cursor: pointer;
         }
+
         .logo img {
-            height: 45px;
+            height: 50px;
         }
+
         .logo span {
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: var(--kyu-green);
         }
+
         .user-menu {
             display: flex;
             align-items: center;
             gap: 20px;
         }
+
         .user-info {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 6px 16px;
+            gap: 10px;
+            padding: 5px 15px;
             background: var(--bg-light);
             border-radius: 40px;
+            cursor: pointer;
         }
+
         .user-avatar {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             background: var(--kyu-green);
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
-            font-size: 1.1rem;
+            font-weight: 700;
+            font-size: 1.2rem;
         }
+
         .user-details {
             display: flex;
             flex-direction: column;
         }
+
         .user-name {
             font-weight: 600;
             color: var(--text-primary);
-            font-size: 0.95rem;
         }
+
         .user-role {
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: var(--text-secondary);
         }
+
+        .dark-mode-toggle {
+            background: var(--bg-light);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--text-primary);
+        }
+
         .btn-logout {
-            padding: 0.5rem 1.2rem;
+            padding: 0.6rem 1.2rem;
             border: 2px solid var(--danger);
             background: transparent;
             color: var(--danger);
             border-radius: 40px;
             font-weight: 600;
-            font-size: 0.9rem;
             cursor: pointer;
             transition: all 0.3s;
             display: flex;
             align-items: center;
             gap: 8px;
         }
+
         .btn-logout:hover {
             background: var(--danger);
             color: white;
         }
-        .main-container {
+
+        .container {
             flex: 1;
             max-width: 1400px;
             width: 100%;
             margin: 2rem auto;
             padding: 0 2rem;
         }
+
         .page-header {
             display: flex;
             justify-content: space-between;
@@ -132,6 +169,7 @@
             flex-wrap: wrap;
             gap: 1rem;
         }
+
         .page-header h1 {
             font-size: 2rem;
             color: var(--text-primary);
@@ -139,115 +177,79 @@
             align-items: center;
             gap: 10px;
         }
+
         .page-header h1 i {
             color: var(--kyu-green);
         }
-        .header-actions {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-        .btn-primary {
-            padding: 0.8rem 1.8rem;
-            background: var(--kyu-green);
-            color: white;
-            border: none;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-        }
-        .btn-primary:hover {
-            background: #004d33;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,103,71,0.3);
-        }
+
         .btn-outline {
-            padding: 0.8rem 1.8rem;
+            padding: 0.7rem 1.5rem;
             background: transparent;
             border: 2px solid var(--kyu-green);
             color: var(--kyu-green);
             border-radius: 40px;
             font-weight: 600;
-            font-size: 1rem;
             cursor: pointer;
             transition: all 0.3s;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
             text-decoration: none;
         }
+
         .btn-outline:hover {
             background: var(--kyu-green);
             color: white;
         }
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1.5rem;
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
         }
+
         .stat-card {
             background: var(--bg-white);
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 1.5rem;
+            text-align: center;
             box-shadow: var(--shadow-sm);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            transition: all 0.3s;
-            border: 1px solid var(--border-light);
+            border-left: 4px solid var(--kyu-green);
         }
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-md);
-            border-color: var(--kyu-green);
-        }
-        .stat-icon {
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            background: rgba(0,103,71,0.1);
-            color: var(--kyu-green);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.6rem;
-        }
-        .stat-info h3 {
-            font-size: 1.8rem;
+
+        .stat-card .number {
+            font-size: 2.5rem;
             font-weight: 700;
-            color: var(--text-primary);
-            line-height: 1.2;
+            color: var(--kyu-green);
         }
-        .stat-info p {
+
+        .stat-card .label {
             color: var(--text-secondary);
-            font-size: 0.9rem;
+            margin-top: 0.5rem;
         }
+
         .filter-bar {
             background: var(--bg-white);
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 1.5rem;
             margin-bottom: 2rem;
             box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-light);
         }
+
         .filter-row {
             display: flex;
             gap: 1rem;
             flex-wrap: wrap;
             align-items: center;
         }
+
         .search-box {
             flex: 2;
-            min-width: 250px;
+            min-width: 200px;
             position: relative;
         }
+
         .search-box i {
             position: absolute;
             left: 1rem;
@@ -255,68 +257,63 @@
             transform: translateY(-50%);
             color: var(--text-secondary);
         }
+
         .search-box input {
             width: 100%;
             padding: 0.8rem 1rem 0.8rem 2.8rem;
             border: 2px solid var(--border-light);
             border-radius: 40px;
-            font-size: 0.95rem;
-            transition: all 0.3s;
+            background: var(--bg-white);
+            color: var(--text-primary);
         }
-        .search-box input:focus {
-            outline: none;
-            border-color: var(--kyu-green);
-        }
+
         .filter-select {
             flex: 1;
             min-width: 150px;
             padding: 0.8rem 1rem;
             border: 2px solid var(--border-light);
             border-radius: 40px;
-            font-size: 0.95rem;
+            background: var(--bg-white);
             color: var(--text-primary);
-            background: white;
             cursor: pointer;
         }
-        .filter-select:focus {
-            outline: none;
-            border-color: var(--kyu-green);
-        }
-        .filter-actions {
-            display: flex;
-            gap: 0.8rem;
-        }
-        .filter-actions button {
+
+        .btn-filter, .btn-reset {
             padding: 0.8rem 1.5rem;
-            border: none;
             border-radius: 40px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
+            border: none;
         }
+
         .btn-filter {
             background: var(--kyu-green);
             color: white;
         }
+
         .btn-filter:hover {
             background: #004d33;
         }
+
         .btn-reset {
             background: var(--bg-light);
             color: var(--text-secondary);
         }
+
         .btn-reset:hover {
             background: var(--border-light);
         }
+
         .bookings-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
         }
+
         .booking-card {
             background: var(--bg-white);
             border-radius: 20px;
@@ -325,10 +322,12 @@
             transition: all 0.3s;
             border: 1px solid var(--border-light);
         }
+
         .booking-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-lg);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
         }
+
         .booking-header {
             background: linear-gradient(135deg, var(--kyu-green), #004d33);
             color: white;
@@ -337,23 +336,27 @@
             justify-content: space-between;
             align-items: center;
         }
+
         .booking-header h3 {
             font-size: 1.2rem;
             font-weight: 600;
         }
+
         .booking-status {
             padding: 0.3rem 1rem;
             border-radius: 30px;
             font-size: 0.8rem;
             font-weight: 600;
-            background: rgba(255,255,255,0.2);
         }
-        .status-pending { background: var(--warning); color: white; }
+
+        .status-pending { background: var(--warning); color: #1e293b; }
         .status-confirmed { background: var(--success); color: white; }
         .status-cancelled { background: var(--danger); color: white; }
+
         .booking-content {
             padding: 1.5rem;
         }
+
         .booking-detail {
             display: flex;
             align-items: center;
@@ -361,28 +364,31 @@
             margin-bottom: 0.8rem;
             color: var(--text-secondary);
         }
+
         .booking-detail i {
             width: 20px;
             color: var(--kyu-green);
         }
+
         .booking-price {
             font-size: 1.4rem;
             font-weight: 700;
             color: var(--kyu-green);
-            margin-top: 1rem;
+            margin: 1rem 0;
         }
+
         .booking-actions {
             display: flex;
             gap: 0.8rem;
-            margin-top: 1.2rem;
+            margin-top: 1rem;
         }
+
         .btn-action {
             flex: 1;
             padding: 0.7rem;
             border: none;
             border-radius: 30px;
             font-weight: 600;
-            font-size: 0.9rem;
             cursor: pointer;
             transition: all 0.3s;
             display: flex;
@@ -390,41 +396,37 @@
             justify-content: center;
             gap: 5px;
         }
+
         .btn-view {
             background: rgba(0,103,71,0.1);
             color: var(--kyu-green);
         }
+
         .btn-view:hover {
-            background: rgba(0,103,71,0.2);
+            background: var(--kyu-green);
+            color: white;
         }
+
         .empty-state {
             grid-column: 1 / -1;
             text-align: center;
-            padding: 4rem 2rem;
+            padding: 4rem;
             background: var(--bg-white);
             border-radius: 20px;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-light);
         }
+
         .empty-state i {
             font-size: 4rem;
             color: #cbd5e1;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
-        .empty-state h3 {
-            font-size: 1.5rem;
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
-        }
-        .empty-state p {
-            color: var(--text-secondary);
-            margin-bottom: 2rem;
-        }
+
         .loading-state {
             grid-column: 1 / -1;
             text-align: center;
             padding: 3rem;
         }
+
         .spinner {
             border: 4px solid rgba(0,103,71,0.1);
             border-left-color: var(--kyu-green);
@@ -434,52 +436,52 @@
             animation: spin 1s linear infinite;
             margin: 0 auto 1rem;
         }
+
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
         .error-message {
             grid-column: 1 / -1;
             background: #fee2e2;
             color: var(--danger);
             padding: 1rem;
             border-radius: 12px;
-            margin-bottom: 1rem;
             display: flex;
             align-items: center;
             gap: 10px;
+            justify-content: space-between;
         }
+
         .pagination {
             display: flex;
             justify-content: center;
             gap: 0.5rem;
             margin-top: 2rem;
         }
+
         .page-btn {
             width: 40px;
             height: 40px;
             border-radius: 50%;
             border: 2px solid var(--border-light);
-            background: white;
+            background: var(--bg-white);
             color: var(--text-primary);
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
         }
-        .page-btn:hover:not(:disabled) {
-            border-color: var(--kyu-green);
-            background: var(--kyu-green);
-            color: white;
-        }
+
         .page-btn.active {
             background: var(--kyu-green);
             color: white;
             border-color: var(--kyu-green);
         }
+
         .page-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
-        /* Modal styles (reuse from hostels page) */
+
         .modal {
             display: none;
             position: fixed;
@@ -488,42 +490,29 @@
             top: 0;
             width: 100%;
             height: 100%;
-            overflow: auto;
             background-color: rgba(0,0,0,0.5);
             backdrop-filter: blur(5px);
         }
+
         .modal-content {
             background-color: var(--bg-white);
             margin: 2rem auto;
             padding: 2rem;
-            border-radius: 40px;
-            max-width: 600px;
+            border-radius: 24px;
+            max-width: 500px;
             width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
             position: relative;
-            box-shadow: var(--shadow-lg);
         }
+
         .close-modal {
             position: absolute;
-            right: 2rem;
-            top: 1.5rem;
+            right: 1.5rem;
+            top: 1rem;
             font-size: 2rem;
-            font-weight: bold;
-            color: var(--text-secondary);
             cursor: pointer;
-            transition: color 0.3s;
+            color: var(--text-secondary);
         }
-        .close-modal:hover {
-            color: var(--danger);
-        }
-        .modal-details {
-            padding: 1rem 0;
-        }
-        .modal-details h2 {
-            color: var(--kyu-green);
-            margin-bottom: 1.5rem;
-        }
+
         .modal-info-item {
             display: flex;
             align-items: center;
@@ -531,24 +520,18 @@
             padding: 0.8rem;
             background: var(--bg-light);
             border-radius: 12px;
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
         }
-        .modal-info-item i {
-            width: 24px;
-            color: var(--kyu-green);
-        }
-        .footer {
+
+        footer {
             background: #1e293b;
             color: white;
-            padding: 2rem;
-            margin-top: 3rem;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
             border-top: 3px solid var(--kyu-gold);
         }
-        .footer-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            text-align: center;
-        }
+
         .footer-links {
             display: flex;
             justify-content: center;
@@ -556,117 +539,80 @@
             margin-top: 1rem;
             flex-wrap: wrap;
         }
+
         .footer-links a {
             color: #94a3b8;
             text-decoration: none;
-            transition: color 0.3s;
-            font-size: 0.9rem;
         }
-        .footer-links a:hover {
-            color: var(--kyu-gold);
-        }
+
         @media (max-width: 768px) {
-            .header {
+            header {
                 flex-direction: column;
                 gap: 1rem;
-                padding: 1rem;
-            }
-            .page-header {
-                flex-direction: column;
-                text-align: center;
-            }
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
             }
             .filter-row {
                 flex-direction: column;
             }
-            .search-box, .filter-select, .filter-actions {
+            .search-box, .filter-select {
                 width: 100%;
             }
             .bookings-grid {
                 grid-template-columns: 1fr;
             }
-            .footer-links {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
         }
-
-        body.dark-mode {
-    --kyu-green: #2ecc71;
-    --kyu-gold: #f1c40f;
-    --text-primary: #f1f5f9;
-    --text-secondary: #cbd5e1;
-    --bg-light: #0f172a;
-    --bg-white: #1e293b;
-    --border-light: #334155;
-    --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.3);
-    --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.4);
-}
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="logo">
-            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='45' height='45' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
+    <div id="loadingOverlay" class="loading-overlay" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+        <div class="spinner"></div>
+    </div>
+
+    <header>
+        <div class="logo" onclick="window.location.href='dashboard.html'">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
             <span>Kirinyaga Hostels</span>
         </div>
         <div class="user-menu">
-            <div class="user-info">
+            <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle Dark Mode">
+                <i class="fas fa-moon"></i>
+            </button>
+            <div class="user-info" id="profileBtn">
                 <div class="user-avatar" id="userAvatar">O</div>
                 <div class="user-details">
                     <span class="user-name" id="userName">Loading...</span>
-                    <span class="user-role">User</span>
+                    <span class="user-role" id="userRole">Student</span>
                 </div>
             </div>
-            <button class="btn-logout" onclick="logout()">
+            <button class="btn-logout" id="logoutBtn">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </button>
         </div>
-    </div>
+    </header>
 
-    <div class="main-container">
+    <div class="container">
         <div class="page-header">
-            <h1>
-                <i class="fas fa-calendar-check"></i>
-                My Bookings
-            </h1>
-            <div class="header-actions">
-                <a href="dashboard.html" class="btn-outline">
-                    <i class="fas fa-arrow-left"></i> Dashboard
-                </a>
-            </div>
+            <h1><i class="fas fa-calendar-check"></i> My Bookings</h1>
+            <a href="dashboard.html" class="btn-outline">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
         </div>
 
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
-                <div class="stat-info">
-                    <h3 id="totalBookings">0</h3>
-                    <p>Total Bookings</p>
-                </div>
+                <div class="number" id="totalBookings">0</div>
+                <div class="label">Total Bookings</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-hourglass-half"></i></div>
-                <div class="stat-info">
-                    <h3 id="pendingBookings">0</h3>
-                    <p>Pending</p>
-                </div>
+                <div class="number" id="pendingBookings">0</div>
+                <div class="label">Pending</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
-                <div class="stat-info">
-                    <h3 id="confirmedBookings">0</h3>
-                    <p>Confirmed</p>
-                </div>
+                <div class="number" id="confirmedBookings">0</div>
+                <div class="label">Confirmed</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
-                <div class="stat-info">
-                    <h3 id="cancelledBookings">0</h3>
-                    <p>Cancelled</p>
-                </div>
+                <div class="number" id="cancelledBookings">0</div>
+                <div class="label">Cancelled</div>
             </div>
         </div>
 
@@ -674,7 +620,7 @@
             <div class="filter-row">
                 <div class="search-box">
                     <i class="fas fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Search by hostel name or location...">
+                    <input type="text" id="searchInput" placeholder="Search by hostel name...">
                 </div>
                 <select class="filter-select" id="statusFilter">
                     <option value="all">All Status</option>
@@ -685,17 +631,13 @@
                 <select class="filter-select" id="sortFilter">
                     <option value="newest">Newest First</option>
                     <option value="oldest">Oldest First</option>
-                    <option value="price_low">Price: Low to High</option>
-                    <option value="price_high">Price: High to Low</option>
                 </select>
-                <div class="filter-actions">
-                    <button class="btn-filter" onclick="applyFilters()">
-                        <i class="fas fa-filter"></i> Apply
-                    </button>
-                    <button class="btn-reset" onclick="resetFilters()">
-                        <i class="fas fa-redo-alt"></i> Reset
-                    </button>
-                </div>
+                <button class="btn-filter" onclick="applyFilters()">
+                    <i class="fas fa-filter"></i> Apply
+                </button>
+                <button class="btn-reset" onclick="resetFilters()">
+                    <i class="fas fa-redo-alt"></i> Reset
+                </button>
             </div>
         </div>
 
@@ -706,96 +648,98 @@
             </div>
         </div>
 
-        <div class="pagination" id="pagination" style="display: none;">
-            <button class="page-btn" id="prevPage" onclick="changePage(-1)" disabled>←</button>
-            <span id="pageNumbers"></span>
-            <button class="page-btn" id="nextPage" onclick="changePage(1)" disabled>→</button>
-        </div>
+        <div class="pagination" id="pagination" style="display: none;"></div>
     </div>
 
-    <!-- Modal for Booking Details -->
     <div id="bookingModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal()">&times;</span>
-            <div id="modalDetails" class="modal-details">
-                <!-- Details injected here -->
-            </div>
+            <div id="modalDetails"></div>
         </div>
     </div>
 
-    <footer class="footer">
+    <footer>
         <div class="footer-content">
             <p>© 2025 Kirinyaga University Hostels. All rights reserved.</p>
             <div class="footer-links">
                 <a href="privacy.html">Privacy Policy</a>
                 <a href="terms.html">Terms of Service</a>
                 <a href="help.html">Help Center</a>
-                <a href="contact.html">Contact Us</a>
             </div>
         </div>
     </footer>
-    <script src="theme.js"></script>
+
     <script>
         const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
         const token = sessionStorage.getItem('accessToken');
-        if (!token) window.location.href = 'login.html';
-
-        // Determine user role (you may need to fetch profile)
-        let userRole = 'student'; // default, will be updated from profile
-
         let allBookings = [];
         let filteredBookings = [];
         let currentPage = 1;
-        const itemsPerPage = 9;
-        let currentFilters = {
-            search: '',
-            status: 'all',
-            sort: 'newest'
-        };
+        const itemsPerPage = 6;
+        let currentFilters = { search: '', status: 'all', sort: 'newest' };
+        let userRole = 'student';
 
-        // Utility for API calls
-async function apiFetch(url, options = {}) {
-    try {
-        const response = await fetch(`${API_BASE}${url}`, {
-            ...options,
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-                ...options.headers
+        if (!token) window.location.href = 'login.html';
+
+        function showLoading() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.style.position = 'fixed';
+            toast.style.bottom = '20px';
+            toast.style.right = '20px';
+            toast.style.backgroundColor = type === 'error' ? '#dc2626' : '#16a34a';
+            toast.style.color = 'white';
+            toast.style.padding = '12px 24px';
+            toast.style.borderRadius = '12px';
+            toast.style.zIndex = '10000';
+            toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+            toast.innerHTML = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        async function apiFetch(url, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${url}`, {
+                    ...options,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+
+                if (response.status === 401) {
+                    sessionStorage.removeItem('accessToken');
+                    window.location.href = 'login.html';
+                    return null;
+                }
+
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({}));
+                    throw new Error(error.message || error.detail || `HTTP ${response.status}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
             }
-        });
-
-        if (response.status === 401) {
-            sessionStorage.removeItem('accessToken');
-            window.location.href = 'login.html';
-            return null;
         }
-
-        // Read the response body once
-        const text = await response.text();
-        let data;
-        try {
-            data = JSON.parse(text);
-        } catch {
-            data = { detail: text };
-        }
-
-        if (!response.ok) {
-            let errorMsg = data.detail || data.message || JSON.stringify(data);
-            throw new Error(`HTTP ${response.status}: ${errorMsg.substring(0, 200)}`);
-        }
-        return data;
-    } catch (error) {
-        console.error('API Fetch Error:', error);
-        throw error;
-    }
-}
 
         async function loadUserProfile() {
             try {
                 const data = await apiFetch('/auth/profile/');
                 if (data) {
                     document.getElementById('userName').textContent = data.full_name || data.email;
+                    document.getElementById('userRole').textContent = data.role === 'owner' ? 'Hostel Owner' : 'Student';
                     const initials = (data.full_name || data.email).split(' ').map(n => n[0]).join('').toUpperCase();
                     document.getElementById('userAvatar').textContent = initials.slice(0, 2);
                     userRole = data.role || 'student';
@@ -807,34 +751,64 @@ async function apiFetch(url, options = {}) {
 
         async function loadBookings() {
             const grid = document.getElementById('bookingsGrid');
+            showLoading();
+            
             try {
-                // Determine endpoint based on role
-                const endpoint = userRole === 'owner' ? '/bookings/?owner=me' : '/bookings/';
-                console.log(`Fetching bookings from ${endpoint}`);
-                const data = await apiFetch(endpoint);
-                console.log('Received bookings:', data);
-
-                if (Array.isArray(data)) {
-                    allBookings = data;
-                } else if (data && data.results) {
-                    allBookings = data.results;
-                } else {
+                let endpoint;
+                if (userRole === 'owner') {
+                    endpoint = '/hostels/my/';
+                    const hostelsData = await apiFetch(endpoint);
+                    const hostels = hostelsData.results || hostelsData || [];
+                    
+                    if (hostels.length === 0) {
+                        grid.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-home"></i>
+                                <h3>No hostels registered</h3>
+                                <p>You haven't added any hostels yet.</p>
+                                <a href="add-hostel.html" class="btn-outline" style="margin-top: 1rem; display: inline-block;">
+                                    <i class="fas fa-plus-circle"></i> Add Your First Hostel
+                                </a>
+                            </div>
+                        `;
+                        hideLoading();
+                        return;
+                    }
+                    
+                    // For owners, fetch bookings for each hostel
                     allBookings = [];
+                    for (const hostel of hostels) {
+                        try {
+                            const bookingsData = await apiFetch(`/bookings/?hostel=${hostel.id}`);
+                            const bookings = bookingsData.results || bookingsData || [];
+                            bookings.forEach(booking => {
+                                booking.hostel_name = hostel.name;
+                                booking.hostel_id = hostel.id;
+                            });
+                            allBookings.push(...bookings);
+                        } catch (e) {
+                            console.warn(`Failed to fetch bookings for hostel ${hostel.id}:`, e);
+                        }
+                    }
+                } else {
+                    // For students, fetch their own bookings
+                    const data = await apiFetch('/bookings/');
+                    allBookings = data.results || data || [];
                 }
-
-                updateStats();
+                
+                console.log(`Loaded ${allBookings.length} bookings`);
+                
                 if (allBookings.length === 0) {
                     grid.innerHTML = `
                         <div class="empty-state">
                             <i class="fas fa-calendar-times"></i>
                             <h3>No bookings found</h3>
-                            <p>You haven't made any bookings yet.</p>
-                            <a href="hostels.html" class="btn-primary" style="display: inline-flex; margin-top: 1rem;">
-                                <i class="fas fa-search"></i> Browse Hostels
-                            </a>
+                            <p>${userRole === 'owner' ? 'No one has booked your hostels yet.' : 'You haven\'t made any bookings yet.'}</p>
+                            ${userRole !== 'owner' ? '<a href="hostels.html" class="btn-outline" style="margin-top: 1rem; display: inline-block;"><i class="fas fa-search"></i> Browse Hostels</a>' : ''}
                         </div>
                     `;
                 } else {
+                    updateStats();
                     applyFilters();
                 }
             } catch (error) {
@@ -842,12 +816,12 @@ async function apiFetch(url, options = {}) {
                 grid.innerHTML = `
                     <div class="error-message">
                         <i class="fas fa-exclamation-circle"></i>
-                        Failed to load bookings: ${error.message}
-                        <button onclick="loadBookings()" style="margin-left: 1rem; padding: 0.3rem 1rem; background: white; border: none; border-radius: 30px; color: var(--danger); cursor: pointer;">
-                            Retry
-                        </button>
+                        <span>Failed to load bookings: ${error.message}</span>
+                        <button onclick="loadBookings()" style="padding: 0.3rem 1rem; background: white; border: none; border-radius: 30px; cursor: pointer;">Retry</button>
                     </div>
                 `;
+            } finally {
+                hideLoading();
             }
         }
 
@@ -856,6 +830,7 @@ async function apiFetch(url, options = {}) {
             const pending = allBookings.filter(b => b.status === 'pending').length;
             const confirmed = allBookings.filter(b => b.status === 'confirmed').length;
             const cancelled = allBookings.filter(b => b.status === 'cancelled').length;
+            
             document.getElementById('totalBookings').textContent = total;
             document.getElementById('pendingBookings').textContent = pending;
             document.getElementById('confirmedBookings').textContent = confirmed;
@@ -868,8 +843,8 @@ async function apiFetch(url, options = {}) {
             currentFilters.sort = document.getElementById('sortFilter').value;
 
             filteredBookings = allBookings.filter(booking => {
-                const matchesSearch = (booking.hostel_name && booking.hostel_name.toLowerCase().includes(currentFilters.search)) ||
-                                      (booking.location && booking.location.toLowerCase().includes(currentFilters.search));
+                const hostelName = (booking.hostel_name || '').toLowerCase();
+                const matchesSearch = hostelName.includes(currentFilters.search);
                 const matchesStatus = currentFilters.status === 'all' || booking.status === currentFilters.status;
                 return matchesSearch && matchesStatus;
             });
@@ -877,12 +852,6 @@ async function apiFetch(url, options = {}) {
             switch (currentFilters.sort) {
                 case 'oldest':
                     filteredBookings.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-                    break;
-                case 'price_low':
-                    filteredBookings.sort((a, b) => a.total_price - b.total_price);
-                    break;
-                case 'price_high':
-                    filteredBookings.sort((a, b) => b.total_price - a.total_price);
                     break;
                 default:
                     filteredBookings.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -901,18 +870,18 @@ async function apiFetch(url, options = {}) {
 
         function displayBookings() {
             const grid = document.getElementById('bookingsGrid');
-            const pagination = document.getElementById('pagination');
+            const paginationDiv = document.getElementById('pagination');
 
             if (filteredBookings.length === 0) {
                 grid.innerHTML = `
                     <div class="empty-state">
-                        <i class="fas fa-calendar-times"></i>
+                        <i class="fas fa-filter"></i>
                         <h3>No bookings match your filters</h3>
                         <p>Try adjusting your search criteria.</p>
-                        <button class="btn-primary" onclick="resetFilters()">Clear Filters</button>
+                        <button class="btn-outline" onclick="resetFilters()" style="margin-top: 1rem;">Clear Filters</button>
                     </div>
                 `;
-                pagination.style.display = 'none';
+                paginationDiv.style.display = 'none';
                 return;
             }
 
@@ -922,76 +891,79 @@ async function apiFetch(url, options = {}) {
             const totalPages = Math.ceil(filteredBookings.length / itemsPerPage);
 
             grid.innerHTML = paginated.map(booking => {
-                // Determine status class
                 let statusClass = '';
+                let statusText = '';
                 switch(booking.status) {
-                    case 'pending': statusClass = 'status-pending'; break;
-                    case 'confirmed': statusClass = 'status-confirmed'; break;
-                    case 'cancelled': statusClass = 'status-cancelled'; break;
-                    default: statusClass = '';
+                    case 'pending': statusClass = 'status-pending'; statusText = 'Pending'; break;
+                    case 'confirmed': statusClass = 'status-confirmed'; statusText = 'Confirmed'; break;
+                    case 'cancelled': statusClass = 'status-cancelled'; statusText = 'Cancelled'; break;
+                    default: statusClass = ''; statusText = booking.status || 'N/A';
                 }
+                
+                const checkIn = booking.check_in ? new Date(booking.check_in).toLocaleDateString() : 'N/A';
+                const checkOut = booking.check_out ? new Date(booking.check_out).toLocaleDateString() : 'N/A';
+                const guestName = booking.guest_name || booking.user?.full_name || 'Guest';
+                const totalPrice = Number(booking.total_price || booking.total_amount || 0);
+                
                 return `
-                <div class="booking-card">
-                    <div class="booking-header">
-                        <h3>${booking.hostel_name || 'Hostel'}</h3>
-                        <span class="booking-status ${statusClass}">${booking.status || 'N/A'}</span>
+                    <div class="booking-card">
+                        <div class="booking-header">
+                            <h3>${escapeHtml(booking.hostel_name || 'Hostel')}</h3>
+                            <span class="booking-status ${statusClass}">${statusText}</span>
+                        </div>
+                        <div class="booking-content">
+                            <div class="booking-detail">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Check-in: ${checkIn}</span>
+                            </div>
+                            <div class="booking-detail">
+                                <i class="fas fa-calendar-check"></i>
+                                <span>Check-out: ${checkOut}</span>
+                            </div>
+                            <div class="booking-detail">
+                                <i class="fas fa-user"></i>
+                                <span>Guest: ${escapeHtml(guestName)}</span>
+                            </div>
+                            <div class="booking-detail">
+                                <i class="fas fa-phone"></i>
+                                <span>Phone: ${booking.guest_phone || 'N/A'}</span>
+                            </div>
+                            <div class="booking-price">
+                                KSh ${totalPrice.toLocaleString()}
+                            </div>
+                            <div class="booking-actions">
+                                <button class="btn-action btn-view" onclick="viewBooking('${booking.id}')">
+                                    <i class="fas fa-eye"></i> View Details
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="booking-content">
-                        <div class="booking-detail">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span>Check-in: ${new Date(booking.check_in).toLocaleDateString()}</span>
-                        </div>
-                        <div class="booking-detail">
-                            <i class="fas fa-calendar-check"></i>
-                            <span>Check-out: ${new Date(booking.check_out).toLocaleDateString()}</span>
-                        </div>
-                        <div class="booking-detail">
-                            <i class="fas fa-user"></i>
-                            <span>Guest: ${booking.guest_name || 'N/A'}</span>
-                        </div>
-                        <div class="booking-detail">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>${booking.location || 'Location not specified'}</span>
-                        </div>
-                        <div class="booking-price">
-                            KSh ${Number(booking.total_price || 0).toLocaleString()}
-                        </div>
-                        <div class="booking-actions">
-                            <button class="btn-action btn-view" onclick="viewBooking('${booking.id}')">
-                                <i class="fas fa-eye"></i> View Details
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `}).join('');
+                `;
+            }).join('');
 
-            updatePagination(totalPages);
+            renderPagination(totalPages);
         }
 
-        function updatePagination(totalPages) {
-            const pagination = document.getElementById('pagination');
-            const prevBtn = document.getElementById('prevPage');
-            const nextBtn = document.getElementById('nextPage');
-            const pageNumbers = document.getElementById('pageNumbers');
-
+        function renderPagination(totalPages) {
+            const paginationDiv = document.getElementById('pagination');
             if (totalPages <= 1) {
-                pagination.style.display = 'none';
+                paginationDiv.style.display = 'none';
                 return;
             }
-
-            pagination.style.display = 'flex';
-            prevBtn.disabled = currentPage === 1;
-            nextBtn.disabled = currentPage === totalPages;
-
-            let pageHtml = '';
+            
+            paginationDiv.style.display = 'flex';
+            let html = `<button class="page-btn" onclick="changePage(-1)" ${currentPage === 1 ? 'disabled' : ''}>←</button>`;
+            
             for (let i = 1; i <= totalPages; i++) {
-                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
-                    pageHtml += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
-                } else if (i === currentPage - 3 || i === currentPage + 3) {
-                    pageHtml += `<span class="page-btn" style="border: none; background: transparent;">...</span>`;
+                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                    html += `<span style="padding: 0 5px;">...</span>`;
                 }
             }
-            pageNumbers.innerHTML = pageHtml;
+            
+            html += `<button class="page-btn" onclick="changePage(1)" ${currentPage === totalPages ? 'disabled' : ''}>→</button>`;
+            paginationDiv.innerHTML = html;
         }
 
         function goToPage(page) {
@@ -999,41 +971,49 @@ async function apiFetch(url, options = {}) {
             displayBookings();
         }
 
-        function changePage(direction) {
-            currentPage += direction;
+        function changePage(delta) {
+            currentPage += delta;
             displayBookings();
         }
 
         async function viewBooking(id) {
+            showLoading();
             try {
                 const booking = await apiFetch(`/bookings/${id}/`);
                 openModal(booking);
             } catch (error) {
-                alert('Failed to load booking details: ' + error.message);
+                showToast('Failed to load booking details: ' + error.message, 'error');
+            } finally {
+                hideLoading();
             }
         }
 
         function openModal(booking) {
             const modal = document.getElementById('bookingModal');
             const details = document.getElementById('modalDetails');
+            
             let statusClass = '';
             switch(booking.status) {
                 case 'pending': statusClass = 'status-pending'; break;
                 case 'confirmed': statusClass = 'status-confirmed'; break;
                 case 'cancelled': statusClass = 'status-cancelled'; break;
             }
+            
+            const checkIn = booking.check_in ? new Date(booking.check_in).toLocaleDateString() : 'N/A';
+            const checkOut = booking.check_out ? new Date(booking.check_out).toLocaleDateString() : 'N/A';
+            
             details.innerHTML = `
-                <h2>Booking Details</h2>
-                <div class="modal-info-item"><i class="fas fa-home"></i> <strong>Hostel:</strong> ${booking.hostel_name || 'N/A'}</div>
-                <div class="modal-info-item"><i class="fas fa-user"></i> <strong>Guest:</strong> ${booking.guest_name || 'N/A'}</div>
-                <div class="modal-info-item"><i class="fas fa-envelope"></i> <strong>Email:</strong> ${booking.guest_email || 'N/A'}</div>
-                <div class="modal-info-item"><i class="fas fa-phone"></i> <strong>Phone:</strong> ${booking.guest_phone || 'N/A'}</div>
-                <div class="modal-info-item"><i class="fas fa-calendar-alt"></i> <strong>Check-in:</strong> ${new Date(booking.check_in).toLocaleDateString()}</div>
-                <div class="modal-info-item"><i class="fas fa-calendar-check"></i> <strong>Check-out:</strong> ${new Date(booking.check_out).toLocaleDateString()}</div>
+                <h2 style="color: var(--kyu-green); margin-bottom: 1.5rem;">Booking Details</h2>
+                <div class="modal-info-item"><i class="fas fa-home"></i> <strong>Hostel:</strong> ${escapeHtml(booking.hostel_name || 'N/A')}</div>
+                <div class="modal-info-item"><i class="fas fa-user"></i> <strong>Guest Name:</strong> ${escapeHtml(booking.guest_name || booking.user?.full_name || 'N/A')}</div>
+                <div class="modal-info-item"><i class="fas fa-envelope"></i> <strong>Email:</strong> ${escapeHtml(booking.guest_email || booking.user?.email || 'N/A')}</div>
+                <div class="modal-info-item"><i class="fas fa-phone"></i> <strong>Phone:</strong> ${escapeHtml(booking.guest_phone || 'N/A')}</div>
+                <div class="modal-info-item"><i class="fas fa-calendar-alt"></i> <strong>Check-in:</strong> ${checkIn}</div>
+                <div class="modal-info-item"><i class="fas fa-calendar-check"></i> <strong>Check-out:</strong> ${checkOut}</div>
                 <div class="modal-info-item"><i class="fas fa-users"></i> <strong>Guests:</strong> ${booking.num_guests || 1}</div>
-                <div class="modal-info-item"><i class="fas fa-tag"></i> <strong>Status:</strong> <span class="booking-status ${statusClass}">${booking.status}</span></div>
-                <div class="modal-info-item"><i class="fas fa-money-bill-wave"></i> <strong>Total Price:</strong> KSh ${Number(booking.total_price || 0).toLocaleString()}</div>
-                ${booking.special_requests ? `<div class="modal-info-item"><i class="fas fa-comment"></i> <strong>Requests:</strong> ${booking.special_requests}</div>` : ''}
+                <div class="modal-info-item"><i class="fas fa-tag"></i> <strong>Status:</strong> <span class="booking-status ${statusClass}" style="display: inline-block; margin-left: 0;">${booking.status}</span></div>
+                <div class="modal-info-item"><i class="fas fa-money-bill-wave"></i> <strong>Total Price:</strong> KSh ${Number(booking.total_price || booking.total_amount || 0).toLocaleString()}</div>
+                ${booking.special_requests ? `<div class="modal-info-item"><i class="fas fa-comment"></i> <strong>Special Requests:</strong> ${escapeHtml(booking.special_requests)}</div>` : ''}
             `;
             modal.style.display = 'block';
         }
@@ -1042,22 +1022,47 @@ async function apiFetch(url, options = {}) {
             document.getElementById('bookingModal').style.display = 'none';
         }
 
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
         function logout() {
             sessionStorage.removeItem('accessToken');
             window.location.href = 'login.html';
         }
 
-        // Event listeners
+        // Dark mode
+        const savedTheme = localStorage.getItem('ownerTheme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('darkModeToggle').innerHTML = '<i class="fas fa-sun"></i>';
+        }
+
+        document.getElementById('darkModeToggle').addEventListener('click', () => {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('ownerTheme', isDark ? 'dark' : 'light');
+            document.getElementById('darkModeToggle').innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', logout);
         document.getElementById('searchInput').addEventListener('keyup', (e) => {
             if (e.key === 'Enter') applyFilters();
         });
-
-        window.onclick = function(event) {
-            const modal = document.getElementById('bookingModal');
-            if (event.target === modal) closeModal();
+        window.onclick = (event) => {
+            if (event.target === document.getElementById('bookingModal')) closeModal();
         };
 
-        // Load data
+        window.applyFilters = applyFilters;
+        window.resetFilters = resetFilters;
+        window.viewBooking = viewBooking;
+        window.goToPage = goToPage;
+        window.changePage = changePage;
+        window.closeModal = closeModal;
+
+        // Initialize
         loadUserProfile().then(() => loadBookings());
     </script>
 </body>
