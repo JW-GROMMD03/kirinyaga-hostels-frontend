@@ -400,6 +400,22 @@
             color: #fde047;
         }
 
+        .lockout-message {
+            background: #fef3c7;
+            color: #b45309;
+            padding: 1rem;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            display: none;
+            text-align: center;
+            border-left: 5px solid #b45309;
+        }
+
+        body.dark-mode .lockout-message {
+            background: #78350f;
+            color: #fde047;
+        }
+
         .countdown-timer {
             font-size: 1.2rem;
             font-weight: bold;
@@ -518,6 +534,7 @@
             <div id="success-message" class="success-message"></div>
             <div id="info-message" class="info-message"></div>
             <div id="rate-limit-message" class="rate-limit-message"></div>
+            <div id="lockout-message" class="lockout-message"></div>
 
             <form id="login-form">
                 <div class="form-group">
@@ -623,10 +640,12 @@
             const successDiv = document.getElementById('success-message');
             const infoDiv = document.getElementById('info-message');
             const rateLimitDiv = document.getElementById('rate-limit-message');
+            const lockoutDiv = document.getElementById('lockout-message');
             const resendBtn = document.getElementById('resend-otp-btn');
             
             let otpTimer = null;
             let rateLimitTimer = null;
+            let countdownInterval = null;
 
             function showError(msg) {
                 errorDiv.textContent = msg;
@@ -634,6 +653,7 @@
                 successDiv.style.display = 'none';
                 infoDiv.style.display = 'none';
                 rateLimitDiv.style.display = 'none';
+                lockoutDiv.style.display = 'none';
                 setTimeout(() => errorDiv.style.display = 'none', 5000);
             }
 
@@ -643,6 +663,7 @@
                 errorDiv.style.display = 'none';
                 successDiv.style.display = 'none';
                 rateLimitDiv.style.display = 'none';
+                lockoutDiv.style.display = 'none';
                 setTimeout(() => infoDiv.style.display = 'none', 5000);
             }
 
@@ -652,6 +673,7 @@
                 errorDiv.style.display = 'none';
                 infoDiv.style.display = 'none';
                 rateLimitDiv.style.display = 'none';
+                lockoutDiv.style.display = 'none';
                 setTimeout(() => successDiv.style.display = 'none', 3000);
             }
 
@@ -661,6 +683,7 @@
                 errorDiv.style.display = 'none';
                 infoDiv.style.display = 'none';
                 successDiv.style.display = 'none';
+                lockoutDiv.style.display = 'none';
                 loginBtn.disabled = true;
                 
                 let remaining = 300;
@@ -677,6 +700,50 @@
                         remaining--;
                     }
                 }, 1000);
+            }
+
+            function showLockout(message, remainingSeconds) {
+                lockoutDiv.style.display = 'block';
+                errorDiv.style.display = 'none';
+                infoDiv.style.display = 'none';
+                rateLimitDiv.style.display = 'none';
+                
+                if (countdownInterval) clearInterval(countdownInterval);
+                
+                const startTime = Date.now();
+                const endTime = startTime + (remainingSeconds * 1000);
+                
+                function updateCountdown() {
+                    const now = Date.now();
+                    const remaining = Math.max(0, Math.floor((endTime - now) / 1000));
+                    
+                    if (remaining <= 0) {
+                        clearInterval(countdownInterval);
+                        lockoutDiv.style.display = 'none';
+                        loginBtn.disabled = false;
+                        emailInput.disabled = false;
+                        passwordInput.disabled = false;
+                        lockoutDiv.innerHTML = '';
+                        showInfo('Account unlocked. You can now try logging in again.', true);
+                        return;
+                    }
+                    
+                    const minutes = Math.floor(remaining / 60);
+                    const seconds = remaining % 60;
+                    const timeString = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
+                    
+                    lockoutDiv.innerHTML = `
+                        <i class="fas fa-clock"></i> ${message}<br>
+                        <div class="countdown-timer">${timeString}</div>
+                    `;
+                }
+                
+                updateCountdown();
+                countdownInterval = setInterval(updateCountdown, 1000);
+                
+                loginBtn.disabled = true;
+                emailInput.disabled = true;
+                passwordInput.disabled = true;
             }
 
             function setLoading(isLoading) {
@@ -757,8 +824,17 @@
                 });
             }
 
+            function isOnline() {
+                return navigator.onLine;
+            }
+
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
+
+                if (!isOnline()) {
+                    showError('📡 No internet connection. Please check your network and try again.');
+                    return;
+                }
 
                 const email = emailInput.value.trim();
                 const password = passwordInput.value;
@@ -779,15 +855,20 @@
                 const payload = { email, password, remember };
                 if (otpGroup.style.display === 'block' && otpToken.length === 6) payload.otp_token = otpToken;
 
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 30000);
+
                 try {
                     const res = await fetch(`${API_BASE}/auth/student/login/`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         credentials: 'include',
-                        body: JSON.stringify(payload)
+                        body: JSON.stringify(payload),
+                        signal: controller.signal
                     });
 
-                    // Handle rate limiting (429)
+                    clearTimeout(timeoutId);
+
                     if (res.status === 429) {
                         showRateLimit();
                         setLoading(false);
@@ -800,29 +881,54 @@
                         let requiresOtp = false;
                         let errorMsg = '';
                         
-                        if (data.requires_otp === true) requiresOtp = true;
-                        if (data.non_field_errors && data.non_field_errors.length > 0) {
+                        // Check non_field_errors array (this is where DRF puts the error)
+                        if (data.non_field_errors && Array.isArray(data.non_field_errors) && data.non_field_errors.length > 0) {
                             const firstError = data.non_field_errors[0];
-                            if (typeof firstError === 'object' && firstError.requires_otp === true) requiresOtp = true;
-                            else if (typeof firstError === 'string') errorMsg = firstError;
+                            
+                            if (typeof firstError === 'object' && firstError !== null) {
+                                if (firstError.requires_otp === true || firstError.requires_otp === "True") {
+                                    requiresOtp = true;
+                                    errorMsg = firstError.message || 'Verification code sent to your email';
+                                }
+                            } else if (typeof firstError === 'string') {
+                                errorMsg = firstError;
+                                if (errorMsg.toLowerCase().includes('otp') || errorMsg.toLowerCase().includes('verification') || errorMsg.toLowerCase().includes('code sent')) {
+                                    requiresOtp = true;
+                                }
+                            }
                         }
-                        if (data.message && !errorMsg) errorMsg = data.message;
+                        
+                        if (data.requires_otp === true || data.requires_otp === "True") {
+                            requiresOtp = true;
+                            errorMsg = data.message || 'Verification code required';
+                        }
+                        
+                        if (data.message && !errorMsg) {
+                            errorMsg = data.message;
+                            if (errorMsg.toLowerCase().includes('otp') || errorMsg.toLowerCase().includes('verification')) {
+                                requiresOtp = true;
+                            }
+                        }
                         
                         if (requiresOtp) {
                             otpGroup.style.display = 'block';
                             startOtpTimer();
-                            showInfo('Verification code sent to your email. Please enter it below.');
+                            showInfo('📧 Verification code sent to your email. Please enter it below.');
                             setLoading(false);
                             return;
                         }
                         
                         if (data.locked === true) {
-                            showError(data.message);
+                            showLockout(data.message, data.remaining_seconds);
                             setLoading(false);
                             return;
                         }
                         
-                        showError(errorMsg || 'Invalid email or password');
+                        if (data.attempts_left) {
+                            showError(`${errorMsg || 'Invalid email or password'} (${data.attempts_left} attempt(s) remaining)`);
+                        } else {
+                            showError(errorMsg || '❌ Invalid email or password. Please try again.');
+                        }
                         setLoading(false);
                         return;
                     }
@@ -837,11 +943,19 @@
                     }
                     if (data.role) localStorage.setItem('userRole', data.role);
 
-                    showSuccess('Login successful! Redirecting...');
+                    showSuccess('✅ Login successful! Redirecting...');
                     setTimeout(() => window.location.href = 'dashboard.html', 1500);
                 } catch (err) {
+                    clearTimeout(timeoutId);
                     console.error('Login error:', err);
-                    showError('Network error. Unable to connect to server.');
+                    
+                    if (err.name === 'AbortError') {
+                        showError('⏱️ Request timed out. Server is taking too long to respond. Please try again.');
+                    } else if (err.message === 'Failed to fetch') {
+                        showError('🔌 Cannot connect to server. Please check your internet connection.');
+                    } else {
+                        showError('🌐 Network error. Unable to connect to server. Please check your connection and try again.');
+                    }
                     setLoading(false);
                 }
             });

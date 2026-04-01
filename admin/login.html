@@ -312,8 +312,22 @@
             background: #78350f;
             color: #fde047;
         }
+        .rate-limit-message {
+            background: #fef3c7;
+            color: #b45309;
+            padding: 1rem;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            display: none;
+            text-align: center;
+            border-left: 5px solid #b45309;
+        }
+        body.dark-mode .rate-limit-message {
+            background: #78350f;
+            color: #fde047;
+        }
         .countdown-timer {
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             font-weight: bold;
             font-family: monospace;
             margin-top: 0.5rem;
@@ -402,6 +416,7 @@
             <div id="error-message" class="error-message"></div>
             <div id="info-message" class="info-message"></div>
             <div id="lockout-message" class="lockout-message"></div>
+            <div id="rate-limit-message" class="rate-limit-message"></div>
             <div id="attempts-warning" class="attempts-warning"></div>
 
             <form id="login-form">
@@ -508,11 +523,13 @@
         const errorDiv = document.getElementById('error-message');
         const infoDiv = document.getElementById('info-message');
         const lockoutDiv = document.getElementById('lockout-message');
+        const rateLimitDiv = document.getElementById('rate-limit-message');
         const attemptsWarning = document.getElementById('attempts-warning');
         const resendBtn = document.getElementById('resend-otp-btn');
         
         let otpTimer = null;
         let countdownInterval = null;
+        let rateLimitTimer = null;
         let otpExpiryTime = null;
 
         function showError(message) {
@@ -520,6 +537,7 @@
             errorDiv.style.display = 'block';
             infoDiv.style.display = 'none';
             lockoutDiv.style.display = 'none';
+            rateLimitDiv.style.display = 'none';
             setTimeout(() => {
                 if (errorDiv.style.display === 'block') {
                     errorDiv.style.display = 'none';
@@ -532,6 +550,7 @@
             infoDiv.style.display = 'block';
             errorDiv.style.display = 'none';
             lockoutDiv.style.display = 'none';
+            rateLimitDiv.style.display = 'none';
             setTimeout(() => {
                 if (infoDiv.style.display === 'block') {
                     infoDiv.style.display = 'none';
@@ -543,6 +562,7 @@
             lockoutDiv.style.display = 'block';
             errorDiv.style.display = 'none';
             infoDiv.style.display = 'none';
+            rateLimitDiv.style.display = 'none';
             attemptsWarning.style.display = 'none';
             
             if (countdownInterval) clearInterval(countdownInterval);
@@ -592,14 +612,38 @@
             password.disabled = true;
         }
 
+        function showRateLimit() {
+            rateLimitDiv.innerHTML = `<i class="fas fa-clock"></i> Too many login attempts. Please wait 5 minutes before trying again.<br><div class="countdown-timer" id="rate-countdown">5:00</div>`;
+            rateLimitDiv.style.display = 'block';
+            errorDiv.style.display = 'none';
+            infoDiv.style.display = 'none';
+            lockoutDiv.style.display = 'none';
+            loginBtn.disabled = true;
+            
+            let remaining = 300;
+            if (rateLimitTimer) clearInterval(rateLimitTimer);
+            rateLimitTimer = setInterval(() => {
+                if (remaining <= 0) {
+                    clearInterval(rateLimitTimer);
+                    rateLimitDiv.style.display = 'none';
+                    loginBtn.disabled = false;
+                } else {
+                    const mins = Math.floor(remaining / 60);
+                    const secs = remaining % 60;
+                    document.getElementById('rate-countdown').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+                    remaining--;
+                }
+            }, 1000);
+        }
+
         function showAttemptsWarning(attemptsLeft) {
             attemptsWarning.style.display = 'block';
             if (attemptsLeft === 1) {
                 attemptsWarning.className = 'attempts-warning danger';
-                attemptsWarning.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Warning: 1 attempt remaining before account lockout for 1 hour!`;
+                attemptsWarning.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ⚠️ WARNING: 1 attempt remaining before account lockout for 1 hour!`;
             } else {
                 attemptsWarning.className = 'attempts-warning warning';
-                attemptsWarning.innerHTML = `<i class="fas fa-info-circle"></i> ${attemptsLeft} attempts remaining before lockout.`;
+                attemptsWarning.innerHTML = `<i class="fas fa-info-circle"></i> ⏰ ${attemptsLeft} attempts remaining before lockout.`;
             }
             setTimeout(() => {
                 attemptsWarning.style.display = 'none';
@@ -722,8 +766,19 @@
             });
         }
 
+        // Check internet connection
+        function isOnline() {
+            return navigator.onLine;
+        }
+
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            // Check if online
+            if (!isOnline()) {
+                showError('📡 No internet connection. Please check your network and try again.');
+                return;
+            }
 
             const payload = {
                 email: email.value,
@@ -738,47 +793,76 @@
 
             loginBtn.disabled = true;
             spinner.style.display = 'block';
+            errorDiv.style.display = 'none';
+            infoDiv.style.display = 'none';
+            lockoutDiv.style.display = 'none';
+            rateLimitDiv.style.display = 'none';
+
+            // Set timeout for slow connection
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000);
 
             try {
                 const res = await fetch(`${API_BASE}/auth/admin/login/`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(payload),
+                    signal: controller.signal
                 });
+
+                clearTimeout(timeoutId);
+
+                // Handle rate limiting (429)
+                if (res.status === 429) {
+                    showRateLimit();
+                    loginBtn.disabled = false;
+                    spinner.style.display = 'none';
+                    return;
+                }
 
                 const data = await res.json();
                 console.log('Admin login response:', data);
 
                 if (!res.ok) {
-                    // Check for OTP requirement
+                    // CRITICAL FIX: Check for OTP requirement in the correct structure
                     let requiresOtp = false;
                     let errorMsg = '';
                     
-                    // Check data.requires_otp
-                    if (data.requires_otp === true) {
-                        requiresOtp = true;
-                        errorMsg = data.message || 'Verification code required';
-                    }
-                    
-                    // Check non_field_errors array
-                    if (data.non_field_errors && data.non_field_errors.length > 0) {
+                    // Check non_field_errors array (this is where DRF puts the error)
+                    if (data.non_field_errors && Array.isArray(data.non_field_errors) && data.non_field_errors.length > 0) {
                         const firstError = data.non_field_errors[0];
-                        if (typeof firstError === 'object' && firstError.requires_otp === true) {
-                            requiresOtp = true;
-                            errorMsg = firstError.message || 'Verification code sent to your email';
-                        } else if (typeof firstError === 'string') {
+                        
+                        // If firstError is an object with requires_otp property
+                        if (typeof firstError === 'object' && firstError !== null) {
+                            // Check for requires_otp (could be string "True" or boolean true)
+                            if (firstError.requires_otp === true || firstError.requires_otp === "True") {
+                                requiresOtp = true;
+                                errorMsg = firstError.message || 'Verification code sent to your email';
+                            }
+                        } 
+                        // If firstError is a string
+                        else if (typeof firstError === 'string') {
                             errorMsg = firstError;
-                            if (errorMsg.toLowerCase().includes('otp') || errorMsg.toLowerCase().includes('verification')) {
+                            if (errorMsg.toLowerCase().includes('otp') || 
+                                errorMsg.toLowerCase().includes('verification') ||
+                                errorMsg.toLowerCase().includes('code sent')) {
                                 requiresOtp = true;
                             }
                         }
                     }
                     
+                    // Also check if there's a direct requires_otp field
+                    if (data.requires_otp === true || data.requires_otp === "True") {
+                        requiresOtp = true;
+                        errorMsg = data.message || 'Verification code required';
+                    }
+                    
                     // Check message field
                     if (data.message && !errorMsg) {
                         errorMsg = data.message;
-                        if (errorMsg.toLowerCase().includes('otp') || errorMsg.toLowerCase().includes('verification')) {
+                        if (errorMsg.toLowerCase().includes('otp') || 
+                            errorMsg.toLowerCase().includes('verification')) {
                             requiresOtp = true;
                         }
                     }
@@ -787,7 +871,7 @@
                     if (requiresOtp) {
                         showOtpField();
                         startOtpTimer(600);
-                        showInfo('Verification code sent to your email. Please enter it below.');
+                        showInfo('📧 Verification code sent to your email. Please enter it below.');
                         loginBtn.disabled = false;
                         spinner.style.display = 'none';
                         return;
@@ -803,9 +887,9 @@
                     // Show attempts warning
                     if (data.attempts_left) {
                         showAttemptsWarning(data.attempts_left);
-                        showError(errorMsg || 'Invalid email or password');
+                        showError(`${errorMsg || 'Invalid email or password'} (${data.attempts_left} attempt(s) remaining)`);
                     } else {
-                        showError(errorMsg || 'Invalid email or password. Please try again.');
+                        showError(errorMsg || '❌ Invalid email or password. Please try again.');
                     }
                     loginBtn.disabled = false;
                     spinner.style.display = 'none';
@@ -830,14 +914,22 @@
                     localStorage.setItem('userRole', data.role);
                 }
                 
-                showInfo('Admin login successful! Redirecting to dashboard...', true);
+                showInfo('✅ Admin login successful! Redirecting to dashboard...', true);
                 setTimeout(() => {
                     window.location.href = 'dashboard.html';
                 }, 1500);
                 
             } catch (err) {
+                clearTimeout(timeoutId);
                 console.error('Login error:', err);
-                showError('Network error. Unable to connect to server. Please check your connection.');
+                
+                if (err.name === 'AbortError') {
+                    showError('⏱️ Request timed out. Server is taking too long to respond. Please try again.');
+                } else if (err.message === 'Failed to fetch') {
+                    showError('🔌 Cannot connect to server. Please check your internet connection.');
+                } else {
+                    showError('🌐 Network error. Unable to connect to server. Please check your connection and try again.');
+                }
                 loginBtn.disabled = false;
                 spinner.style.display = 'none';
             }
