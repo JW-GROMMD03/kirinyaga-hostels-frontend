@@ -7,7 +7,6 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* KEEP YOUR EXISTING CSS - NO CHANGES */
         * {
             margin: 0;
             padding: 0;
@@ -293,7 +292,7 @@
             <form id="login-form">
                 <div class="form-group">
                     <label>Email Address</label>
-                    <input type="email" id="email" required>
+                    <input type="email" id="email" value="eugkipkomen75@gmail.com" required>
                 </div>
 
                 <div class="form-group">
@@ -303,7 +302,7 @@
 
                 <!-- OTP Field (hidden initially) -->
                 <div class="form-group" id="otp-group" style="display: none;">
-                    <label>Verification Code</label>
+                    <label>Verification Code <span id="otp-timer" style="font-size: 0.8rem;"></span></label>
                     <div class="otp-group">
                         <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
                         <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
@@ -313,6 +312,12 @@
                         <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
                     </div>
                     <input type="hidden" id="otp">
+                    <p style="font-size: 0.85rem; margin-top: 0.5rem;">
+                        <i class="fas fa-envelope"></i> Check your email for the 6-digit code
+                    </p>
+                    <button type="button" id="resend-otp-btn" style="margin-top: 0.5rem; background: none; border: none; color: var(--kyu-green); cursor: pointer;">
+                        <i class="fas fa-redo-alt"></i> Resend code
+                    </button>
                 </div>
 
                 <div class="remember-forgot">
@@ -380,10 +385,9 @@
         const spinner = document.getElementById('spinner');
         const errorDiv = document.getElementById('error-message');
         const infoDiv = document.getElementById('info-message');
-
-        function getOtp() {
-            return Array.from(otpInputs).map(i => i.value).join('');
-        }
+        const resendBtn = document.getElementById('resend-otp-btn');
+        
+        let otpTimer = null;
 
         function showError(message) {
             errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
@@ -399,6 +403,33 @@
             setTimeout(() => infoDiv.style.display = 'none', 5000);
         }
 
+        function getOtp() {
+            return Array.from(otpInputs).map(i => i.value).join('');
+        }
+
+        function resetOtp() {
+            otpInputs.forEach(input => input.value = '');
+            otpHidden.value = '';
+        }
+
+        function startOtpTimer() {
+            if (otpTimer) clearInterval(otpTimer);
+            let remaining = 600;
+            const timerEl = document.getElementById('otp-timer');
+            otpTimer = setInterval(() => {
+                if (remaining <= 0) {
+                    clearInterval(otpTimer);
+                    timerEl.textContent = '';
+                    if (resendBtn) resendBtn.disabled = false;
+                } else {
+                    const mins = Math.floor(remaining / 60);
+                    const secs = remaining % 60;
+                    timerEl.textContent = `(expires in ${mins}:${secs.toString().padStart(2, '0')})`;
+                    remaining--;
+                }
+            }, 1000);
+        }
+
         otpInputs.forEach((input, idx) => {
             input.addEventListener('input', (e) => {
                 e.target.value = e.target.value.replace(/[^0-9]/g, '');
@@ -406,6 +437,9 @@
                     otpInputs[idx + 1].focus();
                 }
                 otpHidden.value = getOtp();
+                if (getOtp().length === 6) {
+                    setTimeout(() => form.dispatchEvent(new Event('submit')), 100);
+                }
             });
 
             input.addEventListener('keydown', (e) => {
@@ -421,9 +455,35 @@
                     otpInputs[i].value = paste[i];
                 }
                 otpHidden.value = paste.substring(0, 6);
-                if (paste.length >= 6) otpInputs[5].focus();
+                if (paste.length >= 6) {
+                    setTimeout(() => form.dispatchEvent(new Event('submit')), 100);
+                }
             });
         });
+
+        if (resendBtn) {
+            resendBtn.addEventListener('click', async () => {
+                resendBtn.disabled = true;
+                resendBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Sending...';
+                try {
+                    const res = await fetch(`${API_BASE}/auth/2fa/send-otp/`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: email.value })
+                    });
+                    if (res.ok) {
+                        showInfo('New verification code sent to your email!', true);
+                        startOtpTimer();
+                    } else {
+                        showError('Failed to resend code. Please try again.');
+                    }
+                } catch (err) {
+                    showError('Network error. Please try again.');
+                }
+                resendBtn.disabled = false;
+                resendBtn.innerHTML = '<i class="fas fa-redo-alt"></i> Resend code';
+            });
+        }
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -434,11 +494,7 @@
                 remember: remember.checked
             };
 
-            if (otpGroup.style.display === 'block') {
-                if (getOtp().length !== 6) {
-                    showError('Please enter the 6-digit verification code');
-                    return;
-                }
+            if (otpGroup.style.display === 'block' && getOtp().length === 6) {
                 payload.otp_token = getOtp();
             }
 
@@ -455,30 +511,41 @@
                     body: JSON.stringify(payload)
                 });
 
-                const data = await res.json();
-                console.log('Login response:', data);
+                const responseText = await res.text();
+                console.log('Raw response:', responseText);
+                
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    data = { message: responseText };
+                }
+                
+                console.log('Parsed data:', data);
+                console.log('Response status:', res.status);
 
                 if (!res.ok) {
-                    // Check for OTP requirement - look in non_field_errors structure
+                    // Check for OTP requirement in various response formats
                     let requiresOtp = false;
                     let errorMsg = '';
                     
-                    // Check if data.requires_otp exists
+                    // Check if data has requires_otp flag
                     if (data.requires_otp === true) {
                         requiresOtp = true;
                         errorMsg = data.message || 'Verification code required';
                     }
                     
-                    // Check non_field_errors array (this is where DRF puts the error)
+                    // Check non_field_errors
                     if (data.non_field_errors && data.non_field_errors.length > 0) {
                         const firstError = data.non_field_errors[0];
-                        // Check if firstError is an object with requires_otp
                         if (typeof firstError === 'object' && firstError.requires_otp === true) {
                             requiresOtp = true;
-                            errorMsg = firstError.message || 'Verification code sent to your email';
+                            errorMsg = firstError.message || 'Verification code sent';
                         } else if (typeof firstError === 'string') {
                             errorMsg = firstError;
-                            if (errorMsg.toLowerCase().includes('otp') || errorMsg.toLowerCase().includes('verification')) {
+                            if (errorMsg.toLowerCase().includes('otp') || 
+                                errorMsg.toLowerCase().includes('verification') ||
+                                errorMsg.toLowerCase().includes('code sent')) {
                                 requiresOtp = true;
                             }
                         }
@@ -487,7 +554,18 @@
                     // Check message field
                     if (data.message && !errorMsg) {
                         errorMsg = data.message;
-                        if (errorMsg.toLowerCase().includes('otp') || errorMsg.toLowerCase().includes('verification')) {
+                        if (errorMsg.toLowerCase().includes('otp') || 
+                            errorMsg.toLowerCase().includes('verification') ||
+                            errorMsg.toLowerCase().includes('code sent')) {
+                            requiresOtp = true;
+                        }
+                    }
+                    
+                    // Check error field
+                    if (data.error && !errorMsg) {
+                        errorMsg = data.error;
+                        if (errorMsg.toLowerCase().includes('otp') || 
+                            errorMsg.toLowerCase().includes('verification')) {
                             requiresOtp = true;
                         }
                     }
@@ -495,6 +573,7 @@
                     // If OTP is required, show the OTP field
                     if (requiresOtp) {
                         otpGroup.style.display = 'block';
+                        startOtpTimer();
                         showInfo('Verification code sent to your email. Please enter it below.');
                         loginBtn.disabled = false;
                         spinner.style.display = 'none';
@@ -555,6 +634,28 @@
                 loginBtn.disabled = false;
                 spinner.style.display = 'none';
             }
+        });
+
+        email.addEventListener('input', () => {
+            if (otpGroup.style.display === 'block') {
+                otpGroup.style.display = 'none';
+                resetOtp();
+                if (otpTimer) clearInterval(otpTimer);
+            }
+        });
+        password.addEventListener('input', () => {
+            if (otpGroup.style.display === 'block') {
+                otpGroup.style.display = 'none';
+                resetOtp();
+                if (otpTimer) clearInterval(otpTimer);
+            }
+        });
+
+        const remembered = localStorage.getItem('rememberedOwnerEmail');
+        if (remembered) { email.value = remembered; remember.checked = true; }
+        form.addEventListener('submit', () => {
+            if (remember.checked) localStorage.setItem('rememberedOwnerEmail', email.value.trim());
+            else localStorage.removeItem('rememberedOwnerEmail');
         });
     </script>
 </body>
