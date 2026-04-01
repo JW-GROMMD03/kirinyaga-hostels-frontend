@@ -20,6 +20,8 @@
             --text-primary: #1e293b;
             --text-secondary: #64748b;
             --border-light: #e2e8f0;
+            --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.1);
         }
         body.dark-mode {
             --kyu-green: #2ecc71;
@@ -35,6 +37,17 @@
             display: flex;
             flex-direction: column;
             transition: background 0.3s ease;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.05"><path d="M20 20 L80 20 L80 80 L20 80 Z" fill="none" stroke="white" stroke-width="2"/><circle cx="50" cy="50" r="15" fill="none" stroke="white" stroke-width="2"/></svg>') repeat;
+            pointer-events: none;
         }
         .top-bar {
             background: rgba(255,255,255,0.98);
@@ -45,6 +58,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: relative;
+            z-index: 10;
         }
         body.dark-mode .top-bar {
             background: rgba(30,41,59,0.98);
@@ -56,15 +71,23 @@
             text-decoration: none;
             color: var(--kyu-green);
             font-weight: 600;
+            font-size: 1rem;
             padding: 8px 16px;
             border-radius: 40px;
             background: rgba(0,103,71,0.1);
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+        }
+        body.dark-mode .back-btn {
+            background: rgba(46,204,113,0.1);
         }
         .back-btn:hover {
             background: var(--kyu-green);
             color: white;
             transform: translateX(-5px);
+        }
+        .back-btn span {
+            font-size: 1.4rem;
+            line-height: 1;
         }
         .dark-mode-toggle {
             background: rgba(0,103,71,0.1);
@@ -88,15 +111,22 @@
             justify-content: center;
             align-items: center;
             padding: 2rem;
+            position: relative;
+            z-index: 5;
         }
         .login-card {
             background: var(--bg-white);
-            border-radius: 40px;
+            backdrop-filter: blur(20px);
+            border-radius: 32px;
             box-shadow: 0 30px 60px rgba(0,0,0,0.3);
-            padding: 3rem;
+            padding: 2.8rem;
             width: 100%;
-            max-width: 450px;
-            transition: background 0.3s ease;
+            max-width: 480px;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+        .login-card:hover {
+            transform: translateY(-8px);
         }
         .university-emblem {
             text-align: center;
@@ -105,6 +135,7 @@
         .university-emblem img {
             width: 80px;
             height: 80px;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
         }
         h2 {
             color: var(--kyu-green);
@@ -118,6 +149,11 @@
             margin-bottom: 2rem;
             border-bottom: 2px solid var(--kyu-gold);
             padding-bottom: 1rem;
+            display: inline-block;
+            width: auto;
+            margin-left: auto;
+            margin-right: auto;
+            display: table;
         }
         .form-group {
             margin-bottom: 1.5rem;
@@ -134,12 +170,14 @@
             border: 2px solid var(--border-light);
             border-radius: 16px;
             font-size: 1rem;
+            transition: all 0.3s;
             background: var(--bg-white);
             color: var(--text-primary);
         }
         input:focus {
             outline: none;
             border-color: var(--kyu-green);
+            box-shadow: 0 0 0 3px rgba(0, 103, 71, 0.2);
         }
         .otp-group {
             display: flex;
@@ -158,26 +196,48 @@
             background: var(--bg-white);
             color: var(--text-primary);
         }
+        .otp-input:focus {
+            border-color: var(--kyu-green);
+            outline: none;
+        }
         .remember-forgot {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin: 1.5rem 0;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .remember-me {
             display: flex;
             align-items: center;
             gap: 8px;
             color: var(--text-secondary);
+            cursor: pointer;
+        }
+        .remember-me input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--kyu-green);
+            cursor: pointer;
         }
         .forgot-password a {
             color: var(--kyu-green);
             text-decoration: none;
             font-weight: 600;
+            font-size: 0.95rem;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background: rgba(0, 103, 71, 0.08);
+            transition: all 0.3s;
+        }
+        .forgot-password a:hover {
+            background: var(--kyu-green);
+            color: white;
         }
         .btn-login {
             width: 100%;
-            padding: 1.1rem;
+            padding: 1rem;
             background: linear-gradient(145deg, var(--kyu-green), #008355);
             color: white;
             border: none;
@@ -186,21 +246,23 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
+            box-shadow: 0 8px 20px rgba(0, 103, 71, 0.4);
         }
         .btn-login:hover {
             transform: translateY(-2px);
-            background: #004d33;
+            box-shadow: 0 12px 25px rgba(0, 103, 71, 0.6);
         }
         .btn-login:disabled {
             opacity: 0.7;
             cursor: not-allowed;
+            transform: none;
         }
         .spinner {
             display: none;
             width: 40px;
             height: 40px;
             margin: 15px auto 0;
-            border: 4px solid rgba(0,103,71,0.2);
+            border: 4px solid rgba(0, 103, 71, 0.2);
             border-left-color: var(--kyu-green);
             border-radius: 50%;
             animation: spin 1s linear infinite;
@@ -215,26 +277,106 @@
             border-radius: 16px;
             margin-bottom: 1.5rem;
             display: none;
+            font-size: 0.95rem;
+            border-left: 5px solid #c53030;
         }
         body.dark-mode .error-message {
             background: #7f1a1a;
             color: #fecaca;
         }
+        .info-message {
+            background: #e6f7e6;
+            color: #2e7d32;
+            padding: 1rem;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            display: none;
+            font-size: 0.95rem;
+            border-left: 5px solid #2e7d32;
+        }
+        body.dark-mode .info-message {
+            background: #14532d;
+            color: #86efac;
+        }
+        .lockout-message {
+            background: #fef3c7;
+            color: #b45309;
+            padding: 1rem;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            display: none;
+            text-align: center;
+            border-left: 5px solid #b45309;
+        }
+        body.dark-mode .lockout-message {
+            background: #78350f;
+            color: #fde047;
+        }
+        .countdown-timer {
+            font-size: 1.5rem;
+            font-weight: bold;
+            font-family: monospace;
+            margin-top: 0.5rem;
+        }
+        .attempts-warning {
+            font-size: 0.85rem;
+            margin-top: -0.5rem;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            display: none;
+            text-align: center;
+        }
+        .attempts-warning.warning {
+            background: rgba(202, 138, 4, 0.1);
+            color: var(--warning);
+        }
+        .attempts-warning.danger {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--danger);
+        }
         .admin-badge {
             text-align: center;
-            margin-top: 1rem;
-            font-size: 0.8rem;
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
             color: var(--text-secondary);
+        }
+        .admin-badge i {
+            color: var(--kyu-green);
         }
         footer {
             background: #1a2e3a;
             color: #e2e8f0;
             padding: 1.5rem;
             text-align: center;
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 10;
             border-top: 3px solid var(--kyu-gold);
         }
         body.dark-mode footer {
             background: #0f172a;
+        }
+        footer a {
+            color: var(--kyu-gold);
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 600px) {
+            .login-card {
+                padding: 1.8rem;
+            }
+            h2 {
+                font-size: 1.8rem;
+            }
+            .otp-input {
+                width: 40px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
@@ -258,20 +400,24 @@
             <div class="subtitle">System Administration Portal</div>
 
             <div id="error-message" class="error-message"></div>
+            <div id="info-message" class="info-message"></div>
+            <div id="lockout-message" class="lockout-message"></div>
+            <div id="attempts-warning" class="attempts-warning"></div>
 
             <form id="login-form">
                 <div class="form-group">
-                    <label>Admin Email</label>
-                    <input type="email" id="email" required>
+                    <label><i class="fas fa-envelope"></i> Admin Email</label>
+                    <input type="email" id="email" placeholder="admin@kirinyaga-hostels.ac.ke" required autocomplete="email">
                 </div>
 
                 <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="password" required>
+                    <label><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="password" placeholder="Enter your password" required autocomplete="current-password">
                 </div>
 
+                <!-- OTP Field (hidden initially) -->
                 <div class="form-group" id="otp-group" style="display: none;">
-                    <label>Verification Code</label>
+                    <label><i class="fas fa-key"></i> Verification Code <span id="otp-timer" style="font-size: 0.8rem; color: var(--text-secondary);"></span></label>
                     <div class="otp-group">
                         <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
                         <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
@@ -281,6 +427,12 @@
                         <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
                     </div>
                     <input type="hidden" id="otp">
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                        <i class="fas fa-envelope"></i> Check your email for the 6-digit verification code
+                    </p>
+                    <button type="button" id="resend-otp-btn" style="margin-top: 0.5rem; background: none; border: none; color: var(--kyu-green); cursor: pointer; font-size: 0.85rem;">
+                        <i class="fas fa-redo-alt"></i> Didn't receive code? Resend
+                    </button>
                 </div>
 
                 <div class="remember-forgot">
@@ -288,11 +440,13 @@
                         <input type="checkbox" id="remember"> Remember me
                     </label>
                     <div class="forgot-password">
-                        <a href="forgot-password.html">Forgot Password?</a>
+                        <a href="forgot-password.html"><i class="fas fa-key"></i> Forgot Password?</a>
                     </div>
                 </div>
 
-                <button type="submit" class="btn-login" id="login-btn">Access Admin Panel</button>
+                <button type="submit" class="btn-login" id="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Access Admin Panel
+                </button>
                 <div class="spinner" id="spinner"></div>
             </form>
 
@@ -304,27 +458,44 @@
 
     <footer>
         <p>© 2025 Kirinyaga University Hostels. All rights reserved.</p>
+        <p>
+            <a href="../privacy.html">Privacy Policy</a> • 
+            <a href="../terms.html">Terms of Service</a> • 
+            <a href="../contact.html">Contact Us</a>
+        </p>
     </footer>
 
     <script>
+        // ==================== DARK MODE SYNC ====================
         function applyDarkMode() {
             const savedTheme = localStorage.getItem('ownerTheme');
             if (savedTheme === 'dark') {
                 document.body.classList.add('dark-mode');
-                document.getElementById('darkModeToggle').innerHTML = '<i class="fas fa-sun"></i>';
+                const toggleBtn = document.getElementById('darkModeToggle');
+                if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                document.body.classList.remove('dark-mode');
+                const toggleBtn = document.getElementById('darkModeToggle');
+                if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
             }
         }
+        
         applyDarkMode();
+        
         window.addEventListener('storage', (e) => {
             if (e.key === 'ownerTheme') applyDarkMode();
         });
+
         document.getElementById('darkModeToggle').addEventListener('click', () => {
             const isDark = document.body.classList.toggle('dark-mode');
             localStorage.setItem('ownerTheme', isDark ? 'dark' : 'light');
-            document.getElementById('darkModeToggle').innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            const toggleBtn = document.getElementById('darkModeToggle');
+            toggleBtn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
         });
 
+        // ==================== ADMIN LOGIN FUNCTIONALITY ====================
         const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
+        
         const form = document.getElementById('login-form');
         const email = document.getElementById('email');
         const password = document.getElementById('password');
@@ -335,28 +506,221 @@
         const loginBtn = document.getElementById('login-btn');
         const spinner = document.getElementById('spinner');
         const errorDiv = document.getElementById('error-message');
+        const infoDiv = document.getElementById('info-message');
+        const lockoutDiv = document.getElementById('lockout-message');
+        const attemptsWarning = document.getElementById('attempts-warning');
+        const resendBtn = document.getElementById('resend-otp-btn');
+        
+        let otpTimer = null;
+        let countdownInterval = null;
+        let otpExpiryTime = null;
+
+        function showError(message) {
+            errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+            errorDiv.style.display = 'block';
+            infoDiv.style.display = 'none';
+            lockoutDiv.style.display = 'none';
+            setTimeout(() => {
+                if (errorDiv.style.display === 'block') {
+                    errorDiv.style.display = 'none';
+                }
+            }, 5000);
+        }
+
+        function showInfo(message, isSuccess = false) {
+            infoDiv.innerHTML = `<i class="fas fa-${isSuccess ? 'check-circle' : 'info-circle'}"></i> ${message}`;
+            infoDiv.style.display = 'block';
+            errorDiv.style.display = 'none';
+            lockoutDiv.style.display = 'none';
+            setTimeout(() => {
+                if (infoDiv.style.display === 'block') {
+                    infoDiv.style.display = 'none';
+                }
+            }, 5000);
+        }
+
+        function showLockout(message, remainingSeconds) {
+            lockoutDiv.style.display = 'block';
+            errorDiv.style.display = 'none';
+            infoDiv.style.display = 'none';
+            attemptsWarning.style.display = 'none';
+            
+            if (countdownInterval) clearInterval(countdownInterval);
+            
+            const startTime = Date.now();
+            const endTime = startTime + (remainingSeconds * 1000);
+            
+            function updateCountdown() {
+                const now = Date.now();
+                const remaining = Math.max(0, Math.floor((endTime - now) / 1000));
+                
+                if (remaining <= 0) {
+                    clearInterval(countdownInterval);
+                    lockoutDiv.style.display = 'none';
+                    loginBtn.disabled = false;
+                    email.disabled = false;
+                    password.disabled = false;
+                    lockoutDiv.innerHTML = '';
+                    showInfo('Account unlocked. You can now try logging in again.', true);
+                    return;
+                }
+                
+                const hours = Math.floor(remaining / 3600);
+                const minutes = Math.floor((remaining % 3600) / 60);
+                const seconds = remaining % 60;
+                
+                let timeString = '';
+                if (hours > 0) {
+                    timeString = `${hours}h ${minutes}m ${seconds}s`;
+                } else if (minutes > 0) {
+                    timeString = `${minutes}m ${seconds}s`;
+                } else {
+                    timeString = `${seconds}s`;
+                }
+                
+                lockoutDiv.innerHTML = `
+                    <i class="fas fa-clock"></i> ${message}<br>
+                    <div class="countdown-timer">${timeString}</div>
+                `;
+            }
+            
+            updateCountdown();
+            countdownInterval = setInterval(updateCountdown, 1000);
+            
+            loginBtn.disabled = true;
+            email.disabled = true;
+            password.disabled = true;
+        }
+
+        function showAttemptsWarning(attemptsLeft) {
+            attemptsWarning.style.display = 'block';
+            if (attemptsLeft === 1) {
+                attemptsWarning.className = 'attempts-warning danger';
+                attemptsWarning.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Warning: 1 attempt remaining before account lockout for 1 hour!`;
+            } else {
+                attemptsWarning.className = 'attempts-warning warning';
+                attemptsWarning.innerHTML = `<i class="fas fa-info-circle"></i> ${attemptsLeft} attempts remaining before lockout.`;
+            }
+            setTimeout(() => {
+                attemptsWarning.style.display = 'none';
+            }, 5000);
+        }
 
         function getOtp() {
             return Array.from(otpInputs).map(i => i.value).join('');
         }
 
+        function resetOtp() {
+            otpInputs.forEach(input => input.value = '');
+            otpHidden.value = '';
+        }
+
+        function startOtpTimer(expirySeconds = 600) {
+            const timerElement = document.getElementById('otp-timer');
+            if (otpTimer) clearInterval(otpTimer);
+            
+            let remaining = expirySeconds;
+            otpExpiryTime = Date.now() + (remaining * 1000);
+            
+            function updateTimer() {
+                const now = Date.now();
+                const remainingSecs = Math.max(0, Math.floor((otpExpiryTime - now) / 1000));
+                
+                if (remainingSecs <= 0) {
+                    clearInterval(otpTimer);
+                    timerElement.textContent = '';
+                    if (resendBtn) resendBtn.style.display = 'inline-block';
+                } else {
+                    const minutes = Math.floor(remainingSecs / 60);
+                    const seconds = remainingSecs % 60;
+                    timerElement.textContent = `(expires in ${minutes}:${seconds.toString().padStart(2, '0')})`;
+                    if (resendBtn) resendBtn.style.display = 'none';
+                }
+            }
+            
+            updateTimer();
+            otpTimer = setInterval(updateTimer, 1000);
+        }
+
+        function showOtpField() {
+            otpGroup.style.display = 'block';
+            resetOtp();
+            otpInputs[0].focus();
+        }
+
+        function hideOtpField() {
+            otpGroup.style.display = 'none';
+            resetOtp();
+            if (otpTimer) clearInterval(otpTimer);
+        }
+
+        // OTP input navigation
         otpInputs.forEach((input, idx) => {
             input.addEventListener('input', (e) => {
                 e.target.value = e.target.value.replace(/[^0-9]/g, '');
-                if (e.target.value && idx < 5) otpInputs[idx + 1].focus();
+                if (e.target.value && idx < otpInputs.length - 1) {
+                    otpInputs[idx + 1].focus();
+                }
                 otpHidden.value = getOtp();
+                
+                if (getOtp().length === 6) {
+                    setTimeout(() => {
+                        form.dispatchEvent(new Event('submit'));
+                    }, 100);
+                }
             });
+
             input.addEventListener('keydown', (e) => {
-                if (e.key === 'Backspace' && !e.target.value && idx > 0) otpInputs[idx - 1].focus();
+                if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+                    otpInputs[idx - 1].focus();
+                }
             });
+
             input.addEventListener('paste', (e) => {
                 e.preventDefault();
                 const paste = e.clipboardData.getData('text').replace(/[^0-9]/g, '');
-                for (let i = 0; i < paste.length && i < 6; i++) otpInputs[i].value = paste[i];
+                for (let i = 0; i < paste.length && i < otpInputs.length; i++) {
+                    otpInputs[i].value = paste[i];
+                }
                 otpHidden.value = paste.substring(0, 6);
-                if (paste.length >= 6) otpInputs[5].focus();
+                if (paste.length >= 6) {
+                    otpInputs[5].focus();
+                    setTimeout(() => {
+                        form.dispatchEvent(new Event('submit'));
+                    }, 100);
+                }
             });
         });
+
+        // Resend OTP
+        if (resendBtn) {
+            resendBtn.addEventListener('click', async () => {
+                resendBtn.disabled = true;
+                resendBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Sending...';
+                
+                try {
+                    const payload = { email: email.value };
+                    const res = await fetch(`${API_BASE}/auth/2fa/send-otp/`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (res.ok) {
+                        showInfo('New verification code sent to your email!', true);
+                        startOtpTimer(600);
+                    } else {
+                        const data = await res.json();
+                        showError(data.message || 'Failed to resend code. Please try again.');
+                    }
+                } catch (err) {
+                    showError('Network error. Please try again.');
+                } finally {
+                    resendBtn.disabled = false;
+                    resendBtn.innerHTML = '<i class="fas fa-redo-alt"></i> Didn\'t receive code? Resend';
+                }
+            });
+        }
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -367,18 +731,13 @@
                 remember: remember.checked
             };
 
-            if (otpGroup.style.display === 'block') {
-                if (getOtp().length !== 6) {
-                    errorDiv.textContent = 'Please enter the 6-digit verification code';
-                    errorDiv.style.display = 'block';
-                    return;
-                }
-                payload.otp_token = getOtp();
+            const otpCode = getOtp();
+            if (otpGroup.style.display === 'block' && otpCode.length === 6) {
+                payload.otp_token = otpCode;
             }
 
             loginBtn.disabled = true;
             spinner.style.display = 'block';
-            errorDiv.style.display = 'none';
 
             try {
                 const res = await fetch(`${API_BASE}/auth/admin/login/`, {
@@ -389,49 +748,132 @@
                 });
 
                 const data = await res.json();
+                console.log('Admin login response:', data);
 
                 if (!res.ok) {
-                    if (data.non_field_errors) {
-                        const msg = data.non_field_errors[0];
-                        if (msg && (msg.includes('OTP') || msg.includes('verification'))) {
-                            otpGroup.style.display = 'block';
-                            errorDiv.textContent = 'Verification code sent to your email. Please enter it below.';
-                            errorDiv.style.display = 'block';
-                        } else {
-                            errorDiv.textContent = msg;
-                            errorDiv.style.display = 'block';
+                    // Check for OTP requirement
+                    let requiresOtp = false;
+                    let errorMsg = '';
+                    
+                    // Check data.requires_otp
+                    if (data.requires_otp === true) {
+                        requiresOtp = true;
+                        errorMsg = data.message || 'Verification code required';
+                    }
+                    
+                    // Check non_field_errors array
+                    if (data.non_field_errors && data.non_field_errors.length > 0) {
+                        const firstError = data.non_field_errors[0];
+                        if (typeof firstError === 'object' && firstError.requires_otp === true) {
+                            requiresOtp = true;
+                            errorMsg = firstError.message || 'Verification code sent to your email';
+                        } else if (typeof firstError === 'string') {
+                            errorMsg = firstError;
+                            if (errorMsg.toLowerCase().includes('otp') || errorMsg.toLowerCase().includes('verification')) {
+                                requiresOtp = true;
+                            }
                         }
-                    } else if (data.error) {
-                        errorDiv.textContent = data.error;
-                        errorDiv.style.display = 'block';
+                    }
+                    
+                    // Check message field
+                    if (data.message && !errorMsg) {
+                        errorMsg = data.message;
+                        if (errorMsg.toLowerCase().includes('otp') || errorMsg.toLowerCase().includes('verification')) {
+                            requiresOtp = true;
+                        }
+                    }
+                    
+                    // If OTP is required, show the OTP field
+                    if (requiresOtp) {
+                        showOtpField();
+                        startOtpTimer(600);
+                        showInfo('Verification code sent to your email. Please enter it below.');
+                        loginBtn.disabled = false;
+                        spinner.style.display = 'none';
+                        return;
+                    }
+                    
+                    // Check for lockout
+                    if (data.locked === true) {
+                        showLockout(data.message, data.remaining_seconds);
+                        spinner.style.display = 'none';
+                        return;
+                    }
+                    
+                    // Show attempts warning
+                    if (data.attempts_left) {
+                        showAttemptsWarning(data.attempts_left);
+                        showError(errorMsg || 'Invalid email or password');
                     } else {
-                        errorDiv.textContent = 'Login failed. Please try again.';
-                        errorDiv.style.display = 'block';
+                        showError(errorMsg || 'Invalid email or password. Please try again.');
                     }
                     loginBtn.disabled = false;
                     spinner.style.display = 'none';
                     return;
                 }
 
+                // Login successful
                 if (data.access) {
                     sessionStorage.setItem('accessToken', data.access);
-                    if (remember.checked) localStorage.setItem('accessToken', data.access);
+                    if (remember.checked) {
+                        localStorage.setItem('accessToken', data.access);
+                    }
                 }
                 if (data.refresh) {
                     sessionStorage.setItem('refreshToken', data.refresh);
-                    if (remember.checked) localStorage.setItem('refreshToken', data.refresh);
+                    if (remember.checked) {
+                        localStorage.setItem('refreshToken', data.refresh);
+                    }
                 }
                 if (data.role) {
                     sessionStorage.setItem('userRole', data.role);
                     localStorage.setItem('userRole', data.role);
                 }
                 
-                window.location.href = 'dashboard.html';
+                showInfo('Admin login successful! Redirecting to dashboard...', true);
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+                
             } catch (err) {
                 console.error('Login error:', err);
-                errorDiv.textContent = 'Network error. Unable to connect to server.';
+                showError('Network error. Unable to connect to server. Please check your connection.');
                 loginBtn.disabled = false;
                 spinner.style.display = 'none';
+            }
+        });
+
+        // Reset OTP field when email or password changes
+        email.addEventListener('input', () => {
+            if (otpGroup.style.display === 'block') {
+                hideOtpField();
+            }
+        });
+        
+        password.addEventListener('input', () => {
+            if (otpGroup.style.display === 'block') {
+                hideOtpField();
+            }
+        });
+
+        // Remember me functionality
+        try {
+            const rememberedEmail = localStorage.getItem('rememberedAdminEmail');
+            if (rememberedEmail) {
+                email.value = rememberedEmail;
+                remember.checked = true;
+            }
+        } catch (e) {}
+
+        form.addEventListener('submit', function() {
+            if (remember.checked) {
+                try {
+                    localStorage.setItem('rememberedAdminEmail', email.value.trim());
+                } catch (e) {}
+            } else {
+                try {
+                    localStorage.removeItem('rememberedAdminEmail');
+                } catch (e) {}
             }
         });
     </script>
