@@ -664,6 +664,23 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
     font-weight: 600;
     font-size: 0.8rem;
 }
+
+#auditPagination {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#auditPagination button {
+    margin: 0 5px;
+    padding: 8px 16px;
+    cursor: pointer;
+}
+
+.pagination-info {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 0 10px;
+}
     </style>
 </head>
 <body>
@@ -1170,7 +1187,7 @@ if (darkModeToggle) {
             'owners': `<div class="panel-header"><h2>Owner Management</h2><div class="panel-actions"><select id="ownerFilter" onchange="loadOwners()"><option value="all">All</option><option value="pending">Pending</option><option value="approved">Approved</option></select><input type="text" id="ownerSearch" placeholder="Search by name, email or phone..." style="width:250px;"><button class="btn btn-primary" onclick="loadOwners()"><i class="fas fa-search"></i> Search</button></div></div><div class="table-container"><table id="ownersTable"><thead><th>Business</th><th>Name</th><th>Email</th><th>Phone</th><th>Approval</th><th>Verified</th><th>Hostels</th><th>Fraud</th><th>Actions</th></thead><tbody id="ownersBody"></tbody></table></div>`,
             'hostels': `<div class="panel-header"><h2>Hostel Management</h2><div class="panel-actions"><select id="hostelFilter" onchange="loadHostels()"><option value="all">All</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="featured">Featured</option></select><input type="text" id="hostelSearch" placeholder="Search by name, owner, location..." style="width:250px;"><button class="btn btn-primary" onclick="loadHostels()"><i class="fas fa-search"></i> Search</button></div></div><div class="table-container"><table id="hostelsTable"><thead><th>Name</th><th>Owner</th><th>Location</th><th>Distance</th><th>Price</th><th>Type</th><th>Status</th><th>Featured</th><th>Bookings</th><th>Actions</th></thead><tbody id="hostelsBody"></tbody></table></div>`,
             'featured-hostels': `<div class="panel-header"><h2>Featured Hostels</h2><div class="panel-actions"><button class="btn btn-primary" onclick="loadFeaturedHostels()">Refresh</button></div></div><div class="table-container"><table id="featuredHostelsTable"><thead><th>Name</th><th>Owner</th><th>Location</th><th>Price</th><th>Rating</th><th>Bookings</th><th>Actions</th></thead><tbody id="featuredHostelsBody"></tbody></table></div>`,
-            'audit-logs': `<div class="panel-header"><h2>Audit Logs</h2><div class="panel-actions"><input type="text" id="auditSearch" placeholder="Search by user, action..." style="width:250px;"><button class="btn btn-primary" onclick="loadAuditLogs()">Search</button></div></div><div class="table-container"><table id="auditTable"><thead><th>Time</th><th>User</th><th>Action</th><th>Details</th><th>IP</th></thead><tbody id="auditBody"></tbody></table></div>`,
+            'audit-logs': `<div class="panel-header"><h2>Audit Logs</h2><div class="panel-actions"><input type="text" id="auditSearch" placeholder="Search by user, action..." style="width:250px;"><button class="btn btn-primary" onclick="loadAuditLogs()">Search</button></div></div><div class="table-container"><table id="auditTable"><thead><th>Time</th><th>User</th><th>Action</th><th>Details</th><th>IP</th></thead><tbody id="auditBody"></tbody></table></div><div id="auditPagination"></div>`,
             'bookings': `<div class="panel-header"><h2>All Bookings</h2><div class="panel-actions"><input type="text" id="bookingSearch" placeholder="Search by user, hostel..."><button class="btn btn-primary" onclick="loadBookings()"><i class="fas fa-search"></i> Search</button></div></div><div class="table-container"><table id="bookingsTable"><thead><th>ID</th><th>User</th><th>Hostel</th><th>Check In</th><th>Check Out</th><th>Status</th><th>Amount</th><th>Created</th></thead><tbody id="bookingsBody"></tbody></table></div>`,
             'fraud-alerts': `<div class="panel-header"><h2>Fraud Alerts</h2></div><div class="stats-grid" id="fraudStats"></div><div class="table-container"><table id="fraudTable"><thead><th>User</th><th>Role</th><th>Fraud Score</th><th>Failed Attempts</th><th>Locked Until</th><th>Actions</th></thead><tbody id="fraudBody"></tbody></table></div>`,
             'sessions': `<div class="panel-header"><h2>Active Sessions</h2><div class="panel-actions"><button class="btn btn-outline" onclick="loadSessions()">Refresh</button></div></div><div class="table-container"><table id="sessionsTable"><thead><th>User</th><th>Session Key</th><th>Expires</th><th>IP</th><th>Device</th></thead><tbody id="sessionsBody"></tbody></table></div>`,
@@ -1278,89 +1295,118 @@ if (darkModeToggle) {
         }
     }
     
-    async function loadDashboardStats() {
-        try {
-            const data = await apiFetch('/dashboard/stats/');
-            if (!data) return;
-            
-            document.getElementById('statsGrid').innerHTML = `
-                <div class="stat-card" onclick="showPanel('students')">
-                    <div class="stat-icon"><i class="fas fa-users"></i></div>
-                    <div class="stat-info">
-                        <h3>${data.users?.total_users || 0}</h3>
-                        <p>Total Users</p>
-                        <small>${data.users?.new_today || 0} today</small>
-                    </div>
+async function loadDashboardStats() {
+    try {
+        const data = await apiFetch('/dashboard/stats/');
+        if (!data) return;
+        
+        // Update stats cards
+        document.getElementById('statsGrid').innerHTML = `
+            <div class="stat-card" onclick="showPanel('students')">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-info">
+                    <h3>${data.users?.total_users || 0}</h3>
+                    <p>Total Users</p>
+                    <small>${data.users?.new_today || 0} today</small>
                 </div>
-                <div class="stat-card" onclick="showPanel('hostels')">
-                    <div class="stat-icon"><i class="fas fa-bed"></i></div>
-                    <div class="stat-info">
-                        <h3>${data.hostels?.total || 0}</h3>
-                        <p>Total Hostels</p>
-                        <small>${data.hostels?.pending || 0} pending</small>
-                    </div>
+            </div>
+            <div class="stat-card" onclick="showPanel('hostels')">
+                <div class="stat-icon"><i class="fas fa-bed"></i></div>
+                <div class="stat-info">
+                    <h3>${data.hostels?.total || 0}</h3>
+                    <p>Total Hostels</p>
+                    <small>${data.hostels?.pending || 0} pending</small>
                 </div>
-                <div class="stat-card" onclick="showPanel('bookings')">
-                    <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
-                    <div class="stat-info">
-                        <h3>${data.bookings?.total || 0}</h3>
-                        <p>Total Bookings</p>
-                        <small>${data.bookings?.recent || 0} this week</small>
-                    </div>
+            </div>
+            <div class="stat-card" onclick="showPanel('bookings')">
+                <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+                <div class="stat-info">
+                    <h3>${data.bookings?.total || 0}</h3>
+                    <p>Total Bookings</p>
+                    <small>${data.bookings?.recent || 0} this week</small>
                 </div>
-                <div class="stat-card" onclick="showPanel('fraud-alerts')">
-                    <div class="stat-icon"><i class="fas fa-shield-alt"></i></div>
-                    <div class="stat-info">
-                        <h3>${data.fraud?.high_risk || 0}</h3>
-                        <p>Fraud Alerts</p>
-                        <small>${data.fraud?.locked || 0} locked</small>
-                    </div>
+            </div>
+            <div class="stat-card" onclick="showPanel('fraud-alerts')">
+                <div class="stat-icon"><i class="fas fa-shield-alt"></i></div>
+                <div class="stat-info">
+                    <h3>${data.fraud?.high_risk || 0}</h3>
+                    <p>Fraud Alerts</p>
+                    <small>${data.fraud?.locked || 0} locked</small>
                 </div>
-            `;
-            
-            const dashboardActivity = document.getElementById('dashboard-activity');
-            if (dashboardActivity && data.recent_activity) {
-                dashboardActivity.innerHTML = data.recent_activity.slice(0, 10).map(a => `
-                    <tr>
-                        <td>${formatDate(a.timestamp)}</td>
-                        <td>${escapeHtml(a.user || 'System')}</td>
-                        <td>${escapeHtml(a.action)}</td>
-                        <td>${escapeHtml(JSON.stringify(a.details).substring(0, 80))}...</td>
-                        <td>${a.ip_address || 'N/A'}</td>
-                    </tr>
-                `).join('');
-            }
-            
-            if (document.getElementById('userGrowthChart') && data.user_growth) {
-                if (charts.userGrowth) charts.userGrowth.destroy();
-                charts.userGrowth = new Chart(document.getElementById('userGrowthChart'), {
-                    type: 'line',
-                    data: {
-                        labels: data.user_growth.labels || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                        datasets: [
-                            { label: 'Students', data: data.user_growth.students || [], borderColor: '#006747', fill: false, tension: 0.4 },
-                            { label: 'Owners', data: data.user_growth.owners || [], borderColor: '#FFD700', fill: false, tension: 0.4 }
-                        ]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false }
-                });
-            }
-            
-            if (document.getElementById('hostelChart') && data.hostels) {
-                if (charts.hostel) charts.hostel.destroy();
-                charts.hostel = new Chart(document.getElementById('hostelChart'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Approved', 'Pending'],
-                        datasets: [{ data: [data.hostels.approved || 0, data.hostels.pending || 0], backgroundColor: ['#006747', '#FFD700'] }]
+            </div>
+        `;
+        
+        // Render recent activity with proper formatting
+        if (data.recent_activity && data.recent_activity.length > 0) {
+            const tbody = document.getElementById('dashboard-activity');
+            if (tbody) {
+                tbody.innerHTML = data.recent_activity.slice(0, 15).map(activity => {
+                    // Clean up action name
+                    let actionName = activity.action_code || activity.action;
+                    let icon = '';
+                    if (actionName.includes('LOGIN_SUCCESS')) { icon = '✅ '; actionName = 'Login Success'; }
+                    else if (actionName.includes('LOGIN_FAILED')) { icon = '❌ '; actionName = 'Login Failed'; }
+                    else if (actionName.includes('CREATE_HOSTEL')) { icon = '🏠 '; actionName = 'Created Hostel'; }
+                    else if (actionName.includes('UPDATE_HOSTEL')) { icon = '✏️ '; actionName = 'Updated Hostel'; }
+                    else if (actionName.includes('DELETE_HOSTEL')) { icon = '🗑️ '; actionName = 'Deleted Hostel'; }
+                    else if (actionName.includes('STUDENT_SIGNUP')) { icon = '📝 '; actionName = 'Student Registered'; }
+                    else if (actionName.includes('OWNER_SIGNUP')) { icon = '📝 '; actionName = 'Owner Registered'; }
+                    else if (actionName.includes('APPROVE')) { icon = '✓ '; actionName = 'Approved'; }
+                    else if (actionName.includes('REJECT')) { icon = '✗ '; actionName = 'Rejected'; }
+                    
+                    // Get clean details
+                    let details = '';
+                    if (activity.details) {
+                        if (activity.details.email) details = activity.details.email;
+                        else if (activity.details.hostel_name) details = activity.details.hostel_name;
+                        else if (activity.details.path) details = activity.details.path;
+                        else details = JSON.stringify(activity.details).substring(0, 60);
                     }
-                });
+                    
+                    return `
+                        <tr>
+                            <td style="white-space: nowrap;">${activity.timestamp || formatDate(activity.time)}</td>
+                            <td>${escapeHtml(activity.user_name || activity.user || 'System')}</td>
+                            <td>${icon}${escapeHtml(actionName)}</td>
+                            <td style="max-width: 300px; word-wrap: break-word;">${escapeHtml(details)}</td>
+                            <td><code>${activity.ip_address || 'N/A'}</code></td>
+                        </tr>
+                    `;
+                }).join('');
             }
-        } catch(e) { 
-            console.error('Dashboard stats error:', e);
-            showToast('Failed to load dashboard stats', 'error');
         }
+        
+        // Update charts
+        if (document.getElementById('userGrowthChart') && data.user_growth) {
+            if (charts.userGrowth) charts.userGrowth.destroy();
+            charts.userGrowth = new Chart(document.getElementById('userGrowthChart'), {
+                type: 'line',
+                data: {
+                    labels: data.user_growth.labels || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [
+                        { label: 'Students', data: data.user_growth.students || [], borderColor: '#006747', fill: false, tension: 0.4 },
+                        { label: 'Owners', data: data.user_growth.owners || [], borderColor: '#FFD700', fill: false, tension: 0.4 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+        
+        if (document.getElementById('hostelChart') && data.hostels) {
+            if (charts.hostel) charts.hostel.destroy();
+            charts.hostel = new Chart(document.getElementById('hostelChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Approved', 'Pending'],
+                    datasets: [{ data: [data.hostels.approved || 0, data.hostels.pending || 0], backgroundColor: ['#006747', '#FFD700'] }]
+                }
+            });
+        }
+    } catch(e) { 
+        console.error('Dashboard stats error:', e);
+        showToast('Failed to load dashboard stats', 'error');
     }
+}
     
 async function loadStudents() {
     const filter = document.getElementById('studentFilter')?.value || 'all';
@@ -1515,25 +1561,141 @@ async function loadFeaturedHostels() {
     }
 }
     
-    async function loadAuditLogs() {
-        const search = document.getElementById('auditSearch')?.value || '';
-        try {
-            const data = await apiFetch(`/audit-logs/?search=${encodeURIComponent(search)}`);
-            const items = data.results || data || [];
-            auditLogs = items;
-            const tbody = document.getElementById('auditBody');
-            if (!tbody) return;
-            tbody.innerHTML = items.map(l => `
-                 <tr>
-                     Was${formatDate(l.timestamp)} \n
-                     Was${escapeHtml(l.user)} \n
-                     Was${escapeHtml(l.action)} \n
-                     Was${escapeHtml(JSON.stringify(l.details).substring(0,80))}... \n
-                     Was${l.ip_address || 'N/A'} \n
-                  \n
-            `).join('');
-        } catch(e) { console.error(e); }
+async function loadAuditLogs() {
+    const search = document.getElementById('auditSearch')?.value || '';
+    try {
+        const data = await apiFetch(`/audit-logs/?search=${encodeURIComponent(search)}&page=${currentAuditPage}&page_size=50`);
+        const items = data.results || data || [];
+        auditLogs = items;
+        const tbody = document.getElementById('auditBody');
+        if (!tbody) return;
+        
+        if (items.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="loading-row">No audit logs found</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = items.map(log => {
+            // Format details nicely
+            let detailsHtml = '';
+            if (log.details) {
+                if (typeof log.details === 'object') {
+                    // Show important details only
+                    if (log.details.email) detailsHtml += `📧 ${escapeHtml(log.details.email)}<br>`;
+                    if (log.details.hostel_name) detailsHtml += `🏠 ${escapeHtml(log.details.hostel_name)}<br>`;
+                    if (log.details.path) detailsHtml += `📍 ${escapeHtml(log.details.path)}<br>`;
+                    if (Object.keys(log.details).length === 0) detailsHtml = 'No additional details';
+                } else if (typeof log.details === 'string') {
+                    detailsHtml = escapeHtml(log.details.substring(0, 100));
+                }
+            } else {
+                detailsHtml = '—';
+            }
+            
+            // Format action with icons
+            let actionDisplay = log.action;
+            let actionIcon = '';
+            if (log.action.includes('LOGIN_SUCCESS')) actionIcon = '✅ ';
+            else if (log.action.includes('LOGIN_FAILED')) actionIcon = '❌ ';
+            else if (log.action.includes('CREATE')) actionIcon = '➕ ';
+            else if (log.action.includes('UPDATE')) actionIcon = '✏️ ';
+            else if (log.action.includes('DELETE')) actionIcon = '🗑️ ';
+            else if (log.action.includes('APPROVE')) actionIcon = '✓ ';
+            else if (log.action.includes('REJECT')) actionIcon = '✗ ';
+            
+            // Format user display
+            const userDisplay = log.user_name ? `${escapeHtml(log.user_name)}<br><small>${escapeHtml(log.user)}</small>` : escapeHtml(log.user || 'System');
+            
+            return `
+                <tr>
+                    <td style="white-space: nowrap;">${formatDate(log.timestamp)}</td>
+                    <td>${userDisplay}</td>
+                    <td>${actionIcon}${escapeHtml(actionDisplay)}</td>
+                    <td style="max-width: 300px; word-wrap: break-word;">${detailsHtml}</td>
+                    <td><code>${log.ip_address || 'N/A'}</code></td>
+                </tr>
+            `;
+        }).join('');
+        
+        // Update pagination
+        if (data.total_pages) {
+            updateAuditPagination(data);
+        }
+    } catch(e) { 
+        console.error('Load audit logs error:', e);
+        const tbody = document.getElementById('auditBody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="loading-row">Failed to load audit logs</td></tr>';
     }
+}
+
+let currentAuditPage = 1;
+
+function updateAuditPagination(data) {
+    const paginationDiv = document.getElementById('auditPagination');
+    if (!paginationDiv) return;
+    
+    if (data.total_pages <= 1) {
+        paginationDiv.innerHTML = '';
+        return;
+    }
+    
+    let html = '<div style="display: flex; justify-content: center; gap: 10px; margin-top: 20px;">';
+    if (currentAuditPage > 1) {
+        html += `<button class="btn btn-outline btn-sm" onclick="goToAuditPage(${currentAuditPage - 1})">← Previous</button>`;
+    }
+    html += `<span style="padding: 8px 16px;">Page ${currentAuditPage} of ${data.total_pages}</span>`;
+    if (currentAuditPage < data.total_pages) {
+        html += `<button class="btn btn-outline btn-sm" onclick="goToAuditPage(${currentAuditPage + 1})">Next →</button>`;
+    }
+    html += '</div>';
+    paginationDiv.innerHTML = html;
+}
+
+function goToAuditPage(page) {
+    currentAuditPage = page;
+    loadAuditLogs();
+}
+
+// Also fix the recent activity display in dashboard
+function renderRecentActivity(activities) {
+    const tbody = document.getElementById('dashboard-activity');
+    if (!tbody) return;
+    
+    if (!activities || activities.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="loading-row">No recent activity</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = activities.slice(0, 15).map(activity => {
+        // Format action nicely
+        let actionDisplay = activity.action;
+        if (actionDisplay.includes('LOGIN_SUCCESS')) actionDisplay = '✅ Login';
+        else if (actionDisplay.includes('LOGIN_FAILED')) actionDisplay = '❌ Failed Login';
+        else if (actionDisplay.includes('CREATE_HOSTEL')) actionDisplay = '🏠 Created Hostel';
+        else if (actionDisplay.includes('UPDATE_HOSTEL')) actionDisplay = '✏️ Updated Hostel';
+        else if (actionDisplay.includes('DELETE_HOSTEL')) actionDisplay = '🗑️ Deleted Hostel';
+        else if (actionDisplay.includes('STUDENT_SIGNUP')) actionDisplay = '📝 Student Registered';
+        else if (actionDisplay.includes('OWNER_SIGNUP')) actionDisplay = '📝 Owner Registered';
+        
+        // Format details
+        let details = '';
+        if (activity.details) {
+            if (activity.details.email) details = activity.details.email;
+            else if (activity.details.hostel_name) details = activity.details.hostel_name;
+            else details = JSON.stringify(activity.details).substring(0, 50);
+        }
+        
+        return `
+            <tr>
+                <td style="white-space: nowrap;">${formatDate(activity.timestamp)}</td>
+                <td>${escapeHtml(activity.user || 'System')}</td>
+                <td>${escapeHtml(actionDisplay)}</td>
+                <td style="max-width: 300px; word-wrap: break-word;">${escapeHtml(details)}</td>
+                <td><code>${activity.ip_address || 'N/A'}</code></td>
+            </tr>
+        `;
+    }).join('');
+}
     
     async function loadFraudAlerts() {
         try {
