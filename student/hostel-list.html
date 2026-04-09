@@ -864,7 +864,10 @@
         window.openBookingModal = function(hostel) {
             currentHostelForBooking = hostel;
             const today = new Date().toISOString().split('T')[0];
-            const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+            const nextMonth = new Date();
+            nextMonth.setMonth(nextMonth.getMonth() + 1);
+            const defaultMoveIn = nextMonth.toISOString().split('T')[0];
+            
             const modalBody = document.getElementById('bookingModalBody');
             modalBody.innerHTML = `
                 <form id="bookingForm">
@@ -873,12 +876,13 @@
                         <input type="text" value="${escapeHtml(hostel.name)}" readonly>
                     </div>
                     <div class="form-group">
-                        <label>Check-in Date</label>
-                        <input type="date" id="checkIn" min="${today}" value="${today}" required>
+                        <label>Monthly Rent</label>
+                        <input type="text" value="KSh ${hostel.price?.toLocaleString() || 0}" readonly>
                     </div>
                     <div class="form-group">
-                        <label>Check-out Date</label>
-                        <input type="date" id="checkOut" min="${tomorrow}" value="${tomorrow}" required>
+                        <label>Move-in Date</label>
+                        <input type="date" id="moveInDate" min="${today}" value="${defaultMoveIn}" required>
+                        <small style="color: var(--text-secondary);">Select when you want to move in</small>
                     </div>
                     <div class="form-group">
                         <label>Number of Guests</label>
@@ -888,10 +892,15 @@
                         <label>Special Requests</label>
                         <textarea id="specialRequests" rows="3" placeholder="Any special requests?"></textarea>
                     </div>
+                    <div class="form-group" style="background: var(--bg-light); padding: 1rem; border-radius: 20px;">
+                        <strong>First Month Rent:</strong> 
+                        <span id="totalAmount" style="color: var(--kyu-green); font-size: 1.2rem;">KSh ${hostel.price?.toLocaleString() || 0}</span>
+                        <small style="display: block;">+ deposit (if applicable)</small>
+                    </div>
                 </form>
                 <div class="modal-footer">
                     <button class="btn-secondary" onclick="closeBookingModal()">Cancel</button>
-                    <button class="btn-primary" onclick="submitBooking()">Confirm Booking</button>
+                    <button class="btn-primary" onclick="submitBooking()">Request Booking</button>
                 </div>
             `;
             document.getElementById('bookingModal').classList.add('active');
@@ -904,21 +913,19 @@
 
         window.submitBooking = async function() {
             if (!currentHostelForBooking) return;
-            const checkIn = document.getElementById('checkIn')?.value;
-            const checkOut = document.getElementById('checkOut')?.value;
+            const moveInDate = document.getElementById('moveInDate')?.value;
             const numGuests = document.getElementById('numGuests')?.value;
             const specialRequests = document.getElementById('specialRequests')?.value;
 
-            if (!checkIn || !checkOut || !numGuests) {
+            if (!moveInDate || !numGuests) {
                 alert('Please fill all required fields');
                 return;
             }
 
             const payload = {
-                hostel_id: currentHostelForBooking.id,
-                check_in: checkIn,
-                check_out: checkOut,
-                num_guests: parseInt(numGuests),
+                hostel: currentHostelForBooking.id,
+                move_in_date: moveInDate,
+                guests: parseInt(numGuests),
                 special_requests: specialRequests || ''
             };
 
@@ -932,12 +939,13 @@
                     body: JSON.stringify(payload)
                 });
 
+                const data = await response.json();
+                
                 if (!response.ok) {
-                    const err = await response.json();
-                    throw new Error(err.message || 'Booking failed');
+                    throw new Error(data.message || data.error || 'Booking request failed');
                 }
 
-                alert('Booking successful! You will receive a confirmation shortly.');
+                alert('Booking request submitted successfully! The hostel owner will contact you soon.');
                 closeBookingModal();
             } catch (e) {
                 alert('Error: ' + e.message);

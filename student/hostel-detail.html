@@ -344,6 +344,22 @@
             text-align: center;
             margin-top: 3rem;
         }
+
+        .btn-book {
+    background: var(--kyu-green);
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 40px;
+    font-weight: 600;
+    width: 100%;
+    margin-top: 1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+.btn-book:hover {
+    background: #004d33;
+}
     </style>
 </head>
 <body>
@@ -390,6 +406,17 @@
                     <button class="btn-primary" onclick="submitReview()">Submit Review</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+        <!-- Booking Modal -->
+    <div class="modal" id="bookingModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Request Booking</h2>
+                <span class="modal-close" onclick="closeBookingModal()">&times;</span>
+            </div>
+            <div id="bookingModalBody"></div>
         </div>
     </div>
 
@@ -491,11 +518,12 @@
                             <h3>✨ Amenities</h3>
                             <div class="amenities-list">${amenitiesHtml || '<span class="amenity-tag">No amenities listed</span>'}</div>
                         </div>
-                        <div class="owner-contact">
+                                                <div class="owner-contact">
                             <h3>👤 Hostel Owner Contact</h3>
                             <div class="contact-item"><strong>Name:</strong> ${h.owner_name || 'Hostel Owner'}</div>
                             <div class="contact-item"><strong>Phone:</strong> ${h.owner_phone || 'Not available'}</div>
                         </div>
+                        <button class="btn-book" onclick="openBookingModalFromDetail()" style="background: var(--kyu-green); color: white; border: none; padding: 1rem; border-radius: 40px; font-weight: 600; width: 100%; margin-top: 1rem; cursor: pointer;">📅 Request Booking</button>
                         ${token ? `
                             <button class="btn-save" id="saveBtn" onclick="toggleSave('${h.id}')">❤️ Save Hostel</button>
                         ` : `
@@ -674,6 +702,126 @@
             };
 
             loadHostel();
+
+                        // ==================== BOOKING FUNCTIONS ====================
+            let currentBookingHostel = null;
+
+            window.openBookingModalFromDetail = function() {
+                // Get current hostel data
+                const hostelName = document.querySelector('.hostel-title h1')?.textContent;
+              let price = 0;
+// Find the monthly rent value from the rendered HTML
+const priceItems = document.querySelectorAll('.detail-item');
+for (const item of priceItems) {
+    const text = item.textContent;
+    if (text.includes('Monthly Rent:')) {
+        const match = text.match(/KSh (\d+)/);
+        if (match) price = parseInt(match[1]);
+        break;
+    }
+}
+                
+                currentBookingHostel = {
+                    id: hostelId,
+                    name: hostelName || 'Hostel',
+                    price: price || 0
+                };
+                
+                const today = new Date().toISOString().split('T')[0];
+                const nextMonth = new Date();
+                nextMonth.setMonth(nextMonth.getMonth() + 1);
+                const defaultMoveIn = nextMonth.toISOString().split('T')[0];
+                
+                const modalBody = document.getElementById('bookingModalBody');
+                modalBody.innerHTML = `
+                    <form id="bookingForm">
+                        <div class="form-group">
+                            <label>Hostel</label>
+                            <input type="text" value="${escapeHtml(currentBookingHostel.name)}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Monthly Rent</label>
+                            <input type="text" value="KSh ${currentBookingHostel.price.toLocaleString()}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Move-in Date</label>
+                            <input type="date" id="moveInDate" min="${today}" value="${defaultMoveIn}" required>
+                            <small>Select when you want to move in</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Number of Guests</label>
+                            <input type="number" id="numGuests" min="1" max="5" value="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Special Requests</label>
+                            <textarea id="specialRequests" rows="3" placeholder="Any special requests?"></textarea>
+                        </div>
+                        <div class="form-group" style="background: #f7fafc; padding: 1rem; border-radius: 20px;">
+                            <strong>First Month Rent:</strong> 
+                            <span style="color: var(--kyu-green); font-size: 1.2rem;">KSh ${currentBookingHostel.price.toLocaleString()}</span>
+                        </div>
+                    </form>
+                    <div class="modal-footer">
+                        <button class="btn-secondary" onclick="closeBookingModal()">Cancel</button>
+                        <button class="btn-primary" onclick="submitBookingFromDetail()">Request Booking</button>
+                    </div>
+                `;
+                openModal('bookingModal');
+            };
+
+            window.closeBookingModal = function() {
+                closeModal('bookingModal');
+                currentBookingHostel = null;
+            };
+
+            window.submitBookingFromDetail = async function() {
+                if (!currentBookingHostel) return;
+                
+                const moveInDate = document.getElementById('moveInDate')?.value;
+                const numGuests = document.getElementById('numGuests')?.value;
+                const specialRequests = document.getElementById('specialRequests')?.value;
+
+                if (!moveInDate || !numGuests) {
+                    alert('Please fill all required fields');
+                    return;
+                }
+
+                const payload = {
+                    hostel: currentBookingHostel.id,
+                    move_in_date: moveInDate,
+                    guests: parseInt(numGuests),
+                    special_requests: specialRequests || ''
+                };
+
+                try {
+                    const response = await fetch(`${API_BASE}/bookings/create/`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const data = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(data.message || data.error || 'Booking request failed');
+                    }
+
+                    alert('Booking request submitted successfully! The hostel owner will contact you soon.');
+                    closeBookingModal();
+                } catch (e) {
+                    alert('Error: ' + e.message);
+                }
+            };
+
+            function escapeHtml(text) {
+                if (!text) return '';
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
         })();
     </script>
 </body>
