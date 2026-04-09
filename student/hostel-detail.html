@@ -441,12 +441,16 @@
             let slideIndex = 1;
             let slideInterval;
 
-            function getFullImageUrl(url) {
-                if (!url) return null;
-                if (url.startsWith('http')) return url;
-                if (url.startsWith('image/upload/')) return CLOUDINARY_BASE + url;
-                return url;
-            }
+function getFullImageUrl(url) {
+    if (!url) return null;
+    // Force HTTPS for Cloudinary URLs
+    if (url.startsWith('http://res.cloudinary.com')) {
+        url = url.replace('http://', 'https://');
+    }
+    if (url.startsWith('http')) return url;
+    if (url.startsWith('image/upload/')) return `https://res.cloudinary.com/dqujm2fhm/${url}`;
+    return url;
+}
 
             window.openModal = (id) => document.getElementById(id).classList.add('active');
             window.closeModal = (id) => document.getElementById(id).classList.remove('active');
@@ -725,6 +729,7 @@ window.openBookingModalFromDetail = function() {
             break;
         }
     }
+    price = price/100;
     
     // Fallback: get from the rendered price element
     if (price === 0) {
