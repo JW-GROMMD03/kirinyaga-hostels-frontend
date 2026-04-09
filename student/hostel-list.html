@@ -798,7 +798,7 @@
     </footer>
 
     <script>
-        const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
+               const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
         const CLOUDINARY_BASE = 'https://res.cloudinary.com/dqujm2fhm/';
         const token = sessionStorage.getItem('accessToken');
         
@@ -947,7 +947,7 @@
         // ==================== HOSTEL GRID ====================
         let currentPage = 1;
         let nextPageUrl = null;
-        let savedHostels = [];
+        let savedHostels = []; // Initialize as empty array
         let searchTimeout = null;
 
         const searchInput = document.getElementById('searchInput');
@@ -998,24 +998,25 @@
                 params.append('amenities', checkedAmenities.join(','));
             }
             params.append('available', 'true');
+            params.append('page', currentPage);
             return params;
         }
 
         // ==================== LOAD HOSTELS ====================
-        async function loadHostels(url = null) {
-            let fullUrl;
-            if (url) {
-                fullUrl = url;
-            } else {
-                const params = getQueryParams();
-                params.append('page', currentPage);
-                fullUrl = `${API_BASE}/hostels/?${params.toString()}`;
+        async function loadHostels(resetPage = true) {
+            if (resetPage) {
+                currentPage = 1;
+                nextPageUrl = null;
             }
+            
+            const params = getQueryParams();
+            const fullUrl = `${API_BASE}/hostels/?${params.toString()}`;
             
             try {
                 searchSpinner.style.display = 'block';
                 const res = await fetch(fullUrl);
-                return await res.json();
+                const data = await res.json();
+                return data;
             } catch (e) {
                 console.error('Failed to load hostels', e);
                 return { results: [], next: null };
@@ -1024,34 +1025,48 @@
             }
         }
 
-        // ==================== RENDER HOSTELS ====================
+        // ==================== LOAD SAVED HOSTELS ====================
         async function loadSavedHostels() {
             try {
                 const res = await fetch(`${API_BASE}/hostels/saved/`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (res.ok) {
-                    savedHostels = await res.json();
+                    const data = await res.json();
+                    // Ensure savedHostels is always an array
+                    savedHostels = Array.isArray(data) ? data : (data.results || []);
+                } else {
+                    savedHostels = [];
                 }
             } catch (e) {
                 console.error('Failed to load saved hostels', e);
+                savedHostels = [];
             }
         }
 
+        // ==================== RENDER HOSTELS ====================
         function renderHostels(hostels, append = false) {
             if (!append) hostelGrid.innerHTML = '';
-            if (hostels.length === 0) {
+            
+            if (!hostels || hostels.length === 0) {
                 if (!append) hostelGrid.innerHTML = '<div class="no-results">No hostels match your criteria.</div>';
                 return;
             }
             
+            // Ensure savedHostels is an array before using .some()
+            const savedArray = Array.isArray(savedHostels) ? savedHostels : [];
+            
             let html = '';
             hostels.forEach(h => {
-                const isSaved = savedHostels.some(s => s.hostel?.id === h.id);
+                // Check if hostel is saved - handle different data structures
+                const isSaved = savedArray.some(s => {
+                    return (s.hostel?.id === h.id) || (s.id === h.id) || (s.hostel_id === h.id);
+                });
+                
                 let primaryImage = h.primary_image || (h.images && h.images[0]?.image) || 'https://placehold.co/400x200/006747/white?text=Hostel';
                 primaryImage = getFullImageUrl(primaryImage);
                 const featuredBadge = h.is_featured ? '<div class="hostel-featured">⭐ Featured</div>' : '';
-                const amenitiesList = h.amenities || [];
+                const amenitiesList = h.amenities || h.amenities_list || [];
                 
                 html += `
                     <div class="hostel-card" data-id="${h.id}">
@@ -1067,7 +1082,7 @@
                                 <i class="fas fa-user"></i> ${escapeHtml(h.owner_name || 'Hostel Owner')}
                             </div>
                             <div class="hostel-amenities">
-                                ${amenitiesList.slice(0, 3).map(a => `<span class="amenity-tag">${escapeHtml(a)}</span>`).join('')}
+                                ${amenitiesList.slice(0, 3).map(a => `<span class="amenity-tag">${escapeHtml(typeof a === 'string' ? a : a.name)}</span>`).join('')}
                                 ${amenitiesList.length > 3 ? `<span class="amenity-tag">+${amenitiesList.length - 3}</span>` : ''}
                             </div>
                             <button class="btn-save ${isSaved ? 'saved' : ''}" data-id="${h.id}">${isSaved ? '❤️ Saved' : '🤍 Save'}</button>
@@ -1085,68 +1100,110 @@
 
             // Save button listeners
             document.querySelectorAll('.btn-save').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    const hostelId = btn.dataset.id;
-                    const isSaved = btn.classList.contains('saved');
-                    if (isSaved) {
-                        const saved = savedHostels.find(s => s.hostel?.id === hostelId);
-                        if (saved && saved.id) {
-                            await fetch(`${API_BASE}/hostels/saved/${saved.id}/`, {
-                                method: 'DELETE',
-                                headers: { 'Authorization': `Bearer ${token}` }
-                            });
-                            btn.classList.remove('saved');
-                            btn.textContent = '🤍 Save';
-                            savedHostels = savedHostels.filter(s => s.hostel?.id !== hostelId);
-                        }
-                    } else {
-                        const res = await fetch(`${API_BASE}/hostels/saved/`, {
-                            method: 'POST',
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ hostel_id: hostelId })
-                        });
-                        if (res.ok) {
-                            const saved = await res.json();
-                            savedHostels.push(saved);
-                            btn.classList.add('saved');
-                            btn.textContent = '❤️ Saved';
-                        }
-                    }
-                });
+                btn.removeEventListener('click', handleSaveClick);
+                btn.addEventListener('click', handleSaveClick);
             });
 
             // Book button listeners
             document.querySelectorAll('.btn-book').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const hostelId = btn.dataset.id;
-                    const hostel = hostels.find(h => h.id === hostelId);
-                    if (hostel) openBookingModal(hostel);
-                });
+                btn.removeEventListener('click', handleBookClick);
+                btn.addEventListener('click', handleBookClick);
             });
 
             // Card click to detail
             document.querySelectorAll('.hostel-card').forEach(card => {
-                card.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('btn-save') || e.target.classList.contains('btn-book')) return;
-                    window.location.href = `hostel-detail.html?id=${card.dataset.id}`;
-                });
+                card.removeEventListener('click', handleCardClick);
+                card.addEventListener('click', handleCardClick);
             });
+        }
+
+        // Separate event handlers for better organization
+        async function handleSaveClick(e) {
+            e.stopPropagation();
+            const btn = e.currentTarget;
+            const hostelId = btn.dataset.id;
+            const isSaved = btn.classList.contains('saved');
+            
+            try {
+                if (isSaved) {
+                    // Find the saved entry ID
+                    const savedEntry = savedHostels.find(s => s.hostel?.id === hostelId || s.id === hostelId || s.hostel_id === hostelId);
+                    const savedId = savedEntry?.id || savedEntry?.hostel_id;
+                    
+                    if (savedId) {
+                        await fetch(`${API_BASE}/hostels/saved/${savedId}/`, {
+                            method: 'DELETE',
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                    }
+                    
+                    btn.classList.remove('saved');
+                    btn.textContent = '🤍 Save';
+                    // Refresh saved hostels list
+                    await loadSavedHostels();
+                } else {
+                    const res = await fetch(`${API_BASE}/hostels/saved/`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ hostel_id: hostelId })
+                    });
+                    
+                    if (res.ok) {
+                        const saved = await res.json();
+                        await loadSavedHostels(); // Refresh the list
+                        btn.classList.add('saved');
+                        btn.textContent = '❤️ Saved';
+                    }
+                }
+            } catch (error) {
+                console.error('Error saving/unsaving hostel:', error);
+                alert('Failed to save/unsave hostel. Please try again.');
+            }
+        }
+
+        function handleBookClick(e) {
+            e.stopPropagation();
+            const btn = e.currentTarget;
+            const hostelId = btn.dataset.id;
+            // Find the hostel data from current view
+            const hostelCards = document.querySelectorAll('.hostel-card');
+            let hostel = null;
+            for (const card of hostelCards) {
+                if (card.dataset.id === hostelId) {
+                    const nameEl = card.querySelector('.hostel-name');
+                    const priceEl = card.querySelector('.hostel-price');
+                    hostel = {
+                        id: hostelId,
+                        name: nameEl?.textContent || 'Hostel',
+                        price: parseInt(priceEl?.textContent?.replace(/[^0-9]/g, '') || '0')
+                    };
+                    break;
+                }
+            }
+            if (hostel) openBookingModal(hostel);
+        }
+
+        function handleCardClick(e) {
+            if (e.target.classList.contains('btn-save') || e.target.classList.contains('btn-book')) return;
+            const card = e.currentTarget;
+            window.location.href = `hostel-detail.html?id=${card.dataset.id}`;
         }
 
         // ==================== SEARCH FUNCTIONS ====================
         async function performSearch() {
-            currentPage = 1;
-            const data = await loadHostels();
-            renderHostels(data.results);
-            if (data.next) {
+            const data = await loadHostels(true);
+            if (data && data.results) {
+                renderHostels(data.results, false);
                 nextPageUrl = data.next;
-                loadMoreBtn.style.display = 'block';
+                loadMoreBtn.style.display = data.next ? 'block' : 'none';
+            } else if (data && Array.isArray(data)) {
+                renderHostels(data, false);
+                loadMoreBtn.style.display = 'none';
             } else {
+                renderHostels([], false);
                 loadMoreBtn.style.display = 'none';
             }
         }
@@ -1155,20 +1212,33 @@
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 performSearch();
-            }, 300);
+            }, 500);
         }
 
         // ==================== LOAD MORE ====================
-        loadMoreBtn.addEventListener('click', async () => {
+        async function loadMore() {
             if (!nextPageUrl) return;
-            const data = await loadHostels(nextPageUrl);
-            renderHostels(data.results, true);
-            if (data.next) {
-                nextPageUrl = data.next;
-            } else {
-                loadMoreBtn.style.display = 'none';
+            
+            try {
+                loadMoreBtn.disabled = true;
+                loadMoreBtn.textContent = 'Loading...';
+                const response = await fetch(nextPageUrl);
+                const data = await response.json();
+                
+                if (data && data.results) {
+                    renderHostels(data.results, true);
+                    nextPageUrl = data.next;
+                    loadMoreBtn.style.display = data.next ? 'block' : 'none';
+                }
+            } catch (error) {
+                console.error('Error loading more hostels:', error);
+            } finally {
+                loadMoreBtn.disabled = false;
+                loadMoreBtn.textContent = 'Load More';
             }
-        });
+        }
+
+        loadMoreBtn.addEventListener('click', loadMore);
 
         // ==================== RECOMMENDED ====================
         async function loadRecommended() {
@@ -1249,6 +1319,7 @@
         // ==================== LOGOUT ====================
         document.getElementById('logoutBtn').addEventListener('click', () => {
             sessionStorage.removeItem('accessToken');
+            localStorage.removeItem('accessToken');
             window.location.href = 'login.html';
         });
         
