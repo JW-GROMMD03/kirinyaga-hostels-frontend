@@ -600,84 +600,80 @@ function escapeHtml(text) {
                 }
             }
 
-            window.toggleSave = async function(id) {
-                const btn = document.getElementById('saveBtn');
-if (btn.classList.contains('saved')) {
-    // Unsaving
-    try {
-        const res = await fetch(`${API_BASE}/hostels/saved/`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (res.status === 401) {
-            sessionStorage.removeItem('accessToken');
-            window.location.href = 'login.html';
-            return;
-        }
-        const saved = await res.json();
-        const savedArray = Array.isArray(saved) ? saved : (saved.results || []);
-        const savedItem = savedArray.find(s => s.hostel?.id === id);
-        if (savedItem) {
-            // FIX: Remove '/delete/' from the URL
-            const delRes = await fetch(`${API_BASE}/hostels/saved/${savedItem.id}/`, {
-                method: 'DELETE',
+window.toggleSave = async function(id) {
+    const btn = document.getElementById('saveBtn');
+    if (btn.classList.contains('saved')) {
+        // Unsaving
+        try {
+            const res = await fetch(`${API_BASE}/hostels/saved/`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            if (delRes.ok) {
-                btn.classList.remove('saved');
-                btn.textContent = '❤️ Save Hostel';
-            } else {
-                const errText = await delRes.text();
-                console.error('Unsave failed:', errText);
-                alert('Failed to unsave: ' + (errText || 'Unknown error'));
+            if (res.status === 401) {
+                sessionStorage.removeItem('accessToken');
+                window.location.href = 'login.html';
+                return;
             }
-        } else {
-            alert('Could not find saved record to delete');
-        }
-    } catch (e) {
-        console.error('Error removing saved hostel:', e);
-        alert('Error removing saved hostel: ' + e.message);
-    }
-
+            const saved = await res.json();
+            const savedArray = Array.isArray(saved) ? saved : (saved.results || []);
+            const savedItem = savedArray.find(s => s.hostel?.id === id);
+            if (savedItem) {
+                const delRes = await fetch(`${API_BASE}/hostels/saved/${savedItem.id}/`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (delRes.ok) {
+                    btn.classList.remove('saved');
+                    btn.textContent = '❤️ Save Hostel';
                 } else {
-                    // Saving
-                    try {
-                        const res = await fetch(`${API_BASE}/hostels/saved/`, {
-                            method: 'POST',
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ hostel_id: id })
-                        });
-                        if (res.status === 401) {
-                            sessionStorage.removeItem('accessToken');
-                            window.location.href = 'login.html';
-                            return;
-                        }
-                        const responseText = await res.text();
-                        console.log('Save response:', responseText);
-                        let data;
-                        try {
-                            data = JSON.parse(responseText);
-                        } catch (e) {
-                            console.error('Failed to parse save response:', responseText);
-                            alert('Server returned non-JSON response. See console.');
-                            return;
-                        }
-                        if (res.ok) {
-                            btn.classList.add('saved');
-                            btn.textContent = '❤️ Saved';
-                            // Optionally add the new saved item to local array
-                            // savedHostels.push(data); (if you maintain savedHostels array)
-                        } else {
-                            alert('Failed to save: ' + (data.message || data.detail || 'Unknown error'));
-                        }
-                    } catch (e) {
-                        console.error('Error saving hostel:', e);
-                        alert('Error saving hostel: ' + e.message);
-                    }
+                    const errText = await delRes.text();
+                    console.error('Unsave failed:', errText);
+                    alert('Failed to unsave: ' + (errText || 'Unknown error'));
                 }
-            };
+            } else {
+                alert('Could not find saved record to delete');
+            }
+        } catch (e) {
+            console.error('Error removing saved hostel:', e);
+            alert('Error removing saved hostel: ' + e.message);
+        }
+    } else {
+        // Saving
+        try {
+            const res = await fetch(`${API_BASE}/hostels/saved/`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ hostel_id: id })
+            });
+            if (res.status === 401) {
+                sessionStorage.removeItem('accessToken');
+                window.location.href = 'login.html';
+                return;
+            }
+            const responseText = await res.text();
+            console.log('Save response:', responseText);
+            let data;
+            try {
+                data = JSON.parse(responseText);
+            } catch (e) {
+                console.error('Failed to parse save response:', responseText);
+                alert('Server returned non-JSON response. See console.');
+                return;
+            }
+            if (res.ok) {
+                btn.classList.add('saved');
+                btn.textContent = '❤️ Saved';
+            } else {
+                alert('Failed to save: ' + (data.message || data.detail || 'Unknown error'));
+            }
+        } catch (e) {
+            console.error('Error saving hostel:', e);
+            alert('Error saving hostel: ' + e.message);
+        }
+    }
+};
 
             // Review modal
             let currentReviewHostelId = null;
