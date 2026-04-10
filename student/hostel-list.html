@@ -1084,7 +1084,7 @@
                         </div>
                         <div class="hostel-info">
                             <div class="hostel-name">${escapeHtml(h.name)}</div>
-                            <div class="hostel-price">💰 KSh ${(h.price)?.toLocaleString() || 0}/month</div>
+                            <div class="hostel-price">💰 KSh ${(h.price/100)?.toLocaleString() || 0}/month</div>
                             <div class="hostel-distance">📍 ${h.distance_to_university || '?'} km from KyU</div>
                             <div class="hostel-owner">
                                 <i class="fas fa-user"></i> ${escapeHtml(h.owner_name || 'Hostel Owner')}
