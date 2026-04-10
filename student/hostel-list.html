@@ -867,6 +867,8 @@
             const nextMonth = new Date();
             nextMonth.setMonth(nextMonth.getMonth() + 1);
             const defaultMoveIn = nextMonth.toISOString().split('T')[0];
+
+            const displayPrice = (hostel.price / 100) || 0;
             
             const modalBody = document.getElementById('bookingModalBody');
             modalBody.innerHTML = `
@@ -877,7 +879,7 @@
                     </div>
                     <div class="form-group">
                         <label>Monthly Rent</label>
-                        <input type="text" value="KSh ${hostel.price?.toLocaleString() || 0}" readonly>
+                        <input type="text" value="KSh ${(hostel.price / 100)?.toLocaleString() || 0}" readonly>
                     </div>
                     <div class="form-group">
                         <label>Move-in Date</label>
@@ -894,7 +896,7 @@
                     </div>
                     <div class="form-group" style="background: var(--bg-light); padding: 1rem; border-radius: 20px;">
                         <strong>First Month Rent:</strong> 
-                        <span id="totalAmount" style="color: var(--kyu-green); font-size: 1.2rem;">KSh ${hostel.price?.toLocaleString() || 0}</span>
+                        <span id="totalAmount" style="color: var(--kyu-green); font-size: 1.2rem;">KSh ${(hostel.price / 100)?.toLocaleString() || 0}</span>
                         <small style="display: block;">+ deposit (if applicable)</small>
                     </div>
                 </form>
