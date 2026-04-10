@@ -1223,8 +1223,8 @@ async function apiFetch(url, options = {}) {
 // ==================== RECENT ACTIVITY ====================
 async function loadRecentActivity() {
     try {
-        // FIXED: Correct endpoint is /audit-logs/ not /activity-logs/
-        const auditData = await apiFetch('/audit-logs/?page=1&page_size=10');
+        // owner-specific endpoint that only returns owner's own activities
+        const auditData = await apiFetch('/owner/activity-logs/?page=1&page_size=10');
         const activities = extractArray(auditData);
         
         if (activities.length === 0) {
@@ -1233,7 +1233,7 @@ async function loadRecentActivity() {
                     <div class="activity-icon"><i class="fas fa-info-circle"></i></div>
                     <div class="activity-content">
                         <div class="activity-title">No recent activity</div>
-                        <div class="activity-time">Check back later</div>
+                        <div class="activity-time">Activities will appear here when you take actions</div>
                     </div>
                 </li>
             `;
@@ -1246,9 +1246,6 @@ async function loadRecentActivity() {
             const title = formatActivityTitle(log.action, log);
             const time = formatTimeAgo(log.timestamp);
             
-            // Get user info
-            const userName = log.user_name || log.user || 'System';
-            
             return `
                 <li class="activity-item">
                     <div class="activity-icon" style="color: var(--kyu-green)">
@@ -1256,10 +1253,22 @@ async function loadRecentActivity() {
                     </div>
                     <div class="activity-content">
                         <div class="activity-title">${title}</div>
-                        <div class="activity-time">${time} by ${escapeHtml(userName)}</div>
+                        <div class="activity-time">${time}</div>
                     </div>
                 </li>
             `;
+        }).join('');
+    } catch (error) {
+        console.error('Failed to load activities:', error);
+        document.getElementById('activityList').innerHTML = `
+            <li class="activity-item">
+                <div class="activity-icon"><i class="fas fa-chart-line"></i></div>
+                <div class="activity-content">
+                    <div class="activity-title">Activity tracking</div>
+                    <div class="activity-time">Your activities will appear here</div>
+                </div>
+            </li>
+        `;
         }).join('');
     } catch (error) {
         console.error('Failed to load activities:', error);
