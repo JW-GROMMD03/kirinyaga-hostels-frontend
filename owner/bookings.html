@@ -620,7 +620,7 @@
             <div class="filter-row">
                 <div class="search-box">
                     <i class="fas fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Search by hostel name...">
+                    <input type="text" id="searchInput" placeholder="Search by hostel name or guest name...">
                 </div>
                 <select class="filter-select" id="statusFilter">
                     <option value="all">All Status</option>
@@ -754,46 +754,16 @@
             showLoading();
             
             try {
-                let endpoint;
+                let bookingsData;
+                
                 if (userRole === 'owner') {
-                    endpoint = '/hostels/my/';
-                    const hostelsData = await apiFetch(endpoint);
-                    const hostels = hostelsData.results || hostelsData || [];
-                    
-                    if (hostels.length === 0) {
-                        grid.innerHTML = `
-                            <div class="empty-state">
-                                <i class="fas fa-home"></i>
-                                <h3>No hostels registered</h3>
-                                <p>You haven't added any hostels yet.</p>
-                                <a href="add-hostel.html" class="btn-outline" style="margin-top: 1rem; display: inline-block;">
-                                    <i class="fas fa-plus-circle"></i> Add Your First Hostel
-                                </a>
-                            </div>
-                        `;
-                        hideLoading();
-                        return;
-                    }
-                    
-                    // For owners, fetch bookings for each hostel
-                    allBookings = [];
-                    for (const hostel of hostels) {
-                        try {
-                            const bookingsData = await apiFetch(`/bookings/?hostel=${hostel.id}`);
-                            const bookings = bookingsData.results || bookingsData || [];
-                            bookings.forEach(booking => {
-                                booking.hostel_name = hostel.name;
-                                booking.hostel_id = hostel.id;
-                            });
-                            allBookings.push(...bookings);
-                        } catch (e) {
-                            console.warn(`Failed to fetch bookings for hostel ${hostel.id}:`, e);
-                        }
-                    }
+                    // Use the dedicated owner bookings endpoint
+                    bookingsData = await apiFetch('/bookings/owner/');
+                    allBookings = bookingsData.results || bookingsData || [];
                 } else {
                     // For students, fetch their own bookings
-                    const data = await apiFetch('/bookings/');
-                    allBookings = data.results || data || [];
+                    bookingsData = await apiFetch('/bookings/');
+                    allBookings = bookingsData.results || bookingsData || [];
                 }
                 
                 console.log(`Loaded ${allBookings.length} bookings`);
@@ -843,8 +813,9 @@
             currentFilters.sort = document.getElementById('sortFilter').value;
 
             filteredBookings = allBookings.filter(booking => {
-                const hostelName = (booking.hostel_name || '').toLowerCase();
-                const matchesSearch = hostelName.includes(currentFilters.search);
+                const hostelName = (booking.hostel_name || booking.hostel?.name || '').toLowerCase();
+                const guestName = (booking.student_name || booking.student?.full_name || booking.user_name || '').toLowerCase();
+                const matchesSearch = hostelName.includes(currentFilters.search) || guestName.includes(currentFilters.search);
                 const matchesStatus = currentFilters.status === 'all' || booking.status === currentFilters.status;
                 return matchesSearch && matchesStatus;
             });
@@ -900,36 +871,37 @@
                     default: statusClass = ''; statusText = booking.status || 'N/A';
                 }
                 
-                const checkIn = booking.check_in ? new Date(booking.check_in).toLocaleDateString() : 'N/A';
-                const checkOut = booking.check_out ? new Date(booking.check_out).toLocaleDateString() : 'N/A';
-                const guestName = booking.guest_name || booking.user?.full_name || 'Guest';
-                const totalPrice = Number(booking.total_price || booking.total_amount || 0);
+                // FIXED: Use move_in_date instead of check_in/check_out
+                const moveInDate = booking.move_in_date ? new Date(booking.move_in_date).toLocaleDateString() : 'N/A';
+                const guestName = booking.student_name || booking.student?.full_name || booking.user_name || booking.guest_name || 'Guest';
+                const guestPhone = booking.student_phone || booking.phone || 'N/A';
+                const totalAmount = Number(booking.total_amount || booking.total_price || 0);
                 
                 return `
                     <div class="booking-card">
                         <div class="booking-header">
-                            <h3>${escapeHtml(booking.hostel_name || 'Hostel')}</h3>
+                            <h3>${escapeHtml(booking.hostel_name || booking.hostel?.name || 'Hostel')}</h3>
                             <span class="booking-status ${statusClass}">${statusText}</span>
                         </div>
                         <div class="booking-content">
                             <div class="booking-detail">
                                 <i class="fas fa-calendar-alt"></i>
-                                <span>Check-in: ${checkIn}</span>
-                            </div>
-                            <div class="booking-detail">
-                                <i class="fas fa-calendar-check"></i>
-                                <span>Check-out: ${checkOut}</span>
+                                <span>Move-in Date: ${moveInDate}</span>
                             </div>
                             <div class="booking-detail">
                                 <i class="fas fa-user"></i>
                                 <span>Guest: ${escapeHtml(guestName)}</span>
                             </div>
                             <div class="booking-detail">
+                                <i class="fas fa-users"></i>
+                                <span>Guests: ${booking.guests || 1}</span>
+                            </div>
+                            <div class="booking-detail">
                                 <i class="fas fa-phone"></i>
-                                <span>Phone: ${booking.guest_phone || 'N/A'}</span>
+                                <span>Phone: ${guestPhone}</span>
                             </div>
                             <div class="booking-price">
-                                KSh ${totalPrice.toLocaleString()}
+                                KSh ${totalAmount.toLocaleString()}
                             </div>
                             <div class="booking-actions">
                                 <button class="btn-action btn-view" onclick="viewBooking('${booking.id}')">
@@ -980,8 +952,13 @@
             showLoading();
             try {
                 const booking = await apiFetch(`/bookings/${id}/`);
-                openModal(booking);
+                if (booking) {
+                    openModal(booking);
+                } else {
+                    showToast('Booking not found', 'error');
+                }
             } catch (error) {
+                console.error('Error fetching booking:', error);
                 showToast('Failed to load booking details: ' + error.message, 'error');
             } finally {
                 hideLoading();
@@ -999,21 +976,25 @@
                 case 'cancelled': statusClass = 'status-cancelled'; break;
             }
             
-            const checkIn = booking.check_in ? new Date(booking.check_in).toLocaleDateString() : 'N/A';
-            const checkOut = booking.check_out ? new Date(booking.check_out).toLocaleDateString() : 'N/A';
+            // FIXED: Use move_in_date instead of check_in/check_out
+            const moveInDate = booking.move_in_date ? new Date(booking.move_in_date).toLocaleDateString() : 'N/A';
+            const guestName = booking.student_name || booking.student?.full_name || booking.user_name || booking.guest_name || 'N/A';
+            const guestEmail = booking.student_email || booking.student?.email || booking.user_email || 'N/A';
+            const guestPhone = booking.student_phone || booking.phone || 'N/A';
+            const totalAmount = Number(booking.total_amount || booking.total_price || 0);
             
             details.innerHTML = `
                 <h2 style="color: var(--kyu-green); margin-bottom: 1.5rem;">Booking Details</h2>
-                <div class="modal-info-item"><i class="fas fa-home"></i> <strong>Hostel:</strong> ${escapeHtml(booking.hostel_name || 'N/A')}</div>
-                <div class="modal-info-item"><i class="fas fa-user"></i> <strong>Guest Name:</strong> ${escapeHtml(booking.guest_name || booking.user?.full_name || 'N/A')}</div>
-                <div class="modal-info-item"><i class="fas fa-envelope"></i> <strong>Email:</strong> ${escapeHtml(booking.guest_email || booking.user?.email || 'N/A')}</div>
-                <div class="modal-info-item"><i class="fas fa-phone"></i> <strong>Phone:</strong> ${escapeHtml(booking.guest_phone || 'N/A')}</div>
-                <div class="modal-info-item"><i class="fas fa-calendar-alt"></i> <strong>Check-in:</strong> ${checkIn}</div>
-                <div class="modal-info-item"><i class="fas fa-calendar-check"></i> <strong>Check-out:</strong> ${checkOut}</div>
-                <div class="modal-info-item"><i class="fas fa-users"></i> <strong>Guests:</strong> ${booking.num_guests || 1}</div>
+                <div class="modal-info-item"><i class="fas fa-home"></i> <strong>Hostel:</strong> ${escapeHtml(booking.hostel_name || booking.hostel?.name || 'N/A')}</div>
+                <div class="modal-info-item"><i class="fas fa-user"></i> <strong>Guest Name:</strong> ${escapeHtml(guestName)}</div>
+                <div class="modal-info-item"><i class="fas fa-envelope"></i> <strong>Email:</strong> ${escapeHtml(guestEmail)}</div>
+                <div class="modal-info-item"><i class="fas fa-phone"></i> <strong>Phone:</strong> ${escapeHtml(guestPhone)}</div>
+                <div class="modal-info-item"><i class="fas fa-calendar-alt"></i> <strong>Move-in Date:</strong> ${moveInDate}</div>
+                <div class="modal-info-item"><i class="fas fa-users"></i> <strong>Guests:</strong> ${booking.guests || 1}</div>
                 <div class="modal-info-item"><i class="fas fa-tag"></i> <strong>Status:</strong> <span class="booking-status ${statusClass}" style="display: inline-block; margin-left: 0;">${booking.status}</span></div>
-                <div class="modal-info-item"><i class="fas fa-money-bill-wave"></i> <strong>Total Price:</strong> KSh ${Number(booking.total_price || booking.total_amount || 0).toLocaleString()}</div>
+                <div class="modal-info-item"><i class="fas fa-money-bill-wave"></i> <strong>Total Amount:</strong> KSh ${totalAmount.toLocaleString()}</div>
                 ${booking.special_requests ? `<div class="modal-info-item"><i class="fas fa-comment"></i> <strong>Special Requests:</strong> ${escapeHtml(booking.special_requests)}</div>` : ''}
+                <div class="modal-info-item"><i class="fas fa-clock"></i> <strong>Booked on:</strong> ${new Date(booking.created_at).toLocaleString()}</div>
             `;
             modal.style.display = 'block';
         }
@@ -1048,6 +1029,9 @@
         });
 
         document.getElementById('logoutBtn').addEventListener('click', logout);
+        document.getElementById('profileBtn').addEventListener('click', () => {
+            window.location.href = 'profile.html';
+        });
         document.getElementById('searchInput').addEventListener('keyup', (e) => {
             if (e.key === 'Enter') applyFilters();
         });
@@ -1061,6 +1045,7 @@
         window.goToPage = goToPage;
         window.changePage = changePage;
         window.closeModal = closeModal;
+        window.loadBookings = loadBookings;
 
         // Initialize
         loadUserProfile().then(() => loadBookings());
