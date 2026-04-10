@@ -340,6 +340,10 @@
                     window.location.href = 'login.html';
                     return null;
                 }
+                if (response.status === 404) {
+                    console.warn(`Endpoint not found: ${url}`);
+                    return { results: [] };
+                }
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 return await response.json();
             } catch (error) {
@@ -367,13 +371,17 @@
         function getActivityIcon(action) {
             const icons = {
                 'LOGIN_SUCCESS': 'fa-sign-in-alt',
+                'LOGIN_FAILED': 'fa-exclamation-triangle',
                 'CREATE_HOSTEL': 'fa-home',
                 'UPDATE_HOSTEL': 'fa-edit',
                 'DELETE_HOSTEL': 'fa-trash',
                 'CREATE_BOOKING': 'fa-calendar-check',
                 'CANCEL_BOOKING': 'fa-calendar-times',
                 'UPDATE_PROFILE': 'fa-user-edit',
-                'REPLY_REVIEW': 'fa-reply'
+                'REPLY_REVIEW': 'fa-reply',
+                'VIEW_HOSTEL': 'fa-eye',
+                'APPROVE_HOSTEL': 'fa-check-circle',
+                'REJECT_HOSTEL': 'fa-times-circle'
             };
             return icons[action] || 'fa-circle';
         }
@@ -381,21 +389,33 @@
         function formatActivityTitle(action) {
             const titles = {
                 'LOGIN_SUCCESS': 'Logged in successfully',
+                'LOGIN_FAILED': 'Failed login attempt',
                 'CREATE_HOSTEL': 'Added a new hostel',
                 'UPDATE_HOSTEL': 'Updated hostel details',
                 'DELETE_HOSTEL': 'Deleted a hostel',
                 'CREATE_BOOKING': 'New booking received',
                 'CANCEL_BOOKING': 'Booking cancelled',
                 'UPDATE_PROFILE': 'Profile updated',
-                'REPLY_REVIEW': 'Replied to a review'
+                'REPLY_REVIEW': 'Replied to a review',
+                'VIEW_HOSTEL': 'Viewed hostel details',
+                'APPROVE_HOSTEL': 'Hostel approved',
+                'REJECT_HOSTEL': 'Hostel rejected'
             };
             return titles[action] || action.replace(/_/g, ' ').toLowerCase();
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         async function loadActivityLogs() {
             showLoading();
             try {
-                const data = await apiFetch('/activity-logs/');
+                // FIXED: Use owner-specific endpoint
+                const data = await apiFetch('/owner/activity-logs/?page=1&page_size=50');
                 const activities = data.results || data || [];
                 
                 const container = document.getElementById('activityList');
@@ -415,9 +435,9 @@
                                 <i class="fas ${getActivityIcon(activity.action)}"></i>
                             </div>
                             <div class="activity-content">
-                                <div class="activity-title">${formatActivityTitle(activity.action)}</div>
+                                <div class="activity-title">${escapeHtml(formatActivityTitle(activity.action))}</div>
                                 <div class="activity-time">${formatTimeAgo(activity.timestamp)}</div>
-                                ${activity.details ? `<div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.3rem;">${escapeHtml(JSON.stringify(activity.details))}</div>` : ''}
+                                ${activity.details ? `<div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.3rem;">${escapeHtml(JSON.stringify(activity.details).substring(0, 100))}</div>` : ''}
                             </div>
                         </div>
                     `).join('');
@@ -434,13 +454,6 @@
             } finally {
                 hideLoading();
             }
-        }
-
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
         }
 
         document.getElementById('logoutBtn').addEventListener('click', () => {
