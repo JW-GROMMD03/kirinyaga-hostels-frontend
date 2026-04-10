@@ -970,7 +970,7 @@
         </div>
     </footer>
 
-    <script>
+        <script>
         // ==================== CONFIGURATION ====================
         const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
         const token = sessionStorage.getItem('accessToken');
@@ -1009,44 +1009,42 @@
         }
 
         // ==================== API HELPER ====================
-async function apiFetch(url, options = {}) {
-    try {
-        const response = await fetch(`${API_BASE}${url}`, {
-            ...options,
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-                ...options.headers
+        async function apiFetch(url, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${url}`, {
+                    ...options,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+
+                if (response.status === 401) {
+                    sessionStorage.removeItem('accessToken');
+                    window.location.href = 'login.html';
+                    return null;
+                }
+
+                if (response.status === 404) {
+                    console.warn(`Endpoint not found: ${url}`);
+                    return { results: [] };
+                }
+
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({}));
+                    throw new Error(error.message || error.detail || `HTTP ${response.status}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error(`API Error (${url}):`, error);
+                if (url.includes('/owner/activity-logs/')) {
+                    return { results: [] };
+                }
+                throw error;
             }
-        });
-
-        if (response.status === 401) {
-            sessionStorage.removeItem('accessToken');
-            window.location.href = 'login.html';
-            return null;
         }
-
-        // For 404, return empty data structure instead of throwing
-        if (response.status === 404) {
-            console.warn(`Endpoint not found: ${url}`);
-            return { results: [] };
-        }
-
-        if (!response.ok) {
-            const error = await response.json().catch(() => ({}));
-            throw new Error(error.message || error.detail || `HTTP ${response.status}`);
-        }
-
-        return await response.json();
-    } catch (error) {
-        console.error(`API Error (${url}):`, error);
-        // Return empty data structure instead of throwing for non-critical endpoints
-        if (url.includes('/audit-logs/') || url.includes('/activity-logs/')) {
-            return { results: [] };
-        }
-        throw error;
-    }
-}
 
         function extractArray(data) {
             if (Array.isArray(data)) return data;
@@ -1104,7 +1102,6 @@ async function apiFetch(url, options = {}) {
                 if (currentPassword) payload.current_password = currentPassword;
                 if (newPassword) payload.new_password = newPassword;
 
-                // FIXED: Correct endpoint from accounts/urls.py
                 const response = await apiFetch('/auth/owner/profile/update/', {
                     method: 'PUT',
                     body: JSON.stringify(payload)
@@ -1152,7 +1149,6 @@ async function apiFetch(url, options = {}) {
                 document.getElementById('featuredHostels').textContent = featured;
                 document.getElementById('totalViews').textContent = views;
                 
-                // Bookings endpoint returns 403, so we'll show N/A for now
                 try {
                     const bookingsData = await apiFetch('/bookings/?owner=me');
                     const bookings = extractArray(bookingsData);
@@ -1220,121 +1216,58 @@ async function apiFetch(url, options = {}) {
             return div.innerHTML;
         }
 
-// ==================== RECENT ACTIVITY ====================
-async function loadRecentActivity() {
-    try {
-        // owner-specific endpoint that only returns owner's own activities
-        const auditData = await apiFetch('/owner/activity-logs/?page=1&page_size=10');
-        const activities = extractArray(auditData);
-        
-        if (activities.length === 0) {
-            document.getElementById('activityList').innerHTML = `
-                <li class="activity-item">
-                    <div class="activity-icon"><i class="fas fa-info-circle"></i></div>
-                    <div class="activity-content">
-                        <div class="activity-title">No recent activity</div>
-                        <div class="activity-time">Activities will appear here when you take actions</div>
-                    </div>
-                </li>
-            `;
-            return;
+        // ==================== RECENT ACTIVITY ====================
+        function getActivityIcon(action) {
+            const iconMap = {
+                'LOGIN_SUCCESS': 'fa-sign-in-alt',
+                'LOGIN_FAILED': 'fa-exclamation-triangle',
+                'CREATE_HOSTEL': 'fa-home',
+                'UPDATE_HOSTEL': 'fa-edit',
+                'DELETE_HOSTEL': 'fa-trash',
+                'CREATE_BOOKING': 'fa-calendar-check',
+                'UPDATE_BOOKING': 'fa-calendar-alt',
+                'CANCEL_BOOKING': 'fa-calendar-times',
+                'VIEW_HOSTEL': 'fa-eye',
+                'VIEW_HOSTEL_DETAIL': 'fa-eye',
+                'STUDENT_SIGNUP': 'fa-user-plus',
+                'OWNER_SIGNUP': 'fa-user-plus',
+                'APPROVE_OWNER': 'fa-check-circle',
+                'APPROVE_HOSTEL': 'fa-check-circle',
+                'REJECT_HOSTEL': 'fa-times-circle',
+                'TOGGLE_USER_STATUS': 'fa-toggle-on',
+                'PASSWORD_RESET': 'fa-key',
+                '2FA_ENABLED': 'fa-shield-alt',
+                '2FA_DISABLED': 'fa-shield-alt'
+            };
+            return iconMap[action] || 'fa-circle';
         }
 
-        const activityList = document.getElementById('activityList');
-        activityList.innerHTML = activities.slice(0, 5).map(log => {
-            const icon = getActivityIcon(log.action);
-            const title = formatActivityTitle(log.action, log);
-            const time = formatTimeAgo(log.timestamp);
+        function formatActivityTitle(action, log) {
+            const titleMap = {
+                'LOGIN_SUCCESS': 'Logged in successfully',
+                'LOGIN_FAILED': 'Failed login attempt',
+                'CREATE_HOSTEL': `Added hostel "${log?.details?.hostel_name || 'New hostel'}"`,
+                'UPDATE_HOSTEL': `Updated hostel "${log?.details?.hostel_name || 'hostel'}"`,
+                'DELETE_HOSTEL': `Deleted hostel "${log?.details?.hostel_name || 'hostel'}"`,
+                'VIEW_HOSTEL': `Viewed hostel "${log?.details?.hostel_name || 'hostel'}"`,
+                'VIEW_HOSTEL_DETAIL': 'Viewed hostel details',
+                'CREATE_BOOKING': 'New booking received',
+                'UPDATE_BOOKING': 'Booking updated',
+                'CANCEL_BOOKING': 'Booking cancelled',
+                'STUDENT_SIGNUP': 'New student registered',
+                'OWNER_SIGNUP': 'New owner registered',
+                'APPROVE_OWNER': 'Owner account approved',
+                'APPROVE_HOSTEL': 'Hostel approved',
+                'REJECT_HOSTEL': 'Hostel rejected',
+                'TOGGLE_USER_STATUS': 'User status changed',
+                'PASSWORD_RESET': 'Password reset completed',
+                '2FA_ENABLED': 'Two-factor authentication enabled',
+                '2FA_DISABLED': 'Two-factor authentication disabled'
+            };
             
-            return `
-                <li class="activity-item">
-                    <div class="activity-icon" style="color: var(--kyu-green)">
-                        <i class="fas ${icon}"></i>
-                    </div>
-                    <div class="activity-content">
-                        <div class="activity-title">${title}</div>
-                        <div class="activity-time">${time}</div>
-                    </div>
-                </li>
-            `;
-        }).join('');
-    } catch (error) {
-        console.error('Failed to load activities:', error);
-        document.getElementById('activityList').innerHTML = `
-            <li class="activity-item">
-                <div class="activity-icon"><i class="fas fa-chart-line"></i></div>
-                <div class="activity-content">
-                    <div class="activity-title">Activity tracking</div>
-                    <div class="activity-time">Your activities will appear here</div>
-                </div>
-            </li>
-        `;
-        }).join('');
-    } catch (error) {
-        console.error('Failed to load activities:', error);
-        document.getElementById('activityList').innerHTML = `
-            <li class="activity-item">
-                <div class="activity-icon"><i class="fas fa-chart-line"></i></div>
-                <div class="activity-content">
-                    <div class="activity-title">Activity tracking</div>
-                    <div class="activity-time">Check your hostels page for updates</div>
-                </div>
-            </li>
-        `;
-    }
-}
-
-function getActivityIcon(action) {
-    const iconMap = {
-        'LOGIN_SUCCESS': 'fa-sign-in-alt',
-        'LOGIN_FAILED': 'fa-exclamation-triangle',
-        'CREATE_HOSTEL': 'fa-home',
-        'UPDATE_HOSTEL': 'fa-edit',
-        'DELETE_HOSTEL': 'fa-trash',
-        'CREATE_BOOKING': 'fa-calendar-check',
-        'UPDATE_BOOKING': 'fa-calendar-alt',
-        'CANCEL_BOOKING': 'fa-calendar-times',
-        'VIEW_HOSTEL': 'fa-eye',
-        'VIEW_HOSTEL_DETAIL': 'fa-eye',
-        'STUDENT_SIGNUP': 'fa-user-plus',
-        'OWNER_SIGNUP': 'fa-user-plus',
-        'APPROVE_OWNER': 'fa-check-circle',
-        'APPROVE_HOSTEL': 'fa-check-circle',
-        'REJECT_HOSTEL': 'fa-times-circle',
-        'TOGGLE_USER_STATUS': 'fa-toggle-on',
-        'PASSWORD_RESET': 'fa-key',
-        '2FA_ENABLED': 'fa-shield-alt',
-        '2FA_DISABLED': 'fa-shield-alt'
-    };
-    return iconMap[action] || 'fa-circle';
-}
-
-function formatActivityTitle(action, log) {
-    const titleMap = {
-        'LOGIN_SUCCESS': 'Logged in successfully',
-        'LOGIN_FAILED': 'Failed login attempt',
-        'CREATE_HOSTEL': `Added hostel "${log.details?.hostel_name || 'New hostel'}"`,
-        'UPDATE_HOSTEL': `Updated hostel "${log.details?.hostel_name || 'hostel'}"`,
-        'DELETE_HOSTEL': `Deleted hostel "${log.details?.hostel_name || 'hostel'}"`,
-        'VIEW_HOSTEL': `Viewed hostel "${log.details?.hostel_name || 'hostel'}"`,
-        'VIEW_HOSTEL_DETAIL': `Viewed hostel details`,
-        'CREATE_BOOKING': 'New booking received',
-        'UPDATE_BOOKING': 'Booking updated',
-        'CANCEL_BOOKING': 'Booking cancelled',
-        'STUDENT_SIGNUP': 'New student registered',
-        'OWNER_SIGNUP': 'New owner registered',
-        'APPROVE_OWNER': 'Owner account approved',
-        'APPROVE_HOSTEL': 'Hostel approved',
-        'REJECT_HOSTEL': 'Hostel rejected',
-        'TOGGLE_USER_STATUS': 'User status changed',
-        'PASSWORD_RESET': 'Password reset completed',
-        '2FA_ENABLED': 'Two-factor authentication enabled',
-        '2FA_DISABLED': 'Two-factor authentication disabled'
-    };
-    
-    if (titleMap[action]) return titleMap[action];
-    return action.replace(/_/g, ' ').toLowerCase();
-}
+            if (titleMap[action]) return titleMap[action];
+            return action.replace(/_/g, ' ').toLowerCase();
+        }
 
         function formatTimeAgo(timestamp) {
             if (!timestamp) return 'Unknown';
@@ -1350,6 +1283,56 @@ function formatActivityTitle(action, log) {
             if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
             if (diffDays < 30) return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
             return past.toLocaleDateString();
+        }
+
+        async function loadRecentActivity() {
+            try {
+                const auditData = await apiFetch('/owner/activity-logs/?page=1&page_size=10');
+                const activities = extractArray(auditData);
+                
+                if (activities.length === 0) {
+                    document.getElementById('activityList').innerHTML = `
+                        <li class="activity-item">
+                            <div class="activity-icon"><i class="fas fa-info-circle"></i></div>
+                            <div class="activity-content">
+                                <div class="activity-title">No recent activity</div>
+                                <div class="activity-time">Activities will appear here when you take actions</div>
+                            </div>
+                        </li>
+                    `;
+                    return;
+                }
+
+                const activityList = document.getElementById('activityList');
+                activityList.innerHTML = activities.slice(0, 5).map(log => {
+                    const icon = getActivityIcon(log.action);
+                    const title = formatActivityTitle(log.action, log);
+                    const time = formatTimeAgo(log.timestamp);
+                    
+                    return `
+                        <li class="activity-item">
+                            <div class="activity-icon" style="color: var(--kyu-green)">
+                                <i class="fas ${icon}"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">${escapeHtml(title)}</div>
+                                <div class="activity-time">${time}</div>
+                            </div>
+                        </li>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Failed to load activities:', error);
+                document.getElementById('activityList').innerHTML = `
+                    <li class="activity-item">
+                        <div class="activity-icon"><i class="fas fa-chart-line"></i></div>
+                        <div class="activity-content">
+                            <div class="activity-title">Activity tracking</div>
+                            <div class="activity-time">Your activities will appear here</div>
+                        </div>
+                    </li>
+                `;
+            }
         }
 
         // ==================== REFRESH ====================
@@ -1399,7 +1382,6 @@ function formatActivityTitle(action, log) {
                 await loadStats();
                 await loadRecentActivity();
                 
-                // Refresh every 30 seconds
                 refreshInterval = setInterval(() => {
                     refreshData();
                 }, 30000);
@@ -1411,14 +1393,12 @@ function formatActivityTitle(action, log) {
             }
         }
 
-        // Clean up interval on page unload
         window.addEventListener('beforeunload', () => {
             if (refreshInterval) {
                 clearInterval(refreshInterval);
             }
         });
 
-        // Event Listeners
         document.getElementById('logoutBtn').addEventListener('click', logout);
         document.getElementById('profileBtn').addEventListener('click', openProfileModal);
         document.getElementById('updateProfileBtn').addEventListener('click', updateProfile);
@@ -1426,12 +1406,10 @@ function formatActivityTitle(action, log) {
             window.location.href = 'dashboard.html';
         });
 
-        // Global functions for inline onclick
         window.refreshData = refreshData;
         window.closeProfileModal = closeProfileModal;
         window.updateProfile = updateProfile;
 
-        // Start the app
         init();
     </script>
 </body>
