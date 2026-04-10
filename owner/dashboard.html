@@ -1009,34 +1009,44 @@
         }
 
         // ==================== API HELPER ====================
-        async function apiFetch(url, options = {}) {
-            try {
-                const response = await fetch(`${API_BASE}${url}`, {
-                    ...options,
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        ...options.headers
-                    }
-                });
-
-                if (response.status === 401) {
-                    sessionStorage.removeItem('accessToken');
-                    window.location.href = 'login.html';
-                    return null;
-                }
-
-                if (!response.ok) {
-                    const error = await response.json().catch(() => ({}));
-                    throw new Error(error.message || error.detail || `HTTP ${response.status}`);
-                }
-
-                return await response.json();
-            } catch (error) {
-                console.error(`API Error (${url}):`, error);
-                throw error;
+async function apiFetch(url, options = {}) {
+    try {
+        const response = await fetch(`${API_BASE}${url}`, {
+            ...options,
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                ...options.headers
             }
+        });
+
+        if (response.status === 401) {
+            sessionStorage.removeItem('accessToken');
+            window.location.href = 'login.html';
+            return null;
         }
+
+        // For 404, return empty data structure instead of throwing
+        if (response.status === 404) {
+            console.warn(`Endpoint not found: ${url}`);
+            return { results: [] };
+        }
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || error.detail || `HTTP ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error(`API Error (${url}):`, error);
+        // Return empty data structure instead of throwing for non-critical endpoints
+        if (url.includes('/audit-logs/') || url.includes('/activity-logs/')) {
+            return { results: [] };
+        }
+        throw error;
+    }
+}
 
         function extractArray(data) {
             if (Array.isArray(data)) return data;
@@ -1210,83 +1220,112 @@
             return div.innerHTML;
         }
 
-        // ==================== RECENT ACTIVITY ====================
-        async function loadRecentActivity() {
-            try {
-                // FIXED: Correct endpoint from accounts/urls.py (line 84)
-                const auditData = await apiFetch('/activity-logs/');
-                const activities = extractArray(auditData);
-                
-                if (activities.length === 0) {
-                    document.getElementById('activityList').innerHTML = `
-                        <li class="activity-item">
-                            <div class="activity-icon"><i class="fas fa-info-circle"></i></div>
-                            <div class="activity-content">
-                                <div class="activity-title">No recent activity</div>
-                                <div class="activity-time">Check back later</div>
-                            </div>
-                        </li>
-                    `;
-                    return;
-                }
-
-                const activityList = document.getElementById('activityList');
-                activityList.innerHTML = activities.slice(0, 5).map(log => {
-                    const icon = getActivityIcon(log.action);
-                    const title = formatActivityTitle(log.action);
-                    const time = formatTimeAgo(log.timestamp);
-                    
-                    return `
-                        <li class="activity-item">
-                            <div class="activity-icon" style="color: var(--kyu-green)">
-                                <i class="fas ${icon}"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-title">${title}</div>
-                                <div class="activity-time">${time}</div>
-                            </div>
-                        </li>
-                    `;
-                }).join('');
-            } catch (error) {
-                console.error('Failed to load activities:', error);
-                document.getElementById('activityList').innerHTML = `
-                    <li class="activity-item">
-                        <div class="activity-icon"><i class="fas fa-chart-line"></i></div>
-                        <div class="activity-content">
-                            <div class="activity-title">Activity tracking coming soon</div>
-                            <div class="activity-time">Check your hostels page for updates</div>
-                        </div>
-                    </li>
-                `;
-            }
+// ==================== RECENT ACTIVITY ====================
+async function loadRecentActivity() {
+    try {
+        // FIXED: Correct endpoint is /audit-logs/ not /activity-logs/
+        const auditData = await apiFetch('/audit-logs/?page=1&page_size=10');
+        const activities = extractArray(auditData);
+        
+        if (activities.length === 0) {
+            document.getElementById('activityList').innerHTML = `
+                <li class="activity-item">
+                    <div class="activity-icon"><i class="fas fa-info-circle"></i></div>
+                    <div class="activity-content">
+                        <div class="activity-title">No recent activity</div>
+                        <div class="activity-time">Check back later</div>
+                    </div>
+                </li>
+            `;
+            return;
         }
 
-        function getActivityIcon(action) {
-            const iconMap = {
-                'LOGIN_SUCCESS': 'fa-sign-in-alt',
-                'CREATE_HOSTEL': 'fa-home',
-                'UPDATE_HOSTEL': 'fa-edit',
-                'DELETE_HOSTEL': 'fa-trash',
-                'CREATE_BOOKING': 'fa-calendar-check',
-                'UPDATE_BOOKING': 'fa-calendar-alt',
-                'CANCEL_BOOKING': 'fa-calendar-times'
-            };
-            return iconMap[action] || 'fa-circle';
-        }
+        const activityList = document.getElementById('activityList');
+        activityList.innerHTML = activities.slice(0, 5).map(log => {
+            const icon = getActivityIcon(log.action);
+            const title = formatActivityTitle(log.action, log);
+            const time = formatTimeAgo(log.timestamp);
+            
+            // Get user info
+            const userName = log.user_name || log.user || 'System';
+            
+            return `
+                <li class="activity-item">
+                    <div class="activity-icon" style="color: var(--kyu-green)">
+                        <i class="fas ${icon}"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">${title}</div>
+                        <div class="activity-time">${time} by ${escapeHtml(userName)}</div>
+                    </div>
+                </li>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Failed to load activities:', error);
+        document.getElementById('activityList').innerHTML = `
+            <li class="activity-item">
+                <div class="activity-icon"><i class="fas fa-chart-line"></i></div>
+                <div class="activity-content">
+                    <div class="activity-title">Activity tracking</div>
+                    <div class="activity-time">Check your hostels page for updates</div>
+                </div>
+            </li>
+        `;
+    }
+}
 
-        function formatActivityTitle(action) {
-            const titleMap = {
-                'LOGIN_SUCCESS': 'Logged in successfully',
-                'CREATE_HOSTEL': 'Added a new hostel',
-                'UPDATE_HOSTEL': 'Updated hostel details',
-                'DELETE_HOSTEL': 'Deleted a hostel',
-                'CREATE_BOOKING': 'New booking received',
-                'UPDATE_BOOKING': 'Booking updated',
-                'CANCEL_BOOKING': 'Booking cancelled'
-            };
-            return titleMap[action] || action.replace(/_/g, ' ').toLowerCase();
-        }
+function getActivityIcon(action) {
+    const iconMap = {
+        'LOGIN_SUCCESS': 'fa-sign-in-alt',
+        'LOGIN_FAILED': 'fa-exclamation-triangle',
+        'CREATE_HOSTEL': 'fa-home',
+        'UPDATE_HOSTEL': 'fa-edit',
+        'DELETE_HOSTEL': 'fa-trash',
+        'CREATE_BOOKING': 'fa-calendar-check',
+        'UPDATE_BOOKING': 'fa-calendar-alt',
+        'CANCEL_BOOKING': 'fa-calendar-times',
+        'VIEW_HOSTEL': 'fa-eye',
+        'VIEW_HOSTEL_DETAIL': 'fa-eye',
+        'STUDENT_SIGNUP': 'fa-user-plus',
+        'OWNER_SIGNUP': 'fa-user-plus',
+        'APPROVE_OWNER': 'fa-check-circle',
+        'APPROVE_HOSTEL': 'fa-check-circle',
+        'REJECT_HOSTEL': 'fa-times-circle',
+        'TOGGLE_USER_STATUS': 'fa-toggle-on',
+        'PASSWORD_RESET': 'fa-key',
+        '2FA_ENABLED': 'fa-shield-alt',
+        '2FA_DISABLED': 'fa-shield-alt'
+    };
+    return iconMap[action] || 'fa-circle';
+}
+
+function formatActivityTitle(action, log) {
+    const titleMap = {
+        'LOGIN_SUCCESS': 'Logged in successfully',
+        'LOGIN_FAILED': 'Failed login attempt',
+        'CREATE_HOSTEL': `Added hostel "${log.details?.hostel_name || 'New hostel'}"`,
+        'UPDATE_HOSTEL': `Updated hostel "${log.details?.hostel_name || 'hostel'}"`,
+        'DELETE_HOSTEL': `Deleted hostel "${log.details?.hostel_name || 'hostel'}"`,
+        'VIEW_HOSTEL': `Viewed hostel "${log.details?.hostel_name || 'hostel'}"`,
+        'VIEW_HOSTEL_DETAIL': `Viewed hostel details`,
+        'CREATE_BOOKING': 'New booking received',
+        'UPDATE_BOOKING': 'Booking updated',
+        'CANCEL_BOOKING': 'Booking cancelled',
+        'STUDENT_SIGNUP': 'New student registered',
+        'OWNER_SIGNUP': 'New owner registered',
+        'APPROVE_OWNER': 'Owner account approved',
+        'APPROVE_HOSTEL': 'Hostel approved',
+        'REJECT_HOSTEL': 'Hostel rejected',
+        'TOGGLE_USER_STATUS': 'User status changed',
+        'PASSWORD_RESET': 'Password reset completed',
+        '2FA_ENABLED': 'Two-factor authentication enabled',
+        '2FA_DISABLED': 'Two-factor authentication disabled'
+    };
+    
+    if (titleMap[action]) return titleMap[action];
+    return action.replace(/_/g, ' ').toLowerCase();
+}
 
         function formatTimeAgo(timestamp) {
             if (!timestamp) return 'Unknown';
