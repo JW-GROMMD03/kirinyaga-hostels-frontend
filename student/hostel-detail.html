@@ -729,7 +729,7 @@ window.openBookingModalFromDetail = function() {
             break;
         }
     }
-    //price = price/100;
+    price = price/100;
     
     // Fallback: get from the rendered price element
     if (price === 0) {
@@ -793,14 +793,50 @@ window.openBookingModalFromDetail = function() {
                 closeModal('bookingModal');
                 currentBookingHostel = null;
             };
-window.submitBookingFromDetail = async function()
+window.submitBookingFromDetail = async function() {
+    if (!currentBookingHostel) return;
+    
+    const moveInDate = document.getElementById('moveInDate')?.value;
+    const numGuests = document.getElementById('numGuests')?.value;
+    const specialRequests = document.getElementById('specialRequests')?.value;
 
-            function escapeHtml(text) {
-                if (!text) return '';
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
-            }
+    if (!moveInDate || !numGuests) {
+        alert('Please fill all required fields');
+        return;
+    }
+
+    const payload = {
+        hostel: currentBookingHostel.id,
+        move_in_date: moveInDate,
+        guests: parseInt(numGuests),
+        special_requests: specialRequests || ''
+    };
+
+    console.log('Booking payload:', payload);
+
+    try {
+        const response = await fetch(`${API_BASE}/bookings/create/`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        console.log('Booking response:', data);
+        
+        if (!response.ok) {
+            throw new Error(data.message || data.error || 'Booking request failed');
+        }
+
+        alert('Booking request submitted successfully! The hostel owner will contact you soon.');
+        closeBookingModal();
+    } catch (e) {
+        alert('Error: ' + e.message);
+    }
+};
         })();
     </script>
 </body>
