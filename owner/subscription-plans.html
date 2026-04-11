@@ -774,6 +774,12 @@
         function openPaymentModal(planId, planName, price) {
             selectedPlan = { id: planId, name: planName, price: price };
             document.getElementById('paymentModal').classList.add('active');
+            
+            // Clear previous phone number value and set default
+            const phoneInput = document.getElementById('phoneNumber');
+            if (phoneInput) {
+                phoneInput.value = '254';
+            }
         }
 
         function closePaymentModal() {
@@ -841,7 +847,7 @@
         async function processPayment() {
             const phoneNumber = document.getElementById('phoneNumber').value;
             
-            if (!phoneNumber) {
+            if (!phoneNumber || phoneNumber === '254') {
                 showToast('Please enter your phone number', true);
                 return;
             }
@@ -852,13 +858,9 @@
                 return;
             }
             
+            // Close modal first
             closePaymentModal();
             showLoading();
-            
-            const payBtn = document.getElementById('payNowBtn');
-            const originalBtnText = payBtn.innerHTML;
-            payBtn.disabled = true;
-            payBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Processing...';
             
             try {
                 const response = await apiFetch('/subscriptions/create/', {
@@ -876,7 +878,6 @@
                 if (response.payment && response.payment.success) {
                     showToast('STK Push sent! Check your phone and enter PIN.', false);
                     startPaymentPolling(response.subscription_id);
-                    closePaymentModal();
                     showToast('Payment initiated. Please complete transaction on your phone.', false);
                 } else if (response.subscription_id) {
                     showToast('Subscription created! Waiting for payment confirmation...', false);
@@ -884,14 +885,10 @@
                 } else {
                     const errorMsg = response.error || 'Payment initiation failed. Please try again.';
                     showToast(errorMsg, true);
-                    payBtn.disabled = false;
-                    payBtn.innerHTML = originalBtnText;
                 }
             } catch (error) {
                 console.error('Payment error:', error);
                 showToast(error.message || 'Payment failed. Please try again.', true);
-                payBtn.disabled = false;
-                payBtn.innerHTML = originalBtnText;
             } finally {
                 hideLoading();
             }
@@ -920,6 +917,13 @@
             window.location.href = 'profile.html';
         });
 
+        // Attach event listener to the Pay Now button
+        const payNowBtn = document.getElementById('payNowBtn');
+        if (payNowBtn) {
+            payNowBtn.addEventListener('click', processPayment);
+        }
+
+        // Make functions globally available
         window.closePaymentModal = closePaymentModal;
         window.processPayment = processPayment;
         window.openPaymentModal = openPaymentModal;
