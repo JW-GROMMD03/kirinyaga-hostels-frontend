@@ -204,7 +204,7 @@
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
@@ -216,6 +216,11 @@
             text-align: center;
             box-shadow: var(--shadow-sm);
             border-left: 4px solid var(--kyu-green);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
         }
 
         .stat-card .number {
@@ -352,6 +357,7 @@
         .status-pending { background: var(--warning); color: #1e293b; }
         .status-confirmed { background: var(--success); color: white; }
         .status-cancelled { background: var(--danger); color: white; }
+        .status-expired { background: #6b7280; color: white; }
 
         .booking-content {
             padding: 1.5rem;
@@ -371,7 +377,7 @@
         }
 
         .booking-price {
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             font-weight: 700;
             color: var(--kyu-green);
             margin: 1rem 0;
@@ -499,7 +505,7 @@
             margin: 2rem auto;
             padding: 2rem;
             border-radius: 24px;
-            max-width: 500px;
+            max-width: 550px;
             width: 90%;
             position: relative;
         }
@@ -521,6 +527,57 @@
             background: var(--bg-light);
             border-radius: 12px;
             margin-bottom: 0.8rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .btn-primary {
+            flex: 1;
+            background: var(--kyu-green);
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-danger {
+            flex: 1;
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
         footer {
@@ -559,6 +616,9 @@
             .bookings-grid {
                 grid-template-columns: 1fr;
             }
+            .modal-actions {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -580,7 +640,7 @@
                 <div class="user-avatar" id="userAvatar">O</div>
                 <div class="user-details">
                     <span class="user-name" id="userName">Loading...</span>
-                    <span class="user-role" id="userRole">Student</span>
+                    <span class="user-role" id="userRole">Hostel Owner</span>
                 </div>
             </div>
             <button class="btn-logout" id="logoutBtn">
@@ -604,7 +664,7 @@
             </div>
             <div class="stat-card">
                 <div class="number" id="pendingBookings">0</div>
-                <div class="label">Pending</div>
+                <div class="label">Pending Payment</div>
             </div>
             <div class="stat-card">
                 <div class="number" id="confirmedBookings">0</div>
@@ -624,9 +684,10 @@
                 </div>
                 <select class="filter-select" id="statusFilter">
                     <option value="all">All Status</option>
-                    <option value="pending">Pending</option>
+                    <option value="pending">Pending Payment</option>
                     <option value="confirmed">Confirmed</option>
                     <option value="cancelled">Cancelled</option>
+                    <option value="expired">Expired</option>
                 </select>
                 <select class="filter-select" id="sortFilter">
                     <option value="newest">Newest First</option>
@@ -677,7 +738,7 @@
         let currentPage = 1;
         const itemsPerPage = 6;
         let currentFilters = { search: '', status: 'all', sort: 'newest' };
-        let userRole = 'student';
+        let userRole = 'owner';
 
         if (!token) window.location.href = 'login.html';
 
@@ -689,56 +750,47 @@
             document.getElementById('loadingOverlay').style.display = 'none';
         }
 
-        function showToast(message, type = 'info') {
+        function showToast(message, type = 'success') {
             const toast = document.createElement('div');
-            toast.style.position = 'fixed';
-            toast.style.bottom = '20px';
-            toast.style.right = '20px';
-            toast.style.backgroundColor = type === 'error' ? '#dc2626' : '#16a34a';
-            toast.style.color = 'white';
-            toast.style.padding = '12px 24px';
-            toast.style.borderRadius = '12px';
-            toast.style.zIndex = '10000';
-            toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
-            toast.innerHTML = message;
+            toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+            toast.innerHTML = `<i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${message}`;
             document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+            setTimeout(() => toast.remove(), 5000);
         }
 
-async function apiFetch(url, options = {}) {
-    try {
-        const response = await fetch(`${API_BASE}${url}`, {
-            ...options,
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-                ...options.headers
+        async function apiFetch(url, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${url}`, {
+                    ...options,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+
+                if (response.status === 401) {
+                    sessionStorage.removeItem('accessToken');
+                    window.location.href = 'login.html';
+                    return null;
+                }
+
+                if (response.status === 404) {
+                    console.warn(`Resource not found: ${url}`);
+                    return null;
+                }
+
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({}));
+                    throw new Error(error.message || error.detail || `HTTP ${response.status}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
             }
-        });
-
-        if (response.status === 401) {
-            sessionStorage.removeItem('accessToken');
-            window.location.href = 'login.html';
-            return null;
         }
-
-        // For 404, return null instead of throwing
-        if (response.status === 404) {
-            console.warn(`Resource not found: ${url}`);
-            return null;
-        }
-
-        if (!response.ok) {
-            const error = await response.json().catch(() => ({}));
-            throw new Error(error.message || error.detail || `HTTP ${response.status}`);
-        }
-
-        return await response.json();
-    } catch (error) {
-        console.error('API Error:', error);
-        throw error;
-    }
-}
 
         async function loadUserProfile() {
             try {
@@ -748,59 +800,55 @@ async function apiFetch(url, options = {}) {
                     document.getElementById('userRole').textContent = data.role === 'owner' ? 'Hostel Owner' : 'Student';
                     const initials = (data.full_name || data.email).split(' ').map(n => n[0]).join('').toUpperCase();
                     document.getElementById('userAvatar').textContent = initials.slice(0, 2);
-                    userRole = data.role || 'student';
+                    userRole = data.role || 'owner';
                 }
             } catch (error) {
                 console.error('Failed to load profile:', error);
             }
         }
 
-async function loadBookings() {
-    const grid = document.getElementById('bookingsGrid');
-    showLoading();
-    
-    try {
-        let bookingsData;
-        
-        if (userRole === 'owner') {
-            // Use the dedicated owner bookings endpoint
-            bookingsData = await apiFetch('/bookings/owner/');
-            allBookings = bookingsData.results || bookingsData || [];
-        } else {
-            // For students, fetch their own bookings
-            bookingsData = await apiFetch('/bookings/');
-            allBookings = bookingsData.results || bookingsData || [];
+        async function loadBookings() {
+            const grid = document.getElementById('bookingsGrid');
+            showLoading();
+            
+            try {
+                let bookingsData;
+                
+                if (userRole === 'owner') {
+                    bookingsData = await apiFetch('/bookings/owner/');
+                    allBookings = bookingsData.results || bookingsData || [];
+                } else {
+                    bookingsData = await apiFetch('/bookings/');
+                    allBookings = bookingsData.results || bookingsData || [];
+                }
+                
+                console.log(`Loaded ${allBookings.length} bookings`);
+                
+                if (allBookings.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-times"></i>
+                            <h3>No bookings found</h3>
+                            <p>No one has booked your hostels yet.</p>
+                        </div>
+                    `;
+                } else {
+                    updateStats();
+                    applyFilters();
+                }
+            } catch (error) {
+                console.error('Failed to load bookings:', error);
+                grid.innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Failed to load bookings: ${error.message}</span>
+                        <button onclick="loadBookings()" style="padding: 0.3rem 1rem; background: white; border: none; border-radius: 30px; cursor: pointer;">Retry</button>
+                    </div>
+                `;
+            } finally {
+                hideLoading();
+            }
         }
-        
-        console.log(`Loaded ${allBookings.length} bookings`);
-        console.log('Sample booking:', allBookings[0]);
-        
-        if (allBookings.length === 0) {
-            grid.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-calendar-times"></i>
-                    <h3>No bookings found</h3>
-                    <p>${userRole === 'owner' ? 'No one has booked your hostels yet.' : 'You haven\'t made any bookings yet.'}</p>
-                    ${userRole !== 'owner' ? '<a href="hostels.html" class="btn-outline" style="margin-top: 1rem; display: inline-block;"><i class="fas fa-search"></i> Browse Hostels</a>' : ''}
-                </div>
-            `;
-        } else {
-            updateStats();
-            applyFilters();
-        }
-    } catch (error) {
-        console.error('Failed to load bookings:', error);
-        grid.innerHTML = `
-            <div class="error-message">
-                <i class="fas fa-exclamation-circle"></i>
-                <span>Failed to load bookings: ${error.message}</span>
-                <button onclick="loadBookings()" style="padding: 0.3rem 1rem; background: white; border: none; border-radius: 30px; cursor: pointer;">Retry</button>
-            </div>
-        `;
-    } finally {
-        hideLoading();
-    }
-}
 
         function updateStats() {
             const total = allBookings.length;
@@ -872,20 +920,20 @@ async function loadBookings() {
                 let statusClass = '';
                 let statusText = '';
                 switch(booking.status) {
-                    case 'pending': statusClass = 'status-pending'; statusText = 'Pending'; break;
+                    case 'pending': statusClass = 'status-pending'; statusText = 'Pending Payment'; break;
                     case 'confirmed': statusClass = 'status-confirmed'; statusText = 'Confirmed'; break;
                     case 'cancelled': statusClass = 'status-cancelled'; statusText = 'Cancelled'; break;
+                    case 'expired': statusClass = 'status-expired'; statusText = 'Expired'; break;
                     default: statusClass = ''; statusText = booking.status || 'N/A';
                 }
                 
-                // FIXED: Use move_in_date instead of check_in/check_out
                 const moveInDate = booking.move_in_date ? new Date(booking.move_in_date).toLocaleDateString() : 'N/A';
-                const guestName = booking.student_name || booking.student?.full_name || booking.user_name || booking.guest_name || 'Guest';
+                const guestName = booking.student_name || booking.student?.full_name || booking.user_name || 'Guest';
                 const guestPhone = booking.student_phone || booking.phone || 'N/A';
                 const totalAmount = Number(booking.total_amount || booking.total_price || 0);
                 
                 return `
-                    <div class="booking-card">
+                    <div class="booking-card" data-id="${booking.id}">
                         <div class="booking-header">
                             <h3>${escapeHtml(booking.hostel_name || booking.hostel?.name || 'Hostel')}</h3>
                             <span class="booking-status ${statusClass}">${statusText}</span>
@@ -908,7 +956,7 @@ async function loadBookings() {
                                 <span>Phone: ${guestPhone}</span>
                             </div>
                             <div class="booking-price">
-                                KSh ${totalAmount.toLocaleString()}
+                                Monthly Rent: KSh ${totalAmount.toLocaleString()}
                             </div>
                             <div class="booking-actions">
                                 <button class="btn-action btn-view" onclick="viewBooking('${booking.id}')">
@@ -955,50 +1003,65 @@ async function loadBookings() {
             displayBookings();
         }
 
-async function viewBooking(id) {
-    showLoading();
-    try {
-        let booking = null;
-        let error = null;
-        
-        // Try owner-specific endpoint first
-        try {
-            console.log(`Fetching booking from /bookings/owner/${id}/`);
-            booking = await apiFetch(`/bookings/owner/${id}/`);
-            if (booking) {
-                console.log('Booking found via owner endpoint');
-            }
-        } catch (ownerError) {
-            console.log('Owner endpoint failed:', ownerError.message);
-            error = ownerError;
-        }
-        
-        // If owner endpoint didn't work, try regular endpoint
-        if (!booking) {
+        async function viewBooking(id) {
+            showLoading();
             try {
-                console.log(`Fetching booking from /bookings/${id}/`);
-                booking = await apiFetch(`/bookings/${id}/`);
-                if (booking) {
-                    console.log('Booking found via regular endpoint');
+                let booking = null;
+                
+                try {
+                    booking = await apiFetch(`/bookings/owner/${id}/`);
+                } catch (ownerError) {
+                    try {
+                        booking = await apiFetch(`/bookings/${id}/`);
+                    } catch (regularError) {
+                        throw new Error('Booking not found');
+                    }
                 }
-            } catch (regularError) {
-                console.log('Regular endpoint failed:', regularError.message);
-                error = regularError;
+                
+                if (booking) {
+                    openModal(booking);
+                } else {
+                    showToast('Booking not found', 'error');
+                }
+            } catch (error) {
+                console.error('Error fetching booking:', error);
+                showToast('Failed to load booking details: ' + error.message, 'error');
+            } finally {
+                hideLoading();
             }
         }
-        
-        if (booking) {
-            openModal(booking);
-        } else {
-            showToast(`Booking ${id.substring(0,8)} not found or you don't have permission to view it.`, 'error');
+
+        async function confirmBooking(bookingId) {
+            if (!confirm('Confirm this booking? The hostel will be marked as taken and removed from search.')) return;
+            
+            showLoading();
+            try {
+                await apiFetch(`/bookings/${bookingId}/confirm-payment/`, { method: 'POST' });
+                showToast('Booking confirmed! Hostel marked as taken.', 'success');
+                loadBookings();
+                closeModal();
+            } catch (error) {
+                showToast(error.message, 'error');
+            } finally {
+                hideLoading();
+            }
         }
-    } catch (error) {
-        console.error('Error fetching booking:', error);
-        showToast('Failed to load booking details: ' + error.message, 'error');
-    } finally {
-        hideLoading();
-    }
-}
+
+        async function cancelBookingByOwner(bookingId) {
+            if (!confirm('Cancel this booking? The hostel will become available for others.')) return;
+            
+            showLoading();
+            try {
+                await apiFetch(`/bookings/${bookingId}/cancel/`, { method: 'POST' });
+                showToast('Booking cancelled. Hostel released.', 'success');
+                loadBookings();
+                closeModal();
+            } catch (error) {
+                showToast(error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
 
         function openModal(booking) {
             const modal = document.getElementById('bookingModal');
@@ -1009,14 +1072,16 @@ async function viewBooking(id) {
                 case 'pending': statusClass = 'status-pending'; break;
                 case 'confirmed': statusClass = 'status-confirmed'; break;
                 case 'cancelled': statusClass = 'status-cancelled'; break;
+                case 'expired': statusClass = 'status-expired'; break;
             }
             
-            // FIXED: Use move_in_date instead of check_in/check_out
             const moveInDate = booking.move_in_date ? new Date(booking.move_in_date).toLocaleDateString() : 'N/A';
-            const guestName = booking.student_name || booking.student?.full_name || booking.user_name || booking.guest_name || 'N/A';
+            const guestName = booking.student_name || booking.student?.full_name || booking.user_name || 'N/A';
             const guestEmail = booking.student_email || booking.student?.email || booking.user_email || 'N/A';
             const guestPhone = booking.student_phone || booking.phone || 'N/A';
             const totalAmount = Number(booking.total_amount || booking.total_price || 0);
+            const isPending = booking.status === 'pending';
+            const expiresAt = booking.expires_at ? new Date(booking.expires_at).toLocaleString() : 'N/A';
             
             details.innerHTML = `
                 <h2 style="color: var(--kyu-green); margin-bottom: 1.5rem;">Booking Details</h2>
@@ -1026,11 +1091,29 @@ async function viewBooking(id) {
                 <div class="modal-info-item"><i class="fas fa-phone"></i> <strong>Phone:</strong> ${escapeHtml(guestPhone)}</div>
                 <div class="modal-info-item"><i class="fas fa-calendar-alt"></i> <strong>Move-in Date:</strong> ${moveInDate}</div>
                 <div class="modal-info-item"><i class="fas fa-users"></i> <strong>Guests:</strong> ${booking.guests || 1}</div>
-                <div class="modal-info-item"><i class="fas fa-tag"></i> <strong>Status:</strong> <span class="booking-status ${statusClass}" style="display: inline-block; margin-left: 0;">${booking.status}</span></div>
-                <div class="modal-info-item"><i class="fas fa-money-bill-wave"></i> <strong>Total Amount:</strong> KSh ${totalAmount.toLocaleString()}</div>
+                <div class="modal-info-item"><i class="fas fa-tag"></i> <strong>Status:</strong> <span class="booking-status ${statusClass}" style="display: inline-block; margin-left: 0;">${booking.status === 'pending' ? 'Pending Payment' : booking.status}</span></div>
+                <div class="modal-info-item"><i class="fas fa-money-bill-wave"></i> <strong>Monthly Rent:</strong> KSh ${totalAmount.toLocaleString()}</div>
+                ${booking.deposit_amount ? `<div class="modal-info-item"><i class="fas fa-hand-holding-usd"></i> <strong>Deposit Required:</strong> KSh ${Number(booking.deposit_amount).toLocaleString()}</div>` : ''}
                 ${booking.special_requests ? `<div class="modal-info-item"><i class="fas fa-comment"></i> <strong>Special Requests:</strong> ${escapeHtml(booking.special_requests)}</div>` : ''}
                 <div class="modal-info-item"><i class="fas fa-clock"></i> <strong>Booked on:</strong> ${new Date(booking.created_at).toLocaleString()}</div>
+                ${isPending ? `<div class="modal-info-item"><i class="fas fa-hourglass-half"></i> <strong>Payment Window:</strong> Expires at ${expiresAt}</div>` : ''}
             `;
+            
+            // Add action buttons for pending bookings
+            if (isPending) {
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'modal-actions';
+                actionsDiv.innerHTML = `
+                    <button class="btn-primary" onclick="confirmBooking('${booking.id}')">
+                        <i class="fas fa-check-circle"></i> Confirm Booking
+                    </button>
+                    <button class="btn-danger" onclick="cancelBookingByOwner('${booking.id}')">
+                        <i class="fas fa-times-circle"></i> Cancel Booking
+                    </button>
+                `;
+                details.appendChild(actionsDiv);
+            }
+            
             modal.style.display = 'block';
         }
 
@@ -1077,6 +1160,8 @@ async function viewBooking(id) {
         window.applyFilters = applyFilters;
         window.resetFilters = resetFilters;
         window.viewBooking = viewBooking;
+        window.confirmBooking = confirmBooking;
+        window.cancelBookingByOwner = cancelBookingByOwner;
         window.goToPage = goToPage;
         window.changePage = changePage;
         window.closeModal = closeModal;

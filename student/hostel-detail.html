@@ -6,7 +6,6 @@
     <title>Hostel Details - Kirinyaga Hostels</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
     <style>
-        /* (keep your existing styles) */
         * {
             margin: 0;
             padding: 0;
@@ -16,23 +15,48 @@
         :root {
             --kyu-green: #006747;
             --kyu-gold: #FFD700;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border-light: #e2e8f0;
+            --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --danger: #dc2626;
+            --success: #16a34a;
+            --warning: #ca8a04;
+        }
+        body.dark-mode {
+            --kyu-green: #2ecc71;
+            --kyu-gold: #f1c40f;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --bg-light: #0f172a;
+            --bg-white: #1e293b;
+            --border-light: #334155;
         }
         body {
-            background: #f8f9fa;
+            background: var(--bg-light);
+            min-height: 100vh;
+            transition: background 0.3s ease;
         }
         header {
-            background: white;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            background: var(--bg-white);
+            box-shadow: var(--shadow-sm);
             padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 3px solid var(--kyu-gold);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         .logo {
             display: flex;
             align-items: center;
             gap: 15px;
+            cursor: pointer;
         }
         .logo img {
             height: 50px;
@@ -42,11 +66,6 @@
             font-weight: 700;
             color: var(--kyu-green);
         }
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
         .back-link {
             margin-bottom: 2rem;
         }
@@ -55,17 +74,24 @@
             text-decoration: none;
             font-weight: 600;
         }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
         .hostel-detail {
-            background: white;
+            background: var(--bg-white);
             border-radius: 30px;
             padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            box-shadow: var(--shadow-md);
         }
         .hostel-title {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
         .hostel-title h1 {
             color: var(--kyu-green);
@@ -78,8 +104,6 @@
             border-radius: 30px;
             font-weight: 600;
         }
-
-        /* Slideshow */
         .slideshow-container {
             position: relative;
             width: 100%;
@@ -139,12 +163,10 @@
             border-radius: 50%;
             display: inline-block;
             transition: background-color 0.3s;
-            border: 1px solid rgba(0,0,0,0.1);
         }
         .dot.active {
             background-color: var(--kyu-green);
         }
-
         .details-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -152,7 +174,7 @@
             margin-bottom: 2rem;
         }
         .detail-section {
-            background: #f7fafc;
+            background: var(--bg-light);
             padding: 1.5rem;
             border-radius: 20px;
         }
@@ -165,6 +187,7 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            flex-wrap: wrap;
         }
         .amenities-list {
             display: flex;
@@ -172,14 +195,14 @@
             gap: 0.5rem;
         }
         .amenity-tag {
-            background: white;
+            background: var(--bg-white);
             padding: 0.3rem 1rem;
             border-radius: 30px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border-light);
             font-size: 0.9rem;
         }
         .owner-contact {
-            background: #f7fafc;
+            background: var(--bg-light);
             padding: 1.5rem;
             border-radius: 20px;
             margin-top: 2rem;
@@ -194,9 +217,9 @@
             background: transparent;
             border: 2px solid var(--kyu-green);
             color: var(--kyu-green);
-            padding: 1rem 3rem;
+            padding: 1rem;
             border-radius: 40px;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
@@ -211,6 +234,25 @@
             background: var(--kyu-green);
             color: white;
         }
+        .btn-book {
+            background: var(--kyu-green);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 40px;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-book:hover {
+            background: #004d33;
+        }
+        .btn-book:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
         .spinner {
             border: 4px solid rgba(0,0,0,0.1);
             border-left-color: var(--kyu-green);
@@ -223,8 +265,6 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-
-        /* Modal (only review modal remains) */
         .modal {
             display: none;
             position: fixed;
@@ -242,14 +282,14 @@
             display: flex;
         }
         .modal-content {
-            background: white;
+            background: var(--bg-white);
             border-radius: 40px;
             padding: 2rem;
             max-width: 500px;
             width: 90%;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            box-shadow: var(--shadow-lg);
         }
         .modal-header {
             display: flex;
@@ -263,10 +303,10 @@
         .modal-close {
             font-size: 2rem;
             cursor: pointer;
-            color: #666;
+            color: var(--text-secondary);
         }
         .modal-close:hover {
-            color: #e53e3e;
+            color: var(--danger);
         }
         .form-group {
             margin-bottom: 1.2rem;
@@ -275,21 +315,71 @@
             display: block;
             font-weight: 600;
             margin-bottom: 0.5rem;
-            color: #333;
+            color: var(--text-primary);
         }
         .form-group input,
-        .form-group textarea {
+        .form-group textarea,
+        .form-group select {
             width: 100%;
             padding: 0.8rem;
-            border: 2px solid #e2e8f0;
+            border: 2px solid var(--border-light);
             border-radius: 20px;
             font-size: 1rem;
-            transition: border-color 0.3s;
+            background: var(--bg-white);
+            color: var(--text-primary);
         }
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--kyu-green);
+        .form-group small {
+            display: block;
+            margin-top: 0.3rem;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+        .payment-summary {
+            background: var(--bg-light);
+            padding: 1rem;
+            border-radius: 20px;
+            margin: 1rem 0;
+        }
+        .payment-summary .row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        .payment-summary .total {
+            border-top: 1px solid var(--border-light);
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .modal-footer {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .btn-primary {
+            flex: 1;
+            background: var(--kyu-green);
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .btn-secondary {
+            flex: 1;
+            background: var(--bg-light);
+            color: var(--text-secondary);
+            border: 2px solid var(--border-light);
+            padding: 0.8rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
         }
         .rating {
             display: flex;
@@ -310,32 +400,23 @@
         .rating label:hover ~ label {
             color: var(--kyu-gold);
         }
-        .modal-footer {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-            justify-content: flex-end;
-        }
-        .btn-primary {
-            background: var(--kyu-green);
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--success);
             color: white;
-            border: none;
-            padding: 0.8rem 2rem;
-            border-radius: 40px;
-            font-weight: 600;
-            cursor: pointer;
+            padding: 12px 24px;
+            border-radius: 12px;
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
         }
-        .btn-primary:hover {
-            background: #004d33;
+        .toast.error {
+            background: var(--danger);
         }
-        .btn-secondary {
-            background: #e2e8f0;
-            color: #333;
-            border: none;
-            padding: 0.8rem 2rem;
-            border-radius: 40px;
-            font-weight: 600;
-            cursor: pointer;
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
         footer {
             background: #1a2e3a;
@@ -344,27 +425,23 @@
             text-align: center;
             margin-top: 3rem;
         }
-
-        .btn-book {
-    background: var(--kyu-green);
-    color: white;
-    border: none;
-    padding: 1rem;
-    border-radius: 40px;
-    font-weight: 600;
-    width: 100%;
-    margin-top: 1rem;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-.btn-book:hover {
-    background: #004d33;
-}
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+            .slideshow-container {
+                height: 250px;
+            }
+        }
     </style>
 </head>
 <body>
     <header>
-        <div class="logo">
+        <div class="logo" onclick="window.location.href='dashboard.html'">
             <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
             <span>Kirinyaga Hostels</span>
         </div>
@@ -377,7 +454,6 @@
         </div>
     </div>
 
-    <!-- Review Modal (unchanged) -->
     <div class="modal" id="reviewModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -409,7 +485,6 @@
         </div>
     </div>
 
-        <!-- Booking Modal -->
     <div class="modal" id="bookingModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -441,23 +516,30 @@
             let slideIndex = 1;
             let slideInterval;
 
-function getFullImageUrl(url) {
-    if (!url) return null;
-    // Force HTTPS for Cloudinary URLs
-    if (url.startsWith('http://res.cloudinary.com')) {
-        url = url.replace('http://', 'https://');
-    }
-    if (url.startsWith('http')) return url;
-    if (url.startsWith('image/upload/')) return `https://res.cloudinary.com/dqujm2fhm/${url}`;
-    return url;
-}
+            function getFullImageUrl(url) {
+                if (!url) return null;
+                if (url.startsWith('http://res.cloudinary.com')) {
+                    url = url.replace('http://', 'https://');
+                }
+                if (url.startsWith('http')) return url;
+                if (url.startsWith('image/upload/')) return `https://res.cloudinary.com/dqujm2fhm/${url}`;
+                return url;
+            }
 
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
+            function escapeHtml(text) {
+                if (!text) return '';
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            function showToast(message, isError = false) {
+                const toast = document.createElement('div');
+                toast.className = `toast ${isError ? 'error' : ''}`;
+                toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${message}`;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 5000);
+            }
 
             window.openModal = (id) => document.getElementById(id).classList.add('active');
             window.closeModal = (id) => document.getElementById(id).classList.remove('active');
@@ -491,20 +573,21 @@ function escapeHtml(text) {
 
                 let amenitiesHtml = '';
                 if (h.amenities && h.amenities.length > 0) {
-                    h.amenities.forEach(a => amenitiesHtml += `<span class="amenity-tag">${a.name}</span>`);
+                    h.amenities.forEach(a => amenitiesHtml += `<span class="amenity-tag">${escapeHtml(a.name)}</span>`);
                 }
                 if (h.other_amenities) {
                     h.other_amenities.split(',').forEach(a => {
-                        if (a.trim()) amenitiesHtml += `<span class="amenity-tag">${a.trim()}</span>`;
+                        if (a.trim()) amenitiesHtml += `<span class="amenity-tag">${escapeHtml(a.trim())}</span>`;
                     });
                 }
 
                 const featuredBadge = h.is_featured ? '<div class="featured-badge">⭐ Featured Hostel</div>' : '';
+                const isAvailable = h.available !== false;
 
                 const html = `
                     <div class="back-link"><a href="javascript:history.back()">← Back</a></div>
                     <div class="hostel-detail">
-                        <div class="hostel-title"><h1>${h.name}</h1>${featuredBadge}</div>
+                        <div class="hostel-title"><h1>${escapeHtml(h.name)}</h1>${featuredBadge}</div>
                         <div class="slideshow-container" id="slideshowContainer">
                             ${slidesHtml}
                             <a class="prev" onclick="changeSlide(-1)">❮</a>
@@ -514,29 +597,36 @@ function escapeHtml(text) {
                         <div class="details-grid">
                             <div class="detail-section">
                                 <h3>📍 Location & Distance</h3>
-                                <div class="detail-item"><strong>Address:</strong> ${h.address}</div>
-                                <div class="detail-item"><strong>Distance from KyU:</strong> ${h.distance_to_university} km</div>
+                                <div class="detail-item"><strong>Address:</strong> ${escapeHtml(h.address || 'Not specified')}</div>
+                                <div class="detail-item"><strong>Distance from KyU:</strong> ${h.distance_to_university || '?'} km</div>
                             </div>
                             <div class="detail-section">
                                 <h3>💰 Pricing</h3>
-                                <div class="detail-item"><strong>Monthly Rent:</strong> KSh ${h.price}</div>
-                                <div class="detail-item"><strong>Deposit:</strong> KSh ${h.deposit || 0}</div>
-                                ${h.utilities ? `<div class="detail-item"><strong>Utilities:</strong> KSh ${h.utilities}</div>` : ''}
+                                <div class="detail-item"><strong>Monthly Rent:</strong> KSh ${Number(h.price || 0).toLocaleString()}</div>
+                                <div class="detail-item"><strong>Deposit:</strong> KSh ${Number(h.deposit || 0).toLocaleString()}</div>
+                                ${h.utilities ? `<div class="detail-item"><strong>Utilities:</strong> KSh ${Number(h.utilities).toLocaleString()}</div>` : ''}
                             </div>
                         </div>
-                        <div class="detail-section"><h3>📝 Description</h3><p>${h.description}</p></div>
+                        <div class="detail-section"><h3>📝 Description</h3><p>${escapeHtml(h.description || 'No description provided.')}</p></div>
                         <div class="detail-section">
                             <h3>✨ Amenities</h3>
                             <div class="amenities-list">${amenitiesHtml || '<span class="amenity-tag">No amenities listed</span>'}</div>
                         </div>
-                                                <div class="owner-contact">
+                        <div class="owner-contact">
                             <h3>👤 Hostel Owner Contact</h3>
-                            <div class="contact-item"><strong>Name:</strong> ${h.owner_name || 'Hostel Owner'}</div>
-                            <div class="contact-item"><strong>Phone:</strong> ${h.owner_phone || 'Not available'}</div>
+                            <div class="contact-item"><strong>Name:</strong> ${escapeHtml(h.owner_name || 'Hostel Owner')}</div>
+                            <div class="contact-item"><strong>Phone:</strong> ${escapeHtml(h.owner_phone || 'Not available')}</div>
                         </div>
-                        <button class="btn-book" onclick="openBookingModalFromDetail()" style="background: var(--kyu-green); color: white; border: none; padding: 1rem; border-radius: 40px; font-weight: 600; width: 100%; margin-top: 1rem; cursor: pointer;">📅 Request Booking</button>
+                        ${!isAvailable ? `
+                            <div style="background: #fee2e2; color: #b91c1c; padding: 1rem; border-radius: 20px; text-align: center; margin-top: 1rem;">
+                                <i class="fas fa-ban"></i> This hostel is currently taken and not available for booking.
+                            </div>
+                        ` : ''}
+                        ${isAvailable ? `
+                            <button class="btn-book" id="bookNowBtn">📅 Request Booking</button>
+                        ` : ''}
                         ${token ? `
-                            <button class="btn-save" id="saveBtn" onclick="toggleSave('${h.id}')">❤️ Save Hostel</button>
+                            <button class="btn-save" id="saveBtn">❤️ Save Hostel</button>
                         ` : `
                             <p style="text-align:center; margin-top:2rem;"><a href="login.html" style="color: var(--kyu-green);">Log in</a> to save this hostel.</p>
                         `}
@@ -548,6 +638,17 @@ function escapeHtml(text) {
                     slideInterval = setInterval(() => changeSlide(1), 3000);
                 }
                 if (token) checkSaved(h.id);
+                
+                // Add event listener for book button
+                const bookBtn = document.getElementById('bookNowBtn');
+                if (bookBtn) {
+                    bookBtn.addEventListener('click', () => openBookingModalFromDetail(h));
+                }
+                
+                const saveBtn = document.getElementById('saveBtn');
+                if (saveBtn) {
+                    saveBtn.addEventListener('click', () => toggleSave(h.id));
+                }
             }
 
             window.changeSlide = function(n) {
@@ -562,6 +663,7 @@ function escapeHtml(text) {
                 slides[slideIndex-1].classList.add('active');
                 dots[slideIndex-1].classList.add('active');
             };
+            
             window.currentSlide = function(n) {
                 slideIndex = n;
                 const slides = document.querySelectorAll('.slide');
@@ -583,11 +685,8 @@ function escapeHtml(text) {
                         window.location.href = 'login.html';
                         return;
                     }
-                    if (!res.ok) {
-                        throw new Error('Failed to fetch saved hostels');
-                    }
+                    if (!res.ok) throw new Error('Failed to fetch saved hostels');
                     const saved = await res.json();
-                    console.log('Saved hostels response:', saved);
                     const savedArray = Array.isArray(saved) ? saved : (saved.results || []);
                     const isSaved = savedArray.some(s => s.hostel?.id === id);
                     const btn = document.getElementById('saveBtn');
@@ -600,80 +699,196 @@ function escapeHtml(text) {
                 }
             }
 
-window.toggleSave = async function(id) {
-    const btn = document.getElementById('saveBtn');
-    if (btn.classList.contains('saved')) {
-        // Unsaving
-        try {
-            const res = await fetch(`${API_BASE}/hostels/saved/`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (res.status === 401) {
-                sessionStorage.removeItem('accessToken');
-                window.location.href = 'login.html';
-                return;
-            }
-            const saved = await res.json();
-            const savedArray = Array.isArray(saved) ? saved : (saved.results || []);
-            const savedItem = savedArray.find(s => s.hostel?.id === id);
-            if (savedItem) {
-                const delRes = await fetch(`${API_BASE}/hostels/saved/${savedItem.id}/`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (delRes.ok) {
-                    btn.classList.remove('saved');
-                    btn.textContent = '❤️ Save Hostel';
+            async function toggleSave(id) {
+                const btn = document.getElementById('saveBtn');
+                if (btn.classList.contains('saved')) {
+                    try {
+                        const res = await fetch(`${API_BASE}/hostels/saved/`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        if (res.status === 401) {
+                            sessionStorage.removeItem('accessToken');
+                            window.location.href = 'login.html';
+                            return;
+                        }
+                        const saved = await res.json();
+                        const savedArray = Array.isArray(saved) ? saved : (saved.results || []);
+                        const savedItem = savedArray.find(s => s.hostel?.id === id);
+                        if (savedItem) {
+                            const delRes = await fetch(`${API_BASE}/hostels/saved/${savedItem.id}/`, {
+                                method: 'DELETE',
+                                headers: { 'Authorization': `Bearer ${token}` }
+                            });
+                            if (delRes.ok) {
+                                btn.classList.remove('saved');
+                                btn.textContent = '🤍 Save';
+                                showToast('Removed from saved');
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Error removing saved hostel:', e);
+                        showToast('Failed to remove from saved', true);
+                    }
                 } else {
-                    const errText = await delRes.text();
-                    console.error('Unsave failed:', errText);
-                    alert('Failed to unsave: ' + (errText || 'Unknown error'));
+                    try {
+                        const res = await fetch(`${API_BASE}/hostels/saved/`, {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ hostel_id: id })
+                        });
+                        if (res.ok) {
+                            btn.classList.add('saved');
+                            btn.textContent = '❤️ Saved';
+                            showToast('Saved successfully');
+                        } else {
+                            const data = await res.json();
+                            showToast(data.message || 'Failed to save', true);
+                        }
+                    } catch (e) {
+                        console.error('Error saving hostel:', e);
+                        showToast('Failed to save', true);
+                    }
                 }
-            } else {
-                alert('Could not find saved record to delete');
             }
-        } catch (e) {
-            console.error('Error removing saved hostel:', e);
-            alert('Error removing saved hostel: ' + e.message);
-        }
-    } else {
-        // Saving
-        try {
-            const res = await fetch(`${API_BASE}/hostels/saved/`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ hostel_id: id })
-            });
-            if (res.status === 401) {
-                sessionStorage.removeItem('accessToken');
-                window.location.href = 'login.html';
-                return;
+
+            // ==================== BOOKING FUNCTIONS ====================
+            let currentBookingHostel = null;
+            let isBookingInProgress = false;
+
+            function openBookingModalFromDetail(hostel) {
+                if (isBookingInProgress) {
+                    showToast('Please wait, processing previous request...', true);
+                    return;
+                }
+                
+                currentBookingHostel = hostel;
+                
+                const today = new Date().toISOString().split('T')[0];
+                const nextMonth = new Date();
+                nextMonth.setMonth(nextMonth.getMonth() + 1);
+                const defaultMoveIn = nextMonth.toISOString().split('T')[0];
+                
+                const price = Number(hostel.price || 0);
+                const deposit = Number(hostel.deposit || 0);
+                
+                const modalBody = document.getElementById('bookingModalBody');
+                modalBody.innerHTML = `
+                    <form id="bookingForm">
+                        <div class="form-group">
+                            <label>Hostel</label>
+                            <input type="text" value="${escapeHtml(hostel.name)}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Monthly Rent</label>
+                            <input type="text" value="KSh ${price.toLocaleString()}" readonly>
+                        </div>
+                        ${deposit > 0 ? `
+                        <div class="form-group">
+                            <label>Deposit Required</label>
+                            <input type="text" value="KSh ${deposit.toLocaleString()}" readonly>
+                            <small>Deposit must be paid within 4 hours to confirm booking</small>
+                        </div>
+                        ` : ''}
+                        <div class="form-group">
+                            <label>Move-in Date</label>
+                            <input type="date" id="moveInDate" min="${today}" value="${defaultMoveIn}" required>
+                            <small>Select when you want to move in</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Number of Guests</label>
+                            <input type="number" id="numGuests" min="1" max="${hostel.capacity || 5}" value="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Special Requests</label>
+                            <textarea id="specialRequests" rows="3" placeholder="Any special requests?"></textarea>
+                        </div>
+                        <div class="payment-summary">
+                            <div class="row"><span>First Month Rent:</span><span>KSh ${price.toLocaleString()}</span></div>
+                            ${deposit > 0 ? `<div class="row"><span>Deposit:</span><span>KSh ${deposit.toLocaleString()}</span></div>` : ''}
+                            <div class="row total"><span>Total Due:</span><span>KSh ${(price + deposit).toLocaleString()}</span></div>
+                            <small><i class="fas fa-info-circle"></i> You have 4 hours to complete payment. The hostel will be held for you during this time.</small>
+                        </div>
+                    </form>
+                    <div class="modal-footer">
+                        <button class="btn-secondary" onclick="closeBookingModal()">Cancel</button>
+                        <button class="btn-primary" id="submitBookingBtn">Request Booking</button>
+                    </div>
+                `;
+                
+                document.getElementById('submitBookingBtn').onclick = submitBookingFromDetail;
+                openModal('bookingModal');
             }
-            const responseText = await res.text();
-            console.log('Save response:', responseText);
-            let data;
-            try {
-                data = JSON.parse(responseText);
-            } catch (e) {
-                console.error('Failed to parse save response:', responseText);
-                alert('Server returned non-JSON response. See console.');
-                return;
+
+            window.closeBookingModal = function() {
+                closeModal('bookingModal');
+                currentBookingHostel = null;
+                isBookingInProgress = false;
+            };
+
+            async function submitBookingFromDetail() {
+                if (isBookingInProgress) {
+                    showToast('Please wait, processing...', true);
+                    return;
+                }
+                
+                if (!currentBookingHostel) return;
+                
+                const moveInDate = document.getElementById('moveInDate')?.value;
+                const numGuests = document.getElementById('numGuests')?.value;
+                const specialRequests = document.getElementById('specialRequests')?.value;
+
+                if (!moveInDate || !numGuests) {
+                    alert('Please fill all required fields');
+                    return;
+                }
+
+                const payload = {
+                    hostel: currentBookingHostel.id,
+                    move_in_date: moveInDate,
+                    guests: parseInt(numGuests),
+                    special_requests: specialRequests || ''
+                };
+
+                isBookingInProgress = true;
+                const submitBtn = document.getElementById('submitBookingBtn');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Processing...';
+
+                try {
+                    const response = await fetch(`${API_BASE}/bookings/create/`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const data = await response.json();
+                    
+                    if (!response.ok) {
+                        if (data.existing_booking_id) {
+                            alert(`You have already booked this hostel. Check your bookings page for details.\nStatus: ${data.status}`);
+                            window.location.href = 'bookings.html';
+                        } else {
+                            throw new Error(data.error || data.message || 'Booking request failed');
+                        }
+                    } else {
+                        alert('Booking request submitted! You have 4 hours to complete payment.\nThe hostel is now held for you.');
+                        closeBookingModal();
+                        window.location.href = 'bookings.html';
+                    }
+                } catch (e) {
+                    alert('Error: ' + e.message);
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Request Booking';
+                } finally {
+                    isBookingInProgress = false;
+                }
             }
-            if (res.ok) {
-                btn.classList.add('saved');
-                btn.textContent = '❤️ Saved';
-            } else {
-                alert('Failed to save: ' + (data.message || data.detail || 'Unknown error'));
-            }
-        } catch (e) {
-            console.error('Error saving hostel:', e);
-            alert('Error saving hostel: ' + e.message);
-        }
-    }
-};
 
             // Review modal
             let currentReviewHostelId = null;
@@ -710,137 +925,6 @@ window.toggleSave = async function(id) {
             };
 
             loadHostel();
-
-                        // ==================== BOOKING FUNCTIONS ====================
-            let currentBookingHostel = null;
-
-window.openBookingModalFromDetail = function() {
-    // Get current hostel data
-    const hostelName = document.querySelector('.hostel-title h1')?.textContent;
-    
-    // Fix: Better price extraction
-    let price = 0;
-    const priceItems = document.querySelectorAll('.detail-item');
-    for (const item of priceItems) {
-        const text = item.textContent;
-        if (text.includes('Monthly Rent:')) {
-            // Extract number from text like "Monthly Rent: KSh 5,500"
-            const match = text.match(/KSh\s*([\d,]+)/);
-            if (match) {
-                // Remove commas and convert to number
-                price = parseInt(match[1].replace(/,/g, ''));
-            }
-            break;
-        }
-    }
-    //price = price/100;
-    
-    // Fallback: get from the rendered price element
-    if (price === 0) {
-        const priceElement = document.querySelector('.detail-section .detail-item');
-        if (priceElement) {
-            const text = priceElement.textContent;
-            const match = text.match(/(\d+)/);
-            if (match) price = parseInt(match[1]);
-        }
-    }
-    
-    currentBookingHostel = {
-        id: hostelId,
-        name: hostelName || 'Hostel',
-        price: price || 0
-    };
-    
-    const today = new Date().toISOString().split('T')[0];
-    const nextMonth = new Date();
-    nextMonth.setMonth(nextMonth.getMonth() + 1);
-    const defaultMoveIn = nextMonth.toISOString().split('T')[0];
-    
-    const modalBody = document.getElementById('bookingModalBody');
-    modalBody.innerHTML = `
-        <form id="bookingForm">
-            <div class="form-group">
-                <label>Hostel</label>
-                <input type="text" value="${escapeHtml(currentBookingHostel.name)}" readonly>
-            </div>
-            <div class="form-group">
-                <label>Monthly Rent</label>
-                <input type="text" value="KSh ${currentBookingHostel.price.toLocaleString()}" readonly>
-            </div>
-            <div class="form-group">
-                <label>Move-in Date</label>
-                <input type="date" id="moveInDate" min="${today}" value="${defaultMoveIn}" required>
-                <small>Select when you want to move in</small>
-            </div>
-            <div class="form-group">
-                <label>Number of Guests</label>
-                <input type="number" id="numGuests" min="1" max="5" value="1" required>
-            </div>
-            <div class="form-group">
-                <label>Special Requests</label>
-                <textarea id="specialRequests" rows="3" placeholder="Any special requests?"></textarea>
-            </div>
-            <div class="form-group" style="background: #f7fafc; padding: 1rem; border-radius: 20px;">
-                <strong>First Month Rent:</strong> 
-                <span style="color: var(--kyu-green); font-size: 1.2rem;">KSh ${currentBookingHostel.price.toLocaleString()}</span>
-            </div>
-        </form>
-        <div class="modal-footer">
-            <button class="btn-secondary" onclick="closeBookingModal()">Cancel</button>
-            <button class="btn-primary" onclick="submitBookingFromDetail()">Request Booking</button>
-        </div>
-    `;
-    openModal('bookingModal');
-};
-
-            window.closeBookingModal = function() {
-                closeModal('bookingModal');
-                currentBookingHostel = null;
-            };
-window.submitBookingFromDetail = async function() {
-    if (!currentBookingHostel) return;
-    
-    const moveInDate = document.getElementById('moveInDate')?.value;
-    const numGuests = document.getElementById('numGuests')?.value;
-    const specialRequests = document.getElementById('specialRequests')?.value;
-
-    if (!moveInDate || !numGuests) {
-        alert('Please fill all required fields');
-        return;
-    }
-
-    const payload = {
-        hostel: currentBookingHostel.id,
-        move_in_date: moveInDate,
-        guests: parseInt(numGuests),
-        special_requests: specialRequests || ''
-    };
-
-    console.log('Booking payload:', payload);
-
-    try {
-        const response = await fetch(`${API_BASE}/bookings/create/`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        });
-
-        const data = await response.json();
-        console.log('Booking response:', data);
-        
-        if (!response.ok) {
-            throw new Error(data.message || data.error || 'Booking request failed');
-        }
-
-        alert('Booking request submitted successfully! The hostel owner will contact you soon.');
-        closeBookingModal();
-    } catch (e) {
-        alert('Error: ' + e.message);
-    }
-};
         })();
     </script>
 </body>

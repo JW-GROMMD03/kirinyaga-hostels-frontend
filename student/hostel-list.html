@@ -7,6 +7,7 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* Your existing CSS - keep all your styles */
         * {
             margin: 0;
             padding: 0;
@@ -798,7 +799,7 @@
     </footer>
 
     <script>
-               const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
+        const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
         const CLOUDINARY_BASE = 'https://res.cloudinary.com/dqujm2fhm/';
         const token = sessionStorage.getItem('accessToken');
         
@@ -858,17 +859,24 @@
             return url;
         }
 
-        // ==================== BOOKING MODAL ====================
+        // ==================== ENHANCED BOOKING MODAL ====================
         let currentHostelForBooking = null;
+        let isBookingInProgress = false;
 
         window.openBookingModal = function(hostel) {
+            if (isBookingInProgress) {
+                alert('Please wait, processing previous request...');
+                return;
+            }
+            
             currentHostelForBooking = hostel;
             const today = new Date().toISOString().split('T')[0];
             const nextMonth = new Date();
             nextMonth.setMonth(nextMonth.getMonth() + 1);
             const defaultMoveIn = nextMonth.toISOString().split('T')[0];
 
-            const displayPrice = (hostel.price / 100) || 0;
+            const price = Number(hostel.price || 0);
+            const deposit = Number(hostel.deposit || 0);
             
             const modalBody = document.getElementById('bookingModalBody');
             modalBody.innerHTML = `
@@ -879,12 +887,19 @@
                     </div>
                     <div class="form-group">
                         <label>Monthly Rent</label>
-                        <input type="text" value="KSh ${(hostel.price / 100)?.toLocaleString() || 0}" readonly>
+                        <input type="text" value="KSh ${price.toLocaleString()}" readonly>
                     </div>
+                    ${deposit > 0 ? `
+                    <div class="form-group">
+                        <label>Deposit Required</label>
+                        <input type="text" value="KSh ${deposit.toLocaleString()}" readonly>
+                        <small>Deposit must be paid within 4 hours to confirm booking</small>
+                    </div>
+                    ` : ''}
                     <div class="form-group">
                         <label>Move-in Date</label>
                         <input type="date" id="moveInDate" min="${today}" value="${defaultMoveIn}" required>
-                        <small style="color: var(--text-secondary);">Select when you want to move in</small>
+                        <small>Select when you want to move in</small>
                     </div>
                     <div class="form-group">
                         <label>Number of Guests</label>
@@ -894,27 +909,48 @@
                         <label>Special Requests</label>
                         <textarea id="specialRequests" rows="3" placeholder="Any special requests?"></textarea>
                     </div>
-                    <div class="form-group" style="background: var(--bg-light); padding: 1rem; border-radius: 20px;">
-                        <strong>First Month Rent:</strong> 
-                        <span id="totalAmount" style="color: var(--kyu-green); font-size: 1.2rem;">KSh ${(hostel.price / 100)?.toLocaleString() || 0}</span>
-                        <small style="display: block;">+ deposit (if applicable)</small>
+                    <div class="payment-summary" style="background: var(--bg-light); padding: 1rem; border-radius: 20px; margin: 1rem 0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>First Month Rent:</span>
+                            <span>KSh ${price.toLocaleString()}</span>
+                        </div>
+                        ${deposit > 0 ? `
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>Deposit:</span>
+                            <span>KSh ${deposit.toLocaleString()}</span>
+                        </div>
+                        ` : ''}
+                        <div style="display: flex; justify-content: space-between; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border-light); font-weight: bold;">
+                            <span>Total Due:</span>
+                            <span>KSh ${(price + deposit).toLocaleString()}</span>
+                        </div>
+                        <small><i class="fas fa-info-circle"></i> You have 4 hours to complete payment. The hostel will be held for you.</small>
                     </div>
                 </form>
                 <div class="modal-footer">
                     <button class="btn-secondary" onclick="closeBookingModal()">Cancel</button>
-                    <button class="btn-primary" onclick="submitBooking()">Request Booking</button>
+                    <button class="btn-primary" id="submitBookingBtn">Request Booking</button>
                 </div>
             `;
+            
+            document.getElementById('submitBookingBtn').onclick = submitBooking;
             document.getElementById('bookingModal').classList.add('active');
         };
 
         window.closeBookingModal = function() {
             document.getElementById('bookingModal').classList.remove('active');
             currentHostelForBooking = null;
+            isBookingInProgress = false;
         };
 
         window.submitBooking = async function() {
+            if (isBookingInProgress) {
+                alert('Please wait, processing...');
+                return;
+            }
+            
             if (!currentHostelForBooking) return;
+            
             const moveInDate = document.getElementById('moveInDate')?.value;
             const numGuests = document.getElementById('numGuests')?.value;
             const specialRequests = document.getElementById('specialRequests')?.value;
@@ -931,6 +967,11 @@
                 special_requests: specialRequests || ''
             };
 
+            isBookingInProgress = true;
+            const submitBtn = document.getElementById('submitBookingBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Processing...';
+
             try {
                 const response = await fetch(`${API_BASE}/bookings/create/`, {
                     method: 'POST',
@@ -944,13 +985,23 @@
                 const data = await response.json();
                 
                 if (!response.ok) {
-                    throw new Error(data.message || data.error || 'Booking request failed');
+                    if (data.existing_booking_id) {
+                        alert(`You have already booked this hostel. Check your bookings page for details.\nStatus: ${data.status}`);
+                        window.location.href = 'bookings.html';
+                    } else {
+                        throw new Error(data.error || data.message || 'Booking request failed');
+                    }
+                } else {
+                    alert('Booking request submitted! You have 4 hours to complete payment.\nThe hostel is now held for you.');
+                    closeBookingModal();
+                    window.location.href = 'bookings.html';
                 }
-
-                alert('Booking request submitted successfully! The hostel owner will contact you soon.');
-                closeBookingModal();
             } catch (e) {
                 alert('Error: ' + e.message);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Request Booking';
+            } finally {
+                isBookingInProgress = false;
             }
         };
 
@@ -1250,134 +1301,133 @@
 
         loadMoreBtn.addEventListener('click', loadMore);
 
-// ==================== RECOMMENDED ====================
-async function loadRecommended() {
-    const recommendedGrid = document.getElementById('recommendedGrid');
-    if (!recommendedGrid) return;
-    
-    recommendedGrid.innerHTML = '<div class="spinner"></div>';
-    
-    try {
-        const token = sessionStorage.getItem('accessToken');
-        if (!token) {
-            recommendedGrid.innerHTML = '<p class="no-results">Please login to see recommendations</p>';
-            return;
-        }
-        
-        const response = await fetch(`${API_BASE}/hostels/recommended/`, {
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        if (!response.ok) {
-            console.error('Recommended hostels API error:', response.status);
-            if (response.status === 401) {
-                recommendedGrid.innerHTML = '<p class="no-results">Please login to see recommendations</p>';
-                return;
-            }
-            throw new Error(`HTTP ${response.status}`);
-        }
-        
-        const data = await response.json();
-        console.log('Recommended hostels data:', data);
-        
-        // Handle different response formats
-        let hostels = [];
-        if (Array.isArray(data)) {
-            hostels = data;
-        } else if (data.results && Array.isArray(data.results)) {
-            hostels = data.results;
-        } else if (data.data && Array.isArray(data.data)) {
-            hostels = data.data;
-        }
-        
-        if (hostels.length === 0) {
-            recommendedGrid.innerHTML = '<p class="no-results">No recommendations available at this time.</p>';
-            return;
-        }
-        
-        let html = '';
-        hostels.slice(0, 4).forEach(h => {
-            let primaryImage = h.primary_image || (h.images && h.images[0]) || 'https://placehold.co/250x150/006747/white?text=Hostel';
-            if (typeof primaryImage === 'object') primaryImage = primaryImage.image || 'https://placehold.co/250x150/006747/white?text=Hostel';
-            primaryImage = getFullImageUrl(primaryImage);
+        // ==================== RECOMMENDED ====================
+        async function loadRecommended() {
+            const recommendedGrid = document.getElementById('recommendedGrid');
+            if (!recommendedGrid) return;
             
-            html += `
-                <div class="hostel-card" data-id="${h.id}" style="cursor:pointer;">
-                    <div class="hostel-image" style="height:150px; background-image: url('${primaryImage}'); background-size: cover; background-position: center;">
-                        ${h.is_featured ? '<div class="hostel-featured" style="position:absolute; top:5px; left:5px; font-size:0.7rem;">⭐</div>' : ''}
-                    </div>
-                    <div class="hostel-info">
-                        <div class="hostel-name" style="font-size:1rem;">${escapeHtml(h.name)}</div>
-                        <div class="hostel-price" style="font-size:0.9rem;">💰 KSh ${h.price?.toLocaleString() || 0}<span style="font-size:0.7rem;">/month</span></div>
-                        <div class="hostel-distance" style="font-size:0.75rem;">📍 ${h.distance_to_university || '?'} km from KyU</div>
-                    </div>
-                </div>
-            `;
-        });
-        
-        recommendedGrid.innerHTML = html;
-        
-        // Add click handlers
-        recommendedGrid.querySelectorAll('.hostel-card').forEach(card => {
-            card.addEventListener('click', () => {
-                window.location.href = `hostel-detail.html?id=${card.dataset.id}`;
-            });
-        });
-        
-    } catch (e) {
-        console.error('Failed to load recommended hostels:', e);
-        recommendedGrid.innerHTML = '<p class="no-results">Unable to load recommendations. Please try again later.</p>';
-    }
-}
-
-
-// Fallback: Load regular hostels if recommended fails
-async function loadRegularHostelsAsFallback() {
-    const recommendedGrid = document.getElementById('recommendedGrid');
-    if (!recommendedGrid) return;
-    
-    try {
-        const response = await fetch(`${API_BASE}/hostels/?available=true&ordering=-is_featured&limit=4`);
-        const data = await response.json();
-        const hostels = data.results || data || [];
-        
-        if (hostels.length === 0) {
-            recommendedGrid.innerHTML = '<p class="no-results">No hostels available</p>';
-            return;
-        }
-        
-        let html = '';
-        hostels.slice(0, 4).forEach(h => {
-            let primaryImage = h.primary_image || (h.images && h.images[0]) || 'https://placehold.co/250x150/006747/white?text=Hostel';
-            if (typeof primaryImage === 'object') primaryImage = primaryImage.image || 'https://placehold.co/250x150/006747/white?text=Hostel';
-            primaryImage = getFullImageUrl(primaryImage);
+            recommendedGrid.innerHTML = '<div class="spinner"></div>';
             
-            html += `
-                <div class="hostel-card" data-id="${h.id}" style="cursor:pointer;">
-                    <div class="hostel-image" style="height:150px; background-image: url('${primaryImage}'); background-size: cover; background-position: center;"></div>
-                    <div class="hostel-info">
-                        <div class="hostel-name" style="font-size:1rem;">${escapeHtml(h.name)}</div>
-                        <div class="hostel-price" style="font-size:0.9rem;">💰 KSh ${h.price?.toLocaleString() || 0}<span style="font-size:0.7rem;">/month</span></div>
-                    </div>
-                </div>
-            `;
-        });
-        
-        recommendedGrid.innerHTML = html;
-        
-        recommendedGrid.querySelectorAll('.hostel-card').forEach(card => {
-            card.addEventListener('click', () => {
-                window.location.href = `hostel-detail.html?id=${card.dataset.id}`;
-            });
-        });
-    } catch (e) {
-        console.error('Failed to load fallback hostels:', e);
-        recommendedGrid.innerHTML = '<p class="no-results">Unable to load recommendations</p>';
-    }
-}
+            try {
+                const token = sessionStorage.getItem('accessToken');
+                if (!token) {
+                    recommendedGrid.innerHTML = '<p class="no-results">Please login to see recommendations</p>';
+                    return;
+                }
+                
+                const response = await fetch(`${API_BASE}/hostels/recommended/`, {
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    console.error('Recommended hostels API error:', response.status);
+                    if (response.status === 401) {
+                        recommendedGrid.innerHTML = '<p class="no-results">Please login to see recommendations</p>';
+                        return;
+                    }
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Recommended hostels data:', data);
+                
+                // Handle different response formats
+                let hostels = [];
+                if (Array.isArray(data)) {
+                    hostels = data;
+                } else if (data.results && Array.isArray(data.results)) {
+                    hostels = data.results;
+                } else if (data.data && Array.isArray(data.data)) {
+                    hostels = data.data;
+                }
+                
+                if (hostels.length === 0) {
+                    recommendedGrid.innerHTML = '<p class="no-results">No recommendations available at this time.</p>';
+                    return;
+                }
+                
+                let html = '';
+                hostels.slice(0, 4).forEach(h => {
+                    let primaryImage = h.primary_image || (h.images && h.images[0]) || 'https://placehold.co/250x150/006747/white?text=Hostel';
+                    if (typeof primaryImage === 'object') primaryImage = primaryImage.image || 'https://placehold.co/250x150/006747/white?text=Hostel';
+                    primaryImage = getFullImageUrl(primaryImage);
+                    
+                    html += `
+                        <div class="hostel-card" data-id="${h.id}" style="cursor:pointer;">
+                            <div class="hostel-image" style="height:150px; background-image: url('${primaryImage}'); background-size: cover; background-position: center;">
+                                ${h.is_featured ? '<div class="hostel-featured" style="position:absolute; top:5px; left:5px; font-size:0.7rem;">⭐</div>' : ''}
+                            </div>
+                            <div class="hostel-info">
+                                <div class="hostel-name" style="font-size:1rem;">${escapeHtml(h.name)}</div>
+                                <div class="hostel-price" style="font-size:0.9rem;">💰 KSh ${h.price?.toLocaleString() || 0}<span style="font-size:0.7rem;">/month</span></div>
+                                <div class="hostel-distance" style="font-size:0.75rem;">📍 ${h.distance_to_university || '?'} km from KyU</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                recommendedGrid.innerHTML = html;
+                
+                // Add click handlers
+                recommendedGrid.querySelectorAll('.hostel-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        window.location.href = `hostel-detail.html?id=${card.dataset.id}`;
+                    });
+                });
+                
+            } catch (e) {
+                console.error('Failed to load recommended hostels:', e);
+                recommendedGrid.innerHTML = '<p class="no-results">Unable to load recommendations. Please try again later.</p>';
+            }
+        }
+
+        // Fallback: Load regular hostels if recommended fails
+        async function loadRegularHostelsAsFallback() {
+            const recommendedGrid = document.getElementById('recommendedGrid');
+            if (!recommendedGrid) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/hostels/?available=true&ordering=-is_featured&limit=4`);
+                const data = await response.json();
+                const hostels = data.results || data || [];
+                
+                if (hostels.length === 0) {
+                    recommendedGrid.innerHTML = '<p class="no-results">No hostels available</p>';
+                    return;
+                }
+                
+                let html = '';
+                hostels.slice(0, 4).forEach(h => {
+                    let primaryImage = h.primary_image || (h.images && h.images[0]) || 'https://placehold.co/250x150/006747/white?text=Hostel';
+                    if (typeof primaryImage === 'object') primaryImage = primaryImage.image || 'https://placehold.co/250x150/006747/white?text=Hostel';
+                    primaryImage = getFullImageUrl(primaryImage);
+                    
+                    html += `
+                        <div class="hostel-card" data-id="${h.id}" style="cursor:pointer;">
+                            <div class="hostel-image" style="height:150px; background-image: url('${primaryImage}'); background-size: cover; background-position: center;"></div>
+                            <div class="hostel-info">
+                                <div class="hostel-name" style="font-size:1rem;">${escapeHtml(h.name)}</div>
+                                <div class="hostel-price" style="font-size:0.9rem;">💰 KSh ${h.price?.toLocaleString() || 0}<span style="font-size:0.7rem;">/month</span></div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                recommendedGrid.innerHTML = html;
+                
+                recommendedGrid.querySelectorAll('.hostel-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        window.location.href = `hostel-detail.html?id=${card.dataset.id}`;
+                    });
+                });
+            } catch (e) {
+                console.error('Failed to load fallback hostels:', e);
+                recommendedGrid.innerHTML = '<p class="no-results">Unable to load recommendations</p>';
+            }
+        }
 
         // ==================== FILTERS ====================
         applyFiltersBtn.addEventListener('click', () => {
@@ -1425,21 +1475,21 @@ async function loadRegularHostelsAsFallback() {
             window.location.href = 'profile.html';
         });
 
-// ==================== INITIALIZE ====================
-async function init() {
-    await loadProfile();
-    await loadAmenities();
-    await loadSavedHostels();
-    await performSearch();
-    
-    // Try recommended first, fallback to regular hostels
-    try {
-        await loadRecommended();
-    } catch (e) {
-        console.log('Recommended failed, loading fallback...');
-        await loadRegularHostelsAsFallback();
-    }
-}
+        // ==================== INITIALIZE ====================
+        async function init() {
+            await loadProfile();
+            await loadAmenities();
+            await loadSavedHostels();
+            await performSearch();
+            
+            // Try recommended first, fallback to regular hostels
+            try {
+                await loadRecommended();
+            } catch (e) {
+                console.log('Recommended failed, loading fallback...');
+                await loadRegularHostelsAsFallback();
+            }
+        }
         
         init();
     </script>

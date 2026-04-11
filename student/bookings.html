@@ -27,6 +27,7 @@
             --danger: #dc2626;
             --success: #16a34a;
             --warning: #ca8a04;
+            --info: #2563eb;
         }
 
         body.dark-mode {
@@ -101,6 +102,44 @@
             transform: rotate(15deg);
         }
 
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 5px 15px;
+            background: var(--bg-light);
+            border-radius: 40px;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--kyu-green);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-role {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
         .btn-back {
             padding: 0.6rem 1.2rem;
             border: 2px solid var(--kyu-green);
@@ -169,7 +208,7 @@
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
@@ -181,12 +220,22 @@
             text-align: center;
             box-shadow: var(--shadow-sm);
             border-left: 4px solid var(--kyu-green);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
         }
 
         .stat-card .number {
             font-size: 2.5rem;
             font-weight: 700;
             color: var(--kyu-green);
+        }
+
+        .stat-card .label {
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
         }
 
         .filter-bar {
@@ -275,6 +324,7 @@
         .status-pending { background: #fef3c7; color: #92400e; }
         .status-confirmed { background: #d1fae5; color: #065f46; }
         .status-cancelled { background: #fee2e2; color: #b91c1c; }
+        .status-expired { background: #e5e7eb; color: #4b5563; }
 
         .booking-details {
             display: grid;
@@ -303,6 +353,39 @@
             color: var(--kyu-green);
         }
 
+        .payment-warning {
+            background: #fef3c7;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: #92400e;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .payment-warning i {
+            color: var(--warning);
+        }
+
+        .timer {
+            font-weight: 700;
+            font-family: monospace;
+            font-size: 1.1rem;
+        }
+
+        .cancel-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+
         .empty-state {
             text-align: center;
             padding: 4rem;
@@ -327,6 +410,27 @@
 
         @keyframes spin {
             to { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
         footer {
@@ -361,6 +465,13 @@
             <button class="dark-mode-toggle" id="darkModeToggle">
                 <i class="fas fa-moon"></i>
             </button>
+            <div class="user-info" id="profileBtn">
+                <div class="user-avatar" id="userAvatar">S</div>
+                <div class="user-details">
+                    <span class="user-name" id="userName">Student</span>
+                    <span class="user-role">Student</span>
+                </div>
+            </div>
             <a href="dashboard.html" class="btn-back">
                 <i class="fas fa-arrow-left"></i> Back to Dashboard
             </a>
@@ -398,9 +509,10 @@
             <div class="filter-row">
                 <select class="filter-select" id="statusFilter">
                     <option value="all">All Status</option>
-                    <option value="pending">Pending</option>
+                    <option value="pending">Pending Payment</option>
                     <option value="confirmed">Confirmed</option>
                     <option value="cancelled">Cancelled</option>
+                    <option value="expired">Expired</option>
                 </select>
                 <button class="btn-filter" id="applyFilter">Apply Filter</button>
                 <button class="btn-reset" id="resetFilter">Reset</button>
@@ -426,8 +538,9 @@
 
         let allBookings = [];
         let currentFilter = 'all';
+        let timerIntervals = {};
 
-        // ==================== DARK MODE SYNC WITH DASHBOARD ====================
+        // ==================== DARK MODE ====================
         function applyDarkMode() {
             const savedTheme = localStorage.getItem('studentTheme');
             if (savedTheme === 'dark') {
@@ -443,11 +556,8 @@
         
         applyDarkMode();
         
-        // Listen for storage changes from other tabs (dashboard)
         window.addEventListener('storage', (e) => {
-            if (e.key === 'studentTheme') {
-                applyDarkMode();
-            }
+            if (e.key === 'studentTheme') applyDarkMode();
         });
 
         document.getElementById('darkModeToggle').addEventListener('click', () => {
@@ -457,24 +567,12 @@
             toggleBtn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
         });
 
-        function showLoading() {
-            document.getElementById('bookingsList').innerHTML = '<div class="spinner"></div>';
-        }
-
-        function showToast(message, type = 'info') {
+        function showToast(message, isError = false) {
             const toast = document.createElement('div');
-            toast.style.position = 'fixed';
-            toast.style.bottom = '20px';
-            toast.style.right = '20px';
-            toast.style.backgroundColor = type === 'error' ? '#dc2626' : '#16a34a';
-            toast.style.color = 'white';
-            toast.style.padding = '12px 24px';
-            toast.style.borderRadius = '12px';
-            toast.style.zIndex = '10000';
-            toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
-            toast.innerHTML = message;
+            toast.className = `toast ${isError ? 'error' : ''}`;
+            toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${message}`;
             document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+            setTimeout(() => toast.remove(), 5000);
         }
 
         async function apiFetch(url, options = {}) {
@@ -496,7 +594,7 @@
 
                 if (!response.ok) {
                     const error = await response.json().catch(() => ({}));
-                    throw new Error(error.message || error.detail || `HTTP ${response.status}`);
+                    throw new Error(error.message || error.error || `HTTP ${response.status}`);
                 }
 
                 return await response.json();
@@ -506,8 +604,23 @@
             }
         }
 
+        async function loadProfile() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/profile/`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('userName').textContent = data.full_name || 'Student';
+                    const initials = (data.full_name || 'S').split(' ').map(n => n[0]).join('').toUpperCase();
+                    document.getElementById('userAvatar').textContent = initials.slice(0, 2);
+                }
+            } catch (error) {
+                console.error('Failed to load profile:', error);
+            }
+        }
+
         async function loadBookings() {
-            showLoading();
             try {
                 const data = await apiFetch('/bookings/');
                 allBookings = data.results || data || [];
@@ -515,50 +628,15 @@
                 renderBookings();
             } catch (error) {
                 console.error('Failed to load bookings:', error);
-                // Show demo bookings when API fails
-                showDemoBookings();
-                showToast('Showing demo data. Connect to server for live bookings.', 'info');
+                document.getElementById('bookingsList').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <h3>Failed to load bookings</h3>
+                        <p>${error.message}</p>
+                        <button onclick="loadBookings()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: var(--kyu-green); color: white; border: none; border-radius: 30px; cursor: pointer;">Retry</button>
+                    </div>
+                `;
             }
-        }
-        
-        function showDemoBookings() {
-            allBookings = [
-                {
-                    id: 1,
-                    hostel_name: 'Green View Hostel',
-                    hostel_address: 'Kutus, Kirinyaga',
-                    status: 'confirmed',
-                    check_in: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-                    check_out: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
-                    num_guests: 2,
-                    total_price: 15000,
-                    location: 'Kutus'
-                },
-                {
-                    id: 2,
-                    hostel_name: 'Campus Nest',
-                    hostel_address: 'Kerugoya Town',
-                    status: 'pending',
-                    check_in: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString(),
-                    check_out: new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toISOString(),
-                    num_guests: 1,
-                    total_price: 8000,
-                    location: 'Kerugoya'
-                },
-                {
-                    id: 3,
-                    hostel_name: 'Student Haven',
-                    hostel_address: 'Mwea Road',
-                    status: 'cancelled',
-                    check_in: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-                    check_out: new Date(Date.now() - 23 * 24 * 60 * 60 * 1000).toISOString(),
-                    num_guests: 1,
-                    total_price: 10000,
-                    location: 'Mwea'
-                }
-            ];
-            updateStats();
-            renderBookings();
         }
 
         function updateStats() {
@@ -571,6 +649,57 @@
             document.getElementById('pendingBookings').textContent = pending;
             document.getElementById('confirmedBookings').textContent = confirmed;
             document.getElementById('cancelledBookings').textContent = cancelled;
+        }
+
+        function formatTimeRemaining(expiresAt) {
+            if (!expiresAt) return null;
+            const expiry = new Date(expiresAt);
+            const now = new Date();
+            const diff = expiry - now;
+            
+            if (diff <= 0) return null;
+            
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            if (hours > 0) return `${hours}h ${minutes}m remaining`;
+            if (minutes > 0) return `${minutes}m ${seconds}s remaining`;
+            return `${seconds}s remaining`;
+        }
+
+        function startTimer(bookingId, expiresAt, timerElementId) {
+            if (timerIntervals[bookingId]) clearInterval(timerIntervals[bookingId]);
+            
+            const updateTimer = () => {
+                const remaining = formatTimeRemaining(expiresAt);
+                const timerElement = document.getElementById(timerElementId);
+                if (timerElement) {
+                    if (remaining) {
+                        timerElement.innerHTML = `<i class="fas fa-hourglass-half"></i> ${remaining}`;
+                    } else {
+                        timerElement.innerHTML = '<i class="fas fa-clock"></i> Payment window expired';
+                        if (timerIntervals[bookingId]) clearInterval(timerIntervals[bookingId]);
+                        // Reload bookings to update status
+                        loadBookings();
+                    }
+                }
+            };
+            
+            updateTimer();
+            timerIntervals[bookingId] = setInterval(updateTimer, 1000);
+        }
+
+        async function cancelBooking(bookingId) {
+            if (!confirm('Are you sure you want to cancel this booking? The hostel will become available for others.')) return;
+            
+            try {
+                await apiFetch(`/bookings/${bookingId}/cancel/`, { method: 'POST' });
+                showToast('Booking cancelled successfully');
+                loadBookings();
+            } catch (error) {
+                showToast(error.message, true);
+            }
         }
 
         function renderBookings() {
@@ -595,38 +724,64 @@
             
             container.innerHTML = filtered.map(booking => {
                 const statusClass = `status-${booking.status || 'pending'}`;
-                const statusText = booking.status || 'Pending';
-                const checkIn = booking.check_in ? new Date(booking.check_in).toLocaleDateString() : 'TBD';
-                const checkOut = booking.check_out ? new Date(booking.check_out).toLocaleDateString() : 'TBD';
-                const totalPrice = Number(booking.total_price || booking.total_amount || 0);
+                const statusText = booking.status === 'pending' ? 'Pending Payment' : 
+                                  booking.status === 'confirmed' ? 'Confirmed' :
+                                  booking.status === 'cancelled' ? 'Cancelled' : 'Expired';
+                const moveInDate = booking.move_in_date ? new Date(booking.move_in_date).toLocaleDateString() : 'TBD';
+                const location = booking.hostel_details?.address || booking.hostel_address || 'Location available upon confirmation';
+                const totalPrice = Number(booking.total_amount || 0);
+                const depositAmount = Number(booking.deposit_amount || 0);
+                const timerId = `timer-${booking.id}`;
+                
+                // Start timer for pending bookings
+                if (booking.status === 'pending' && booking.expires_at) {
+                    setTimeout(() => startTimer(booking.id, booking.expires_at, timerId), 100);
+                }
                 
                 return `
-                    <div class="booking-card">
+                    <div class="booking-card" data-id="${booking.id}">
                         <div class="booking-header">
                             <span class="booking-hostel">${escapeHtml(booking.hostel_name || 'Hostel')}</span>
                             <span class="booking-status ${statusClass}">${statusText}</span>
                         </div>
                         <div class="booking-details">
                             <div class="detail-item">
-                                <i class="fas fa-calendar-alt"></i>
-                                <span>Check-in: ${checkIn}</span>
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>${escapeHtml(location)}</span>
                             </div>
                             <div class="detail-item">
-                                <i class="fas fa-calendar-check"></i>
-                                <span>Check-out: ${checkOut}</span>
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Move-in: ${moveInDate}</span>
                             </div>
                             <div class="detail-item">
                                 <i class="fas fa-user"></i>
-                                <span>Guests: ${booking.num_guests || 1}</span>
+                                <span>Guests: ${booking.guests || 1}</span>
                             </div>
                             <div class="detail-item">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <span>${escapeHtml(booking.location || booking.hostel_address || 'Location TBD')}</span>
+                                <i class="fas fa-money-bill-wave"></i>
+                                <span>Monthly Rent: KSh ${totalPrice.toLocaleString()}</span>
                             </div>
+                            ${depositAmount > 0 ? `
+                            <div class="detail-item">
+                                <i class="fas fa-hand-holding-usd"></i>
+                                <span>Deposit Required: KSh ${depositAmount.toLocaleString()}</span>
+                            </div>
+                            ` : ''}
                         </div>
                         <div class="booking-price">
-                            KSh ${totalPrice.toLocaleString()}
+                            Total: KSh ${totalPrice.toLocaleString()}
                         </div>
+                        ${booking.status === 'pending' ? `
+                            <div class="payment-warning" id="${timerId}">
+                                <i class="fas fa-clock"></i> Loading timer...
+                            </div>
+                            <button class="cancel-btn" onclick="cancelBooking('${booking.id}')">Cancel Booking</button>
+                        ` : ''}
+                        ${booking.status === 'confirmed' ? `
+                            <div class="payment-warning" style="background: #d1fae5; color: #065f46;">
+                                <i class="fas fa-check-circle"></i> Booking confirmed! Your hostel is reserved.
+                            </div>
+                        ` : ''}
                     </div>
                 `;
             }).join('');
@@ -655,6 +810,18 @@
             window.location.href = 'login.html';
         });
 
+        document.getElementById('profileBtn').addEventListener('click', () => {
+            window.location.href = 'profile.html';
+        });
+
+        // Clean up timers on page unload
+        window.addEventListener('beforeunload', () => {
+            for (const id in timerIntervals) {
+                clearInterval(timerIntervals[id]);
+            }
+        });
+
+        loadProfile();
         loadBookings();
     </script>
 </body>
