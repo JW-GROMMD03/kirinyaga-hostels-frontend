@@ -7,7 +7,6 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* All your original CSS styles - keep them exactly as they were */
         * {
             margin: 0;
             padding: 0;
@@ -205,6 +204,102 @@
         .highlight {
             color: var(--kyu-gold);
             font-weight: 600;
+        }
+
+        /* Subscription Card Styles */
+        .subscription-card {
+            background: linear-gradient(135deg, #1e3a8a 0%, #312e81 100%);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.3s;
+        }
+
+        body.dark-mode .subscription-card {
+            background: linear-gradient(135deg, #1e3a3a 0%, #2e5a5a 100%);
+        }
+
+        .subscription-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .subscription-info h3 {
+            color: var(--kyu-gold);
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subscription-info p {
+            color: #e2e8f0;
+            font-size: 0.9rem;
+        }
+
+        .subscription-plan-badge {
+            background: var(--kyu-gold);
+            color: #1e293b;
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 0.5rem;
+        }
+
+        .subscription-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-subscribe {
+            background: var(--kyu-gold);
+            color: #1e293b;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-subscribe:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn-upgrade {
+            background: var(--kyu-green);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-upgrade:hover {
+            background: #004d33;
+            transform: translateY(-2px);
+        }
+
+        .warning-text {
+            color: #fcd34d;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
         }
 
         .error-banner {
@@ -761,6 +856,11 @@
                 flex-direction: column;
                 gap: 0.5rem;
             }
+
+            .subscription-card {
+                flex-direction: column;
+                text-align: center;
+            }
         }
     </style>
 </head>
@@ -795,6 +895,29 @@
         <div class="welcome-section">
             <h1>Welcome back, <span class="highlight" id="welcomeName">Owner</span>!</h1>
             <p>Manage your hostels, track bookings, and grow your business</p>
+        </div>
+
+        <div id="subscriptionCard" class="subscription-card">
+            <div class="subscription-info">
+                <h3><i class="fas fa-crown"></i> Subscription Status</h3>
+                <p>Your current plan: <strong id="currentPlanName">Free</strong></p>
+                <div id="planDetails">
+                    <span class="subscription-plan-badge" id="planBadge">Free Plan</span>
+                    <p id="planLimits" style="margin-top: 0.5rem;">Up to 1 hostel per month</p>
+                    <p id="planExpiry" style="font-size: 0.8rem; margin-top: 0.3rem;"></p>
+                </div>
+                <div id="upgradeWarning" class="warning-text" style="display: none;">
+                    <i class="fas fa-exclamation-triangle"></i> You have reached your free tier limit. Upgrade to add more hostels!
+                </div>
+            </div>
+            <div class="subscription-actions">
+                <a href="subscription-plans.html" class="btn-upgrade" id="upgradeBtn">
+                    <i class="fas fa-arrow-up"></i> Upgrade Plan
+                </a>
+                <a href="subscription-history.html" class="btn-subscribe">
+                    <i class="fas fa-history"></i> History
+                </a>
+            </div>
         </div>
 
         <div id="errorBanner" class="error-banner hidden">
@@ -871,6 +994,10 @@
             <a href="bookings.html" class="action-card">
                 <div class="action-icon"><i class="fas fa-calendar-alt"></i></div>
                 <span>View Bookings</span>
+            </a>
+            <a href="subscription-plans.html" class="action-card">
+                <div class="action-icon"><i class="fas fa-crown"></i></div>
+                <span>Subscription</span>
             </a>
             <a href="messages.html" class="action-card">
                 <div class="action-icon"><i class="fas fa-envelope"></i></div>
@@ -970,7 +1097,7 @@
         </div>
     </footer>
 
-        <script>
+    <script>
         // ==================== CONFIGURATION ====================
         const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
         const token = sessionStorage.getItem('accessToken');
@@ -1129,6 +1256,54 @@
 
         function closeProfileModal() {
             document.getElementById('profileModal').classList.remove('active');
+        }
+
+        // ==================== SUBSCRIPTION STATUS ====================
+        async function loadSubscriptionStatus() {
+            try {
+                const data = await apiFetch('/subscriptions/my/');
+                if (data) {
+                    const planDisplay = data.plan_display || 'Free';
+                    const maxHostels = data.max_hostels || 1;
+                    const currentHostels = data.current_hostels || 0;
+                    const daysRemaining = data.days_remaining;
+                    const canAddHostel = data.can_add_hostel;
+                    
+                    document.getElementById('currentPlanName').textContent = planDisplay;
+                    document.getElementById('planBadge').textContent = planDisplay + ' Plan';
+                    document.getElementById('planLimits').innerHTML = `Up to ${maxHostels} hostel${maxHostels !== 1 ? 's' : ''} per month`;
+                    
+                    if (daysRemaining && daysRemaining > 0) {
+                        document.getElementById('planExpiry').innerHTML = `<i class="fas fa-clock"></i> Expires in ${daysRemaining} days`;
+                    } else if (data.has_active_subscription === false && planDisplay !== 'Free') {
+                        document.getElementById('planExpiry').innerHTML = `<i class="fas fa-exclamation-triangle" style="color: #fcd34d;"></i> Subscription expired. Please renew.`;
+                    } else {
+                        document.getElementById('planExpiry').innerHTML = '';
+                    }
+                    
+                    // Show upgrade warning if free tier limit reached
+                    const upgradeWarning = document.getElementById('upgradeWarning');
+                    if (planDisplay === 'Free' && currentHostels >= maxHostels) {
+                        upgradeWarning.style.display = 'block';
+                    } else {
+                        upgradeWarning.style.display = 'none';
+                    }
+                    
+                    // Change button text based on current plan
+                    const upgradeBtn = document.getElementById('upgradeBtn');
+                    if (planDisplay === 'Free') {
+                        upgradeBtn.innerHTML = '<i class="fas fa-arrow-up"></i> Subscribe Now';
+                    } else {
+                        upgradeBtn.innerHTML = '<i class="fas fa-arrow-up"></i> Upgrade Plan';
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load subscription status:', error);
+                // Use default values
+                document.getElementById('currentPlanName').textContent = 'Free';
+                document.getElementById('planBadge').textContent = 'Free Plan';
+                document.getElementById('planLimits').innerHTML = 'Up to 1 hostel per month';
+            }
         }
 
         // ==================== STATS ====================
@@ -1341,6 +1516,7 @@
             try {
                 await Promise.all([
                     loadStats(),
+                    loadSubscriptionStatus(),
                     loadRecentActivity()
                 ]);
                 showSuccess('Dashboard updated successfully!');
@@ -1380,6 +1556,7 @@
             try {
                 await loadProfile();
                 await loadStats();
+                await loadSubscriptionStatus();
                 await loadRecentActivity();
                 
                 refreshInterval = setInterval(() => {
