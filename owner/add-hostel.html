@@ -509,6 +509,25 @@
             photoGrid.innerHTML = html;
         }
 
+        async function checkImageUploadLimit(imageCount) {
+    try {
+        const response = await fetch(`${API_BASE}/subscriptions/my/`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        const maxImages = data.max_images_per_hostel || 6;
+        
+        if (imageCount > maxImages) {
+            showMessage(`You can only upload up to ${maxImages} images per hostel. Your ${data.plan_display} plan allows ${maxImages} images.`, 'error');
+            return false;
+        }
+        return true;
+    } catch (error) {
+        console.error('Failed to check image limit:', error);
+        return true;
+    }
+}
+
         async function loadAmenities() {
             try {
                 const res = await fetch(`${API_BASE}/hostels/amenities/`, {
@@ -577,84 +596,97 @@
             document.getElementById('distance').textContent = distance + ' km';
         }
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-            const name = document.getElementById('name').value.trim();
-            const price = document.getElementById('price').value;
-            const address = document.getElementById('address').value.trim();
-            const description = document.getElementById('description').value.trim();
-            const lat = document.getElementById('lat').value;
-            const lng = document.getElementById('lng').value;
+    const name = document.getElementById('name').value.trim();
+    const price = document.getElementById('price').value;
+    const address = document.getElementById('address').value.trim();
+    const description = document.getElementById('description').value.trim();
+    const lat = document.getElementById('lat').value;
+    const lng = document.getElementById('lng').value;
 
-            if (!name) return showMessage('Please enter a hostel name', 'error');
-            if (!price || price <= 0) return showMessage('Please enter a valid price', 'error');
-            if (!description) return showMessage('Please enter a description', 'error');
-            if (!address) return showMessage('Please enter an address', 'error');
+    if (!name) return showMessage('Please enter a hostel name', 'error');
+    if (!price || price <= 0) return showMessage('Please enter a valid price', 'error');
+    if (!description) return showMessage('Please enter a description', 'error');
+    if (!address) return showMessage('Please enter an address', 'error');
 
-            setLoading(true);
-            messageDiv.style.display = 'none';
+    // Count images being uploaded
+    let imageCount = 0;
+    for (let i = 1; i <= 6; i++) {
+        const fileInput = document.getElementById(`photo${i}`);
+        if (fileInput && fileInput.files[0]) {
+            imageCount++;
+        }
+    }
+    
+    // Check image upload limit
+    const canUpload = await checkImageUploadLimit(imageCount);
+    if (!canUpload) return;
 
-            const formData = new FormData();
-            formData.append('name', name);
-            formData.append('room_type', document.getElementById('roomType').value);
-            formData.append('price', price);
-            formData.append('deposit', document.getElementById('deposit').value || 0);
-            formData.append('description', description);
-            formData.append('address', address);
-            if (lat && lng) {
-                formData.append('location_lat', lat);
-                formData.append('location_lng', lng);
+    setLoading(true);
+    messageDiv.style.display = 'none';
+
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('room_type', document.getElementById('roomType').value);
+    formData.append('price', price);
+    formData.append('deposit', document.getElementById('deposit').value || 0);
+    formData.append('description', description);
+    formData.append('address', address);
+    if (lat && lng) {
+        formData.append('location_lat', lat);
+        formData.append('location_lng', lng);
+    }
+    
+    document.querySelectorAll('#amenitiesList input:checked').forEach(cb => {
+        formData.append('amenities[]', cb.value);
+    });
+    
+    formData.append('other_amenities', document.getElementById('otherAmenities').value);
+    
+    for (let i = 1; i <= 6; i++) {
+        const fileInput = document.getElementById(`photo${i}`);
+        if (fileInput && fileInput.files[0]) {
+            formData.append(`photo${i}`, fileInput.files[0]);
+            const desc = document.getElementById(`photo${i}_desc`);
+            if (desc && desc.value) {
+                formData.append(`photo${i}_desc`, desc.value);
             }
-            
-            document.querySelectorAll('#amenitiesList input:checked').forEach(cb => {
-                formData.append('amenities[]', cb.value);
-            });
-            
-            formData.append('other_amenities', document.getElementById('otherAmenities').value);
-            
-            for (let i = 1; i <= 6; i++) {
-                const fileInput = document.getElementById(`photo${i}`);
-                if (fileInput && fileInput.files[0]) {
-                    formData.append(`photo${i}`, fileInput.files[0]);
-                    const desc = document.getElementById(`photo${i}_desc`);
-                    if (desc && desc.value) {
-                        formData.append(`photo${i}_desc`, desc.value);
-                    }
-                }
-            }
+        }
+    }
 
-            try {
-                const res = await fetch(`${API_BASE}/hostels/create/`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` },
-                    body: formData
-                });
-
-                const data = await res.json();
-
-                if (res.ok) {
-                    showMessage('Hostel added successfully! It will be reviewed by admin.', 'success');
-                    form.reset();
-                    if (marker) marker.setPosition(universityLocation);
-                    document.getElementById('lat').value = '';
-                    document.getElementById('lng').value = '';
-                    document.getElementById('distance').textContent = 'Not calculated';
-                    setTimeout(() => window.location.href = 'hostels.html', 2000);
-                } else {
-                    let errorMsg = data.message || data.detail || 'Failed to add hostel';
-                    if (data.errors) {
-                        errorMsg = Object.values(data.errors).flat().join(', ');
-                    }
-                    showMessage(errorMsg, 'error');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                showMessage('Network error. Please try again.', 'error');
-            } finally {
-                setLoading(false);
-            }
+    try {
+        const res = await fetch(`${API_BASE}/hostels/create/`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
         });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            showMessage('Hostel added successfully! It will be reviewed by admin.', 'success');
+            form.reset();
+            if (marker) marker.setPosition(universityLocation);
+            document.getElementById('lat').value = '';
+            document.getElementById('lng').value = '';
+            document.getElementById('distance').textContent = 'Not calculated';
+            setTimeout(() => window.location.href = 'hostels.html', 2000);
+        } else {
+            let errorMsg = data.message || data.detail || 'Failed to add hostel';
+            if (data.errors) {
+                errorMsg = Object.values(data.errors).flat().join(', ');
+            }
+            showMessage(errorMsg, 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showMessage('Network error. Please try again.', 'error');
+    } finally {
+        setLoading(false);
+    }
+});
 
         document.getElementById('logoutBtn').addEventListener('click', () => {
             sessionStorage.removeItem('accessToken');
