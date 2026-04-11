@@ -569,8 +569,8 @@
             <div id="paymentModalBody">
                 <div class="form-group">
                     <label>M-Pesa Phone Number</label>
-                    <input type="tel" id="phoneNumber" placeholder="0712345678" value="254">
-                    <small>Enter the M-Pesa registered phone number</small>
+                    <input type="tel" id="phoneNumber" placeholder="0712345678">
+                    <small>Enter the M-Pesa registered phone number (e.g., 0712345678 or 254712345678)</small>
                 </div>
                 <div class="payment-note">
                     <i class="fas fa-info-circle"></i> You will receive an STK push on your phone. Enter your PIN to complete payment.
@@ -602,6 +602,7 @@
             window.location.href = 'login.html';
         }
 
+        // ==================== UI HELPERS ====================
         function showLoading() {
             document.getElementById('loadingOverlay').classList.add('active');
         }
@@ -618,6 +619,7 @@
             setTimeout(() => toast.remove(), 5000);
         }
 
+        // ==================== API HELPER ====================
         async function apiFetch(url, options = {}) {
             try {
                 const response = await fetch(`${API_BASE}${url}`, {
@@ -647,6 +649,7 @@
             }
         }
 
+        // ==================== LOAD PROFILE ====================
         async function loadProfile() {
             try {
                 const data = await apiFetch('/auth/profile/');
@@ -660,6 +663,7 @@
             }
         }
 
+        // ==================== SUBSCRIPTION STATUS ====================
         async function loadCurrentSubscription() {
             try {
                 const data = await apiFetch('/subscriptions/my/');
@@ -717,6 +721,7 @@
             }
         }
 
+        // ==================== LOAD PLANS ====================
         async function loadPlans() {
             try {
                 const data = await apiFetch('/subscriptions/plans/');
@@ -771,22 +776,27 @@
             }
         }
 
+        // ==================== PAYMENT MODAL ====================
         function openPaymentModal(planId, planName, price) {
+            console.log('Opening payment modal for plan:', planId, planName, price);
             selectedPlan = { id: planId, name: planName, price: price };
-            document.getElementById('paymentModal').classList.add('active');
+            console.log('Selected plan set to:', selectedPlan);
             
-            // Clear previous phone number value and set default
+            // Clear phone number field
             const phoneInput = document.getElementById('phoneNumber');
             if (phoneInput) {
-                phoneInput.value = '254';
+                phoneInput.value = '';
             }
+            
+            document.getElementById('paymentModal').classList.add('active');
         }
 
         function closePaymentModal() {
             document.getElementById('paymentModal').classList.remove('active');
-            selectedPlan = null;
+            // Don't clear selectedPlan here, it's needed for payment
         }
 
+        // ==================== PAYMENT POLLING ====================
         function cancelPolling() {
             if (paymentPollingInterval) {
                 clearInterval(paymentPollingInterval);
@@ -844,21 +854,31 @@
             }, 3000);
         }
 
+        // ==================== PROCESS PAYMENT ====================
         async function processPayment() {
+            console.log('processPayment called, selectedPlan:', selectedPlan);
+            
+            // Check if a plan is selected
+            if (!selectedPlan) {
+                showToast('Please select a plan first', true);
+                return;
+            }
+            
             const phoneNumber = document.getElementById('phoneNumber').value;
             
-            if (!phoneNumber || phoneNumber === '254') {
+            if (!phoneNumber) {
                 showToast('Please enter your phone number', true);
                 return;
             }
             
+            // Validate Kenyan phone number
             const phoneRegex = /^(254|0)([17]|11)\d{8}$/;
             if (!phoneRegex.test(phoneNumber)) {
                 showToast('Please enter a valid Kenyan phone number (e.g., 0712345678 or 254712345678)', true);
                 return;
             }
             
-            // Close modal first
+            // Close modal
             closePaymentModal();
             showLoading();
             
@@ -894,12 +914,13 @@
             }
         }
 
+        // ==================== LOGOUT ====================
         function logout() {
             sessionStorage.removeItem('accessToken');
             window.location.href = 'login.html';
         }
 
-        // Dark mode
+        // ==================== DARK MODE ====================
         const savedTheme = localStorage.getItem('ownerTheme');
         if (savedTheme === 'dark') {
             document.body.classList.add('dark-mode');
@@ -912,6 +933,7 @@
             document.getElementById('darkModeToggle').innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
         });
 
+        // ==================== EVENT LISTENERS ====================
         document.getElementById('logoutBtn').addEventListener('click', logout);
         document.getElementById('profileBtn').addEventListener('click', () => {
             window.location.href = 'profile.html';
@@ -920,15 +942,19 @@
         // Attach event listener to the Pay Now button
         const payNowBtn = document.getElementById('payNowBtn');
         if (payNowBtn) {
+            // Remove any existing listeners to avoid duplicates
+            payNowBtn.removeEventListener('click', processPayment);
             payNowBtn.addEventListener('click', processPayment);
+            console.log('Pay Now button event listener attached');
         }
 
-        // Make functions globally available
+        // ==================== MAKE FUNCTIONS GLOBAL ====================
         window.closePaymentModal = closePaymentModal;
         window.processPayment = processPayment;
         window.openPaymentModal = openPaymentModal;
         window.cancelPolling = cancelPolling;
 
+        // ==================== INITIALIZE ====================
         async function init() {
             showLoading();
             try {
