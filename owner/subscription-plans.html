@@ -653,91 +653,114 @@
             }
         }
 
-        async function loadCurrentSubscription() {
-            try {
-                const data = await apiFetch('/subscriptions/my/');
-                currentSubscription = data;
-                
-                const container = document.getElementById('currentPlanSection');
-                
-                if (data.has_active_subscription) {
-                    const daysLeft = data.days_remaining || 0;
-                    const warningClass = daysLeft <= 7 ? 'warning' : '';
-                    
-                    container.innerHTML = `
-                        <div class="current-plan-card">
-                            <h3>Your Current Plan: ${data.plan_display}</h3>
-                            <div class="plan-badge">${data.has_active_subscription ? 'ACTIVE' : 'EXPIRED'}</div>
-                            ${data.expires_at ? `<p>Expires: ${new Date(data.expires_at).toLocaleDateString()}</p>` : ''}
-                            <div class="plan-limits">
-                                <div class="limit-item"><i class="fas fa-home"></i> Hostels: ${data.current_hostels}/${data.max_hostels}</div>
-                                <div class="limit-item"><i class="fas fa-star"></i> Featured: ${data.can_feature ? '✓' : '✗'}</div>
-                                <div class="limit-item"><i class="fas fa-chart-line"></i> Analytics: ${data.plan !== 'free' ? '✓' : '✗'}</div>
-                            </div>
-                            ${daysLeft > 0 ? `<p style="margin-top: 1rem;"><strong>${daysLeft} days remaining</strong></p>` : ''}
-                            ${!data.has_active_subscription ? `<p style="margin-top: 1rem;"><i class="fas fa-exclamation-triangle"></i> Your subscription has expired. Please renew to continue adding hostels.</p>` : ''}
-                        </div>
-                    `;
-                } else {
-                    container.innerHTML = `
-                        <div class="current-plan-card">
-                            <h3>Free Plan</h3>
-                            <p>You are currently on the Free plan. Upgrade to unlock more features!</p>
-                            <div class="plan-limits">
-                                <div class="limit-item"><i class="fas fa-home"></i> Hostels: ${data.current_hostels}/${data.max_hostels} this month</div>
-                                <div class="limit-item"><i class="fas fa-star"></i> Featured listings: ${data.can_feature ? '✓' : '✗'}</div>
-                            </div>
-                            ${!data.can_add_hostel ? `<p style="margin-top: 1rem; color: var(--warning);"><i class="fas fa-exclamation-triangle"></i> You have reached your free tier limit. Subscribe to add more hostels.</p>` : ''}
-                        </div>
-                    `;
-                }
-            } catch (error) {
-                console.error('Failed to load current subscription:', error);
-            }
+async function loadCurrentSubscription() {
+    try {
+        const data = await apiFetch('/subscriptions/my/');
+        console.log('Current subscription data:', data);
+        currentSubscription = data;
+        
+        const container = document.getElementById('currentPlanSection');
+        
+        if (!container) return;
+        
+        if (data && data.has_active_subscription) {
+            const daysLeft = data.days_remaining || 0;
+            
+            container.innerHTML = `
+                <div class="current-plan-card">
+                    <h3>Your Current Plan: ${data.plan_display || 'Free'}</h3>
+                    <div class="plan-badge">${data.has_active_subscription ? 'ACTIVE' : 'EXPIRED'}</div>
+                    ${data.expires_at ? `<p>Expires: ${new Date(data.expires_at).toLocaleDateString()}</p>` : ''}
+                    <div class="plan-limits">
+                        <div class="limit-item"><i class="fas fa-home"></i> Hostels: ${data.current_hostels || 0}/${data.max_hostels || 1}</div>
+                        <div class="limit-item"><i class="fas fa-star"></i> Featured: ${data.can_feature ? '✓' : '✗'}</div>
+                        <div class="limit-item"><i class="fas fa-chart-line"></i> Analytics: ${data.plan !== 'free' ? '✓' : '✗'}</div>
+                    </div>
+                    ${daysLeft > 0 ? `<p style="margin-top: 1rem;"><strong>${daysLeft} days remaining</strong></p>` : ''}
+                    ${!data.has_active_subscription ? `<p style="margin-top: 1rem;"><i class="fas fa-exclamation-triangle"></i> Your subscription has expired. Please renew to continue adding hostels.</p>` : ''}
+                </div>
+            `;
+        } else {
+            container.innerHTML = `
+                <div class="current-plan-card">
+                    <h3>Free Plan</h3>
+                    <p>You are currently on the Free plan. Upgrade to unlock more features!</p>
+                    <div class="plan-limits">
+                        <div class="limit-item"><i class="fas fa-home"></i> Hostels: ${(data && data.current_hostels) || 0}/${(data && data.max_hostels) || 1} this month</div>
+                        <div class="limit-item"><i class="fas fa-star"></i> Featured listings: ${(data && data.can_feature) ? '✓' : '✗'}</div>
+                    </div>
+                    ${(data && !data.can_add_hostel) ? `<p style="margin-top: 1rem; color: var(--warning);"><i class="fas fa-exclamation-triangle"></i> You have reached your free tier limit. Subscribe to add more hostels.</p>` : ''}
+                </div>
+            `;
         }
+    } catch (error) {
+        console.error('Failed to load current subscription:', error);
+        const container = document.getElementById('currentPlanSection');
+        if (container) {
+            container.innerHTML = `
+                <div class="current-plan-card">
+                    <h3>Free Plan</h3>
+                    <p>You are currently on the Free plan. Upgrade to unlock more features!</p>
+                </div>
+            `;
+        }
+    }
+}
 
-        async function loadPlans() {
-            try {
-                const plans = await apiFetch('/subscriptions/plans/');
-                const container = document.getElementById('plansGrid');
-                
-                if (!plans || plans.length === 0) {
-                    container.innerHTML = '<div class="empty-state">No plans available</div>';
-                    return;
-                }
-                
-                container.innerHTML = plans.map(plan => {
-                    const isCurrent = currentSubscription && currentSubscription.plan === plan.name;
-                    const isRecommended = plan.name === 'premium';
-                    const features = plan.features_list || [];
-                    
-                    return `
-                        <div class="plan-card ${isRecommended ? 'recommended' : ''}">
-                            ${isRecommended ? '<div class="recommended-badge">⭐ Most Popular</div>' : ''}
-                            <div class="plan-header">
-                                <div class="plan-name">${plan.display_name}</div>
-                                <div class="plan-price">KSh ${plan.price_kes.toLocaleString()}<small>/month</small></div>
-                            </div>
-                            <div class="plan-body">
-                                <ul class="feature-list">
-                                    ${features.map(f => `<li><i class="fas fa-check-circle"></i> ${f}</li>`).join('')}
-                                </ul>
-                                ${plan.price_kes === 0 ? 
-                                    `<button class="btn-current" disabled>Current Plan</button>` :
-                                    (isCurrent ? 
-                                        `<button class="btn-current" disabled>Current Plan</button>` :
-                                        `<button class="btn-subscribe" onclick="openPaymentModal('${plan.id}', '${plan.display_name}', ${plan.price_kes})">Subscribe Now</button>`
-                                    )
-                                }
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            } catch (error) {
-                console.error('Failed to load plans:', error);
-                document.getElementById('plansGrid').innerHTML = '<div class="empty-state">Failed to load plans. Please refresh.</div>';
-            }
+async function loadPlans() {
+    try {
+        const data = await apiFetch('/subscriptions/plans/');
+        console.log('Plans API response:', data);
+        
+        // Handle different response formats
+        let plans = [];
+        if (Array.isArray(data)) {
+            plans = data;
+        } else if (data && data.results && Array.isArray(data.results)) {
+            plans = data.results;
+        } else if (data && data.data && Array.isArray(data.data)) {
+            plans = data.data;
         }
+        
+        const container = document.getElementById('plansGrid');
+        
+        if (!plans || plans.length === 0) {
+            container.innerHTML = '<div class="empty-state">No plans available</div>';
+            return;
+        }
+        
+        container.innerHTML = plans.map(plan => {
+            const isCurrent = currentSubscription && currentSubscription.plan === plan.name;
+            const isRecommended = plan.name === 'premium';
+            const features = plan.features_list || [];
+            
+            return `
+                <div class="plan-card ${isRecommended ? 'recommended' : ''}">
+                    ${isRecommended ? '<div class="recommended-badge">⭐ Most Popular</div>' : ''}
+                    <div class="plan-header">
+                        <div class="plan-name">${plan.display_name || plan.name}</div>
+                        <div class="plan-price">KSh ${(plan.price_kes || 0).toLocaleString()}<small>/month</small></div>
+                    </div>
+                    <div class="plan-body">
+                        <ul class="feature-list">
+                            ${features.map(f => `<li><i class="fas fa-check-circle"></i> ${f}</li>`).join('')}
+                        </ul>
+                        ${(plan.price_kes === 0) ? 
+                            `<button class="btn-current" disabled>Current Plan</button>` :
+                            (isCurrent ? 
+                                `<button class="btn-current" disabled>Current Plan</button>` :
+                                `<button class="btn-subscribe" onclick="openPaymentModal('${plan.id}', '${plan.display_name || plan.name}', ${plan.price_kes})">Subscribe Now</button>`
+                            )
+                        }
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Failed to load plans:', error);
+        document.getElementById('plansGrid').innerHTML = '<div class="empty-state">Failed to load plans. Please refresh.</div>';
+    }
+}
 
         function openPaymentModal(planId, planName, price) {
             selectedPlan = { id: planId, name: planName, price: price };
