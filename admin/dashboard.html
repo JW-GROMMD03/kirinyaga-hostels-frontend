@@ -1132,6 +1132,10 @@ if (darkModeToggle) {
         { name: '📅 BOOKINGS', items: [
             { id: 'bookings', icon: 'fa-calendar-check', name: 'All Bookings' }
         ]},
+        { name: '💳 SUBSCRIPTIONS', items: [
+        { id: 'subscriptions', icon: 'fa-credit-card', name: 'Manage Subscriptions' },
+        { id: 'subscription-plans', icon: 'fa-list', name: 'Subscription Plans' }
+    ]},
         { name: '🔒 SECURITY', items: [
             { id: 'fraud-alerts', icon: 'fa-shield-alt', name: 'Fraud Alerts' },
             { id: 'audit-logs', icon: 'fa-history', name: 'Audit Logs' },
@@ -1188,6 +1192,78 @@ if (darkModeToggle) {
             'students': `<div class="panel-header"><h2>Student Management</h2><div class="panel-actions"><select id="studentFilter" onchange="loadStudents()"><option value="all">All</option><option value="active">Active</option><option value="locked">Locked</option><option value="verified">Verified</option></select><input type="text" id="studentSearch" placeholder="Search by name, email or phone..." style="width:250px;"><button class="btn btn-primary" onclick="loadStudents()"><i class="fas fa-search"></i> Search</button></div></div><div class="table-container"><table id="studentsTable"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Reg No</th><th>Verified</th><th>2FA</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead><tbody id="studentsBody"></tbody></table></div>`,
             'owners': `<div class="panel-header"><h2>Owner Management</h2><div class="panel-actions"><select id="ownerFilter" onchange="loadOwners()"><option value="all">All</option><option value="pending">Pending</option><option value="approved">Approved</option></select><input type="text" id="ownerSearch" placeholder="Search by name, email or phone..." style="width:250px;"><button class="btn btn-primary" onclick="loadOwners()"><i class="fas fa-search"></i> Search</button></div></div><div class="table-container"><table id="ownersTable"><thead><th>Business</th><th>Name</th><th>Email</th><th>Phone</th><th>Approval</th><th>Verified</th><th>Hostels</th><th>Fraud</th><th>Actions</th></thead><tbody id="ownersBody"></tbody></table></div>`,
             'hostels': `<div class="panel-header"><h2>Hostel Management</h2><div class="panel-actions"><select id="hostelFilter" onchange="loadHostels()"><option value="all">All</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="featured">Featured</option></select><input type="text" id="hostelSearch" placeholder="Search by name, owner, location..." style="width:250px;"><button class="btn btn-primary" onclick="loadHostels()"><i class="fas fa-search"></i> Search</button></div></div><div class="table-container"><table id="hostelsTable"><thead><th>Name</th><th>Owner</th><th>Location</th><th>Distance</th><th>Price</th><th>Type</th><th>Status</th><th>Featured</th><th>Bookings</th><th>Actions</th></thead><tbody id="hostelsBody"></tbody></table></div>`,
+            'subscriptions': `
+            <div class="panel-header">
+                <h2><i class="fas fa-credit-card"></i> Manage Subscriptions</h2>
+                <div class="panel-actions">
+                    <button class="btn btn-primary" onclick="showGrantBonusModal()"><i class="fas fa-gift"></i> Grant Bonus</button>
+                    <button class="btn btn-outline" onclick="loadAllSubscriptions()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                </div>
+            </div>
+            <div class="stats-grid" id="subscriptionStats"></div>
+            <div class="panel-actions" style="margin-bottom: 1rem;">
+                <input type="text" id="subscriptionSearch" placeholder="Search by owner email..." style="width: 250px;">
+                <select id="subscriptionFilter" onchange="loadAllSubscriptions()">
+                    <option value="all">All Subscriptions</option>
+                    <option value="active">Active</option>
+                    <option value="expired">Expired</option>
+                    <option value="pending">Pending Payment</option>
+                    <option value="bonus">Bonus Subscriptions</option>
+                </select>
+                <button class="btn btn-primary" onclick="loadAllSubscriptions()"><i class="fas fa-search"></i> Search</button>
+            </div>
+            <div class="table-container">
+                <table id="subscriptionsTable">
+                    <thead>
+                        <tr>
+                            <th>Owner</th>
+                            <th>Plan</th>
+                            <th>Status</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Days Left</th>
+                            <th>Amount</th>
+                            <th>Bonus</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="subscriptionsBody">
+                        <tr><td colspan="9" class="loading-row">Loading subscriptions...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="subscriptionPagination" style="margin-top: 20px; text-align: center;"></div>
+        `,
+        
+        'subscription-plans': `
+            <div class="panel-header">
+                <h2><i class="fas fa-list"></i> Subscription Plans</h2>
+                <div class="panel-actions">
+                    <button class="btn btn-primary" onclick="showAddPlanModal()"><i class="fas fa-plus"></i> Add Plan</button>
+                    <button class="btn btn-outline" onclick="loadSubscriptionPlans()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table id="plansTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Display Name</th>
+                            <th>Price (KES)</th>
+                            <th>Duration (Days)</th>
+                            <th>Max Hostels</th>
+                            <th>Max Images</th>
+                            <th>Featured</th>
+                            <th>Active</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="plansBody">
+                        <tr><td colspan="9" class="loading-row">Loading plans...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        `,
             'featured-hostels': `<div class="panel-header"><h2>Featured Hostels</h2><div class="panel-actions"><button class="btn btn-primary" onclick="loadFeaturedHostels()">Refresh</button></div></div><div class="table-container"><table id="featuredHostelsTable"><thead><th>Name</th><th>Owner</th><th>Location</th><th>Price</th><th>Rating</th><th>Bookings</th><th>Actions</th></thead><tbody id="featuredHostelsBody"></tbody></table></div>`,
             'audit-logs': `<div class="panel-header"><h2>Audit Logs</h2>
     <div class="panel-actions">
@@ -1851,6 +1927,8 @@ tbody.innerHTML = (data.sessions || []).map(s => `
         else if (panelId === 'sessions') loadSessions();
         else if (panelId === 'user-analytics') loadUserAnalytics();
         else if (panelId === 'hostel-analytics') loadHostelAnalytics();
+        else if (panelId === 'subscriptions') loadAllSubscriptions();
+        else if (panelId === 'subscription-plans') loadSubscriptionPlans();
     }
     
     // ============================================
@@ -2096,42 +2174,72 @@ window.verifyStudent = async function(id) {
     // ============================================
     // IMPERSONATION
     // ============================================
-    window.startImpersonation = async function() {
-        const email = document.getElementById('impersonateEmail').value;
-        const userId = document.getElementById('impersonateUserId').value;
-        if (!email && !userId) { showToast('Please enter an email or user ID', 'error'); return; }
-        try {
-            const data = await apiFetch('/impersonate/start/', { method: 'POST', body: JSON.stringify({ email, user_id: userId }) });
-            if (data && data.access_token) {
-                const currentToken = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
-                sessionStorage.setItem('original_token', currentToken);
-                sessionStorage.setItem('token', data.access_token);
-                sessionStorage.setItem('impersonating', data.user_email);
-                document.getElementById('impersonatedUserName').innerText = data.user_email;
-                document.getElementById('impersonationBadge').style.display = 'flex';
-                showToast(`Now impersonating ${data.user_email}`, 'success');
-                closeModal('impersonateModal');
-                setTimeout(() => window.location.reload(), 1000);
-            }
-        } catch(e) { showToast(e.message, 'error'); }
-    };
-    
-    window.stopImpersonation = async function() {
-        const originalToken = sessionStorage.getItem('original_token');
-        if (originalToken) {
-            sessionStorage.setItem('token', originalToken);
-            sessionStorage.removeItem('original_token');
-            sessionStorage.removeItem('impersonating');
-            document.getElementById('impersonationBadge').style.display = 'none';
-            showToast('Back to admin account', 'success');
-            window.location.reload();
+window.startImpersonation = async function() {
+    const email = document.getElementById('impersonateEmail').value;
+    const userId = document.getElementById('impersonateUserId').value;
+    if (!email && !userId) { showToast('Please enter an email or user ID', 'error'); return; }
+    try {
+        const data = await apiFetch('/impersonate/start/', { 
+            method: 'POST', 
+            body: JSON.stringify({ email, user_id: userId }) 
+        });
+        
+        if (data && data.access_token) {
+            // Store original admin token
+            const currentToken = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
+            sessionStorage.setItem('admin_original_token', currentToken);
+            
+            // Set impersonation token
+            localStorage.setItem('accessToken', data.access_token);
+            sessionStorage.setItem('accessToken', data.access_token);
+            localStorage.setItem('refreshToken', data.refresh_token);
+            
+            // Store impersonation info
+            sessionStorage.setItem('impersonating', data.user?.email || email);
+            sessionStorage.setItem('impersonated_user', JSON.stringify(data.user));
+            
+            showToast(`Now impersonating ${data.user?.email || email}`, 'success');
+            closeModal('impersonateModal');
+            
+            // Redirect to the appropriate dashboard
+            setTimeout(() => {
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                } else if (data.user?.role === 'owner') {
+                    window.location.href = '/owner/dashboard.html';
+                } else if (data.user?.role === 'student') {
+                    window.location.href = '/student/dashboard.html';
+                } else {
+                    window.location.reload();
+                }
+            }, 1000);
         }
-    };
-    
-    if (sessionStorage.getItem('impersonating')) {
-        document.getElementById('impersonatedUserName').innerText = sessionStorage.getItem('impersonating');
-        document.getElementById('impersonationBadge').style.display = 'flex';
+    } catch(e) { 
+        showToast(e.message, 'error'); 
     }
+};
+
+window.stopImpersonation = async function() {
+    const originalToken = sessionStorage.getItem('admin_original_token');
+    if (originalToken) {
+        localStorage.setItem('accessToken', originalToken);
+        sessionStorage.setItem('accessToken', originalToken);
+        sessionStorage.removeItem('admin_original_token');
+        sessionStorage.removeItem('impersonating');
+        sessionStorage.removeItem('impersonated_user');
+        
+        showToast('Returned to admin account', 'success');
+        window.location.href = '/admin/dashboard.html';
+    } else {
+        // Try API call to stop impersonation
+        try {
+            await apiFetch('/impersonate/stop/', { method: 'POST' });
+            window.location.href = '/admin/dashboard.html';
+        } catch(e) {
+            window.location.href = '/admin/dashboard.html';
+        }
+    }
+};
     
     // ============================================
     // NOTIFICATIONS & SMS
@@ -2211,6 +2319,291 @@ window.verifyStudent = async function(id) {
     });
     document.getElementById('adminMenu').addEventListener('click', function() { loadAdminProfileForEdit(); openModal('profileEditModal'); });
     document.getElementById('refreshDashboard')?.addEventListener('click', loadDashboardStats);
+
+    // ============================================
+// SUBSCRIPTION MANAGEMENT FUNCTIONS
+// ============================================
+
+let currentSubscriptionPage = 1;
+let allSubscriptions = [];
+
+async function loadAllSubscriptions() {
+    const search = document.getElementById('subscriptionSearch')?.value || '';
+    const filter = document.getElementById('subscriptionFilter')?.value || 'all';
+    
+    let url = `/subscriptions/admin/all/?page=${currentSubscriptionPage}&page_size=20`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
+    if (filter !== 'all') url += `&status=${filter}`;
+    
+    try {
+        const data = await apiFetch(url);
+        const items = data.results || data || [];
+        allSubscriptions = items;
+        
+        // Update stats
+        updateSubscriptionStats(data);
+        
+        const tbody = document.getElementById('subscriptionsBody');
+        if (!tbody) return;
+        
+        if (items.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" class="loading-row">No subscriptions found</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = items.map(sub => {
+            const isActive = sub.is_active && new Date(sub.end_date) > new Date();
+            const daysLeft = sub.days_remaining || 0;
+            
+            return `
+                <tr>
+                    <td>
+                        <strong>${escapeHtml(sub.owner_name || sub.owner_email || 'N/A')}</strong><br>
+                        <small>${escapeHtml(sub.owner_email || '')}</small>
+                    </td>
+                    <td>${escapeHtml(sub.plan_name || 'Free')}</td>
+                    <td>
+                        <span class="badge ${isActive ? 'badge-success' : (sub.payment_status === 'pending' ? 'badge-warning' : 'badge-danger')}">
+                            ${isActive ? 'Active' : (sub.payment_status === 'pending' ? 'Pending' : 'Inactive')}
+                        </span>
+                    </td>
+                    <td>${formatDate(sub.start_date)}</td>
+                    <td>${formatDate(sub.end_date)}</td>
+                    <td>
+                        <span class="badge ${daysLeft <= 7 ? 'badge-warning' : 'badge-info'}">${daysLeft} days</span>
+                    </td>
+                    <td>${formatCurrency(sub.amount_paid || 0)}</td>
+                    <td>
+                        ${sub.is_bonus ? '<span class="badge badge-success"><i class="fas fa-gift"></i> Bonus</span>' : '<span class="badge">Regular</span>'}
+                    </td>
+                    <td class="action-icons">
+                        <i class="fas fa-gift" onclick="showGrantBonusModal('${sub.owner_id}', '${sub.owner_email}')" title="Grant Bonus"></i>
+                        <i class="fas fa-calendar-plus" onclick="showExtendModal('${sub.id}', '${sub.owner_email}')" title="Extend"></i>
+                        ${isActive ? `<i class="fas fa-ban" onclick="revokeSubscription('${sub.id}', '${sub.owner_email}')" title="Revoke"></i>` : ''}
+                        <i class="fas fa-eye" onclick="viewSubscriptionDetails('${sub.id}')" title="View Details"></i>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+        
+        updateSubscriptionPagination(data);
+        
+    } catch(e) {
+        console.error('Load subscriptions error:', e);
+        showToast('Failed to load subscriptions', 'error');
+    }
+}
+
+function updateSubscriptionStats(data) {
+    const statsDiv = document.getElementById('subscriptionStats');
+    if (!statsDiv) return;
+    
+    statsDiv.innerHTML = `
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-info">
+                <h3>${data.total || 0}</h3>
+                <p>Total Subscriptions</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-info">
+                <h3>${data.active_subscriptions || 0}</h3>
+                <p>Active</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-gift"></i></div>
+            <div class="stat-info">
+                <h3>${data.bonus_subscriptions || 0}</h3>
+                <p>Bonus</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-money-bill"></i></div>
+            <div class="stat-info">
+                <h3>${formatCurrency(data.total_revenue || 0)}</h3>
+                <p>Total Revenue</p>
+            </div>
+        </div>
+    `;
+}
+
+function updateSubscriptionPagination(data) {
+    const paginationDiv = document.getElementById('subscriptionPagination');
+    if (!paginationDiv) return;
+    
+    const totalPages = data.total_pages || 1;
+    
+    if (totalPages <= 1) {
+        paginationDiv.innerHTML = '';
+        return;
+    }
+    
+    let html = '<div style="display: flex; justify-content: center; gap: 10px;">';
+    if (currentSubscriptionPage > 1) {
+        html += `<button class="btn btn-outline btn-sm" onclick="goToSubscriptionPage(${currentSubscriptionPage - 1})">← Previous</button>`;
+    }
+    html += `<span style="padding: 8px 16px;">Page ${currentSubscriptionPage} of ${totalPages}</span>`;
+    if (currentSubscriptionPage < totalPages) {
+        html += `<button class="btn btn-outline btn-sm" onclick="goToSubscriptionPage(${currentSubscriptionPage + 1})">Next →</button>`;
+    }
+    html += '</div>';
+    paginationDiv.innerHTML = html;
+}
+
+function goToSubscriptionPage(page) {
+    currentSubscriptionPage = page;
+    loadAllSubscriptions();
+}
+
+async function loadSubscriptionPlans() {
+    try {
+        const data = await apiFetch('/subscriptions/plans/');
+        const items = Array.isArray(data) ? data : (data.results || []);
+        
+        const tbody = document.getElementById('plansBody');
+        if (!tbody) return;
+        
+        if (items.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" class="loading-row">No plans found</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = items.map(plan => `
+            <tr>
+                <td><code>${escapeHtml(plan.name)}</code></td>
+                <td><strong>${escapeHtml(plan.display_name)}</strong></td>
+                <td>${formatCurrency(plan.price_kes)}</td>
+                <td>${plan.duration_days}</td>
+                <td>${plan.max_hostels}</td>
+                <td>${plan.max_images_per_hostel}</td>
+                <td><span class="badge ${plan.can_feature_listings ? 'badge-success' : 'badge-info'}">${plan.can_feature_listings ? 'Yes' : 'No'}</span></td>
+                <td><span class="badge ${plan.is_active ? 'badge-success' : 'badge-danger'}">${plan.is_active ? 'Active' : 'Inactive'}</span></td>
+                <td class="action-icons">
+                    <i class="fas fa-edit" onclick="editPlan('${plan.id}')" title="Edit"></i>
+                    <i class="fas fa-toggle-${plan.is_active ? 'on' : 'off'}" onclick="togglePlanStatus('${plan.id}')" title="Toggle Status"></i>
+                </td>
+            </tr>
+        `).join('');
+    } catch(e) {
+        console.error('Load plans error:', e);
+        showToast('Failed to load plans', 'error');
+    }
+}
+
+// Bonus Modal Functions
+function showGrantBonusModal(ownerId = '', ownerEmail = '') {
+    const modal = document.createElement('div');
+    modal.className = 'modal active';
+    modal.id = 'grantBonusModal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-gift"></i> Grant Bonus Subscription</h3>
+                <span class="modal-close" onclick="closeModal('grantBonusModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="alert-info" style="margin-bottom: 1rem;">
+                    <i class="fas fa-info-circle"></i> Bonus subscriptions are free and measured in weeks.
+                </div>
+                <div class="form-group">
+                    <label>Owner Email</label>
+                    <input type="email" id="bonusOwnerEmail" placeholder="owner@example.com" value="${escapeHtml(ownerEmail)}">
+                </div>
+                <div class="form-group">
+                    <label>Select Plan</label>
+                    <select id="bonusPlanId"></select>
+                </div>
+                <div class="form-group">
+                    <label>Bonus Weeks</label>
+                    <input type="number" id="bonusWeeks" value="4" min="1" max="52">
+                </div>
+                <div class="form-group">
+                    <label>Reason (Optional)</label>
+                    <input type="text" id="bonusReason" placeholder="e.g., Customer appreciation">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('grantBonusModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="grantBonusSubscription()">Grant Bonus</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    
+    // Load plans into select
+    loadPlansForSelect();
+}
+
+async function loadPlansForSelect() {
+    try {
+        const data = await apiFetch('/subscriptions/plans/');
+        const items = Array.isArray(data) ? data : (data.results || []);
+        const select = document.getElementById('bonusPlanId');
+        if (select) {
+            select.innerHTML = items.map(p => 
+                `<option value="${p.id}">${escapeHtml(p.display_name)} - ${formatCurrency(p.price_kes)}</option>`
+            ).join('');
+        }
+    } catch(e) {
+        console.error('Load plans error:', e);
+    }
+}
+
+async function grantBonusSubscription() {
+    const ownerEmail = document.getElementById('bonusOwnerEmail').value;
+    const planId = document.getElementById('bonusPlanId').value;
+    const bonusWeeks = document.getElementById('bonusWeeks').value;
+    const reason = document.getElementById('bonusReason').value;
+    
+    if (!ownerEmail || !planId) {
+        showToast('Owner email and plan are required', 'error');
+        return;
+    }
+    
+    try {
+        const response = await apiFetch('/subscriptions/admin/grant-bonus/', {
+            method: 'POST',
+            body: JSON.stringify({
+                owner_email: ownerEmail,
+                plan_id: planId,
+                bonus_weeks: parseInt(bonusWeeks),
+                reason: reason
+            })
+        });
+        
+        showToast(response.message || 'Bonus subscription granted successfully', 'success');
+        closeModal('grantBonusModal');
+        loadAllSubscriptions();
+    } catch(e) {
+        showToast(e.message || 'Failed to grant bonus', 'error');
+    }
+}
+
+async function revokeSubscription(subscriptionId, ownerEmail) {
+    showConfirm(`Revoke subscription for ${ownerEmail}?`, async () => {
+        try {
+            await apiFetch('/subscriptions/admin/revoke/', {
+                method: 'POST',
+                body: JSON.stringify({ subscription_id: subscriptionId })
+            });
+            showToast('Subscription revoked successfully', 'success');
+            loadAllSubscriptions();
+        } catch(e) {
+            showToast(e.message || 'Failed to revoke subscription', 'error');
+        }
+    });
+}
+
+// Make functions globally accessible
+window.loadAllSubscriptions = loadAllSubscriptions;
+window.loadSubscriptionPlans = loadSubscriptionPlans;
+window.showGrantBonusModal = showGrantBonusModal;
+window.grantBonusSubscription = grantBonusSubscription;
+window.revokeSubscription = revokeSubscription;
+window.goToSubscriptionPage = goToSubscriptionPage;
     
     // Make load functions globally available
     window.loadBookings = loadBookings;
