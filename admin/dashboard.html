@@ -1107,6 +1107,8 @@ function toggleDarkMode() {
     showToast(isDark ? 'Dark mode enabled' : 'Light mode enabled', 'info', 'Theme');
 }
 
+
+
 // Add event listener
 const darkModeToggle = document.getElementById('darkModeToggle');
 if (darkModeToggle) {
@@ -1187,7 +1189,30 @@ if (darkModeToggle) {
             'owners': `<div class="panel-header"><h2>Owner Management</h2><div class="panel-actions"><select id="ownerFilter" onchange="loadOwners()"><option value="all">All</option><option value="pending">Pending</option><option value="approved">Approved</option></select><input type="text" id="ownerSearch" placeholder="Search by name, email or phone..." style="width:250px;"><button class="btn btn-primary" onclick="loadOwners()"><i class="fas fa-search"></i> Search</button></div></div><div class="table-container"><table id="ownersTable"><thead><th>Business</th><th>Name</th><th>Email</th><th>Phone</th><th>Approval</th><th>Verified</th><th>Hostels</th><th>Fraud</th><th>Actions</th></thead><tbody id="ownersBody"></tbody></table></div>`,
             'hostels': `<div class="panel-header"><h2>Hostel Management</h2><div class="panel-actions"><select id="hostelFilter" onchange="loadHostels()"><option value="all">All</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="featured">Featured</option></select><input type="text" id="hostelSearch" placeholder="Search by name, owner, location..." style="width:250px;"><button class="btn btn-primary" onclick="loadHostels()"><i class="fas fa-search"></i> Search</button></div></div><div class="table-container"><table id="hostelsTable"><thead><th>Name</th><th>Owner</th><th>Location</th><th>Distance</th><th>Price</th><th>Type</th><th>Status</th><th>Featured</th><th>Bookings</th><th>Actions</th></thead><tbody id="hostelsBody"></tbody></table></div>`,
             'featured-hostels': `<div class="panel-header"><h2>Featured Hostels</h2><div class="panel-actions"><button class="btn btn-primary" onclick="loadFeaturedHostels()">Refresh</button></div></div><div class="table-container"><table id="featuredHostelsTable"><thead><th>Name</th><th>Owner</th><th>Location</th><th>Price</th><th>Rating</th><th>Bookings</th><th>Actions</th></thead><tbody id="featuredHostelsBody"></tbody></table></div>`,
-            'audit-logs': `<div class="panel-header"><h2>Audit Logs</h2><div class="panel-actions"><input type="text" id="auditSearch" placeholder="Search by user, action..." style="width:250px;"><button class="btn btn-primary" onclick="loadAuditLogs()">Search</button></div></div><div class="table-container"><table id="auditTable"><thead><th>Time</th><th>User</th><th>Action</th><th>Details</th><th>IP</th></thead><tbody id="auditBody"></tbody></table></div><div id="auditPagination"></div>`,
+            'audit-logs': `<div class="panel-header"><h2>Audit Logs</h2>
+    <div class="panel-actions">
+        <input type="text" id="auditSearch" placeholder="Search by user, action, IP..." style="width:200px;">
+        <select id="auditCategory" style="padding:0.6rem; border-radius:40px; border:2px solid var(--border-light);">
+            <option value="">All Categories</option>
+            <option value="auth">Authentication</option>
+            <option value="hostel">Hostel</option>
+            <option value="booking">Booking</option>
+            <option value="admin">Admin</option>
+            <option value="profile">Profile</option>
+            <option value="payment">Payment</option>
+            <option value="view">View</option>
+        </select>
+        <button class="btn btn-primary" onclick="currentAuditPage=1;loadAuditLogs()"><i class="fas fa-search"></i> Search</button>
+        <button class="btn btn-outline" onclick="document.getElementById('auditSearch').value='';document.getElementById('auditCategory').value='';currentAuditPage=1;loadAuditLogs()"><i class="fas fa-times"></i> Clear</button>
+    </div>
+</div>
+<div class="table-container">
+    <table id="auditTable">
+        <thead><th>Time</th><th>User</th><th>Action</th><th>Details</th><th>IP</th></thead>
+        <tbody id="auditBody"></tbody>
+    </table>
+</div>
+<div id="auditPagination" style="margin-top:20px; text-align:center;"></div>`,
             'bookings': `<div class="panel-header"><h2>All Bookings</h2><div class="panel-actions"><input type="text" id="bookingSearch" placeholder="Search by user, hostel..."><button class="btn btn-primary" onclick="loadBookings()"><i class="fas fa-search"></i> Search</button></div></div><div class="table-container"><table id="bookingsTable"><thead><th>ID</th><th>User</th><th>Hostel</th><th>Check In</th><th>Check Out</th><th>Status</th><th>Amount</th><th>Created</th></thead><tbody id="bookingsBody"></tbody></table></div>`,
             'fraud-alerts': `<div class="panel-header"><h2>Fraud Alerts</h2></div><div class="stats-grid" id="fraudStats"></div><div class="table-container"><table id="fraudTable"><thead><th>User</th><th>Role</th><th>Fraud Score</th><th>Failed Attempts</th><th>Locked Until</th><th>Actions</th></thead><tbody id="fraudBody"></tbody></table></div>`,
             'sessions': `<div class="panel-header"><h2>Active Sessions</h2><div class="panel-actions"><button class="btn btn-outline" onclick="loadSessions()">Refresh</button></div></div><div class="table-container"><table id="sessionsTable"><thead><th>User</th><th>Session Key</th><th>Expires</th><th>IP</th><th>Device</th></thead><tbody id="sessionsBody"></tbody></table></div>`,
@@ -1294,7 +1319,17 @@ if (darkModeToggle) {
             showToast('Failed to load bookings', 'error');
         }
     }
-    
+ 
+    const auditSearchInput = document.getElementById('auditSearch');
+if (auditSearchInput) {
+    auditSearchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            currentAuditPage = 1;
+            loadAuditLogs();
+        }
+    });
+}
+
 async function loadDashboardStats() {
     try {
         const data = await apiFetch('/dashboard/stats/');
@@ -1563,8 +1598,16 @@ async function loadFeaturedHostels() {
     
 async function loadAuditLogs() {
     const search = document.getElementById('auditSearch')?.value || '';
+    const category = document.getElementById('auditCategory')?.value || '';
+    const action = document.getElementById('auditAction')?.value || '';
+    
+    let url = `/audit-logs/?page=${currentAuditPage}&page_size=50`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
+    if (category) url += `&category=${encodeURIComponent(category)}`;
+    if (action) url += `&action=${encodeURIComponent(action)}`;
+    
     try {
-        const data = await apiFetch(`/audit-logs/?search=${encodeURIComponent(search)}&page=${currentAuditPage}&page_size=50`);
+        const data = await apiFetch(url);
         const items = data.results || data || [];
         auditLogs = items;
         const tbody = document.getElementById('auditBody');
@@ -1575,47 +1618,50 @@ async function loadAuditLogs() {
             return;
         }
         
-        tbody.innerHTML = items.map(log => {
-            // Format details nicely
-            let detailsHtml = '';
-            if (log.details) {
-                if (typeof log.details === 'object') {
-                    // Show important details only
-                    if (log.details.email) detailsHtml += `📧 ${escapeHtml(log.details.email)}<br>`;
-                    if (log.details.hostel_name) detailsHtml += `🏠 ${escapeHtml(log.details.hostel_name)}<br>`;
-                    if (log.details.path) detailsHtml += `📍 ${escapeHtml(log.details.path)}<br>`;
-                    if (Object.keys(log.details).length === 0) detailsHtml = 'No additional details';
-                } else if (typeof log.details === 'string') {
-                    detailsHtml = escapeHtml(log.details.substring(0, 100));
-                }
-            } else {
-                detailsHtml = '—';
-            }
-            
-            // Format action with icons
-            let actionDisplay = log.action;
-            let actionIcon = '';
-            if (log.action.includes('LOGIN_SUCCESS')) actionIcon = '✅ ';
-            else if (log.action.includes('LOGIN_FAILED')) actionIcon = '❌ ';
-            else if (log.action.includes('CREATE')) actionIcon = '➕ ';
-            else if (log.action.includes('UPDATE')) actionIcon = '✏️ ';
-            else if (log.action.includes('DELETE')) actionIcon = '🗑️ ';
-            else if (log.action.includes('APPROVE')) actionIcon = '✓ ';
-            else if (log.action.includes('REJECT')) actionIcon = '✗ ';
-            
-            // Format user display
-            const userDisplay = log.user_name ? `${escapeHtml(log.user_name)}<br><small>${escapeHtml(log.user)}</small>` : escapeHtml(log.user || 'System');
-            
-            return `
-                <tr>
-                    <td style="white-space: nowrap;">${formatDate(log.timestamp)}</td>
-                    <td>${userDisplay}</td>
-                    <td>${actionIcon}${escapeHtml(actionDisplay)}</td>
-                    <td style="max-width: 300px; word-wrap: break-word;">${detailsHtml}</td>
-                    <td><code>${log.ip_address || 'N/A'}</code></td>
-                </tr>
-            `;
-        }).join('');
+tbody.innerHTML = items.map(log => {
+    // Format action nicely
+    let actionDisplay = log.action || log.action_code || 'Unknown';
+    let actionIcon = '';
+    
+    if (log.category === 'auth') {
+        actionIcon = log.action_code?.includes('SUCCESS') ? '✅' : (log.action_code?.includes('FAILED') ? '❌' : '🔐');
+    } else if (log.category === 'hostel') {
+        actionIcon = log.action_code?.includes('CREATE') ? '🏠' : (log.action_code?.includes('UPDATE') ? '✏️' : (log.action_code?.includes('DELETE') ? '🗑️' : '🏠'));
+    } else if (log.category === 'booking') {
+        actionIcon = '📅';
+    } else if (log.category === 'review') {
+        actionIcon = '⭐';
+    } else if (log.category === 'admin') {
+        actionIcon = log.action_code?.includes('IMPERSONATE') ? '🕵️' : '⚙️';
+    } else {
+        actionIcon = '📌';
+    }
+    
+    // Format details
+    let detailsHtml = '';
+    if (log.details) {
+        if (typeof log.details === 'object') {
+            if (log.details.email) detailsHtml += `📧 ${escapeHtml(log.details.email)} `;
+            if (log.details.hostel_name) detailsHtml += `🏠 ${escapeHtml(log.details.hostel_name)} `;
+            if (log.details.path) detailsHtml += `📍 ${escapeHtml(log.details.path)} `;
+            if (!detailsHtml) detailsHtml = JSON.stringify(log.details).substring(0, 80);
+        } else {
+            detailsHtml = escapeHtml(String(log.details).substring(0, 80));
+        }
+    }
+    
+    const userDisplay = log.user_name ? `${escapeHtml(log.user_name)}<br><small>${escapeHtml(log.user)}</small>` : escapeHtml(log.user || 'System');
+    
+    return `
+        <tr>
+            <td style="white-space: nowrap;">${formatDate(log.timestamp)}</td>
+            <td>${userDisplay}</td>
+            <td>${actionIcon} ${escapeHtml(actionDisplay)}</td>
+            <td style="max-width: 300px; word-wrap: break-word;">${detailsHtml || '—'}</td>
+            <td><code>${log.ip_address || 'N/A'}</code></td>
+        </tr>
+    `;
+}).join('');
         
         // Update pagination
         if (data.total_pages) {
@@ -1634,19 +1680,48 @@ function updateAuditPagination(data) {
     const paginationDiv = document.getElementById('auditPagination');
     if (!paginationDiv) return;
     
-    if (data.total_pages <= 1) {
+    const totalPages = data.total_pages || Math.ceil(data.total / 50) || 1;
+    
+    if (totalPages <= 1) {
         paginationDiv.innerHTML = '';
         return;
     }
     
-    let html = '<div style="display: flex; justify-content: center; gap: 10px; margin-top: 20px;">';
+    let html = '<div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 20px; flex-wrap: wrap;">';
+    
+    // First page
+    if (currentAuditPage > 2) {
+        html += `<button class="btn btn-outline btn-sm" onclick="goToAuditPage(1)">« First</button>`;
+    }
+    
+    // Previous
     if (currentAuditPage > 1) {
         html += `<button class="btn btn-outline btn-sm" onclick="goToAuditPage(${currentAuditPage - 1})">← Previous</button>`;
     }
-    html += `<span style="padding: 8px 16px;">Page ${currentAuditPage} of ${data.total_pages}</span>`;
-    if (currentAuditPage < data.total_pages) {
+    
+    // Page numbers
+    let startPage = Math.max(1, currentAuditPage - 2);
+    let endPage = Math.min(totalPages, currentAuditPage + 2);
+    
+    for (let i = startPage; i <= endPage; i++) {
+        if (i === currentAuditPage) {
+            html += `<button class="btn btn-primary btn-sm" style="background: var(--kyu-green);">${i}</button>`;
+        } else {
+            html += `<button class="btn btn-outline btn-sm" onclick="goToAuditPage(${i})">${i}</button>`;
+        }
+    }
+    
+    // Next
+    if (currentAuditPage < totalPages) {
         html += `<button class="btn btn-outline btn-sm" onclick="goToAuditPage(${currentAuditPage + 1})">Next →</button>`;
     }
+    
+    // Last page
+    if (currentAuditPage < totalPages - 1) {
+        html += `<button class="btn btn-outline btn-sm" onclick="goToAuditPage(${totalPages})">Last »</button>`;
+    }
+    
+    html += `<span style="margin-left: 15px; color: var(--text-secondary);">Total: ${data.total || 0} logs</span>`;
     html += '</div>';
     paginationDiv.innerHTML = html;
 }
@@ -1655,6 +1730,7 @@ function goToAuditPage(page) {
     currentAuditPage = page;
     loadAuditLogs();
 }
+window.goToAuditPage = goToAuditPage;
 
 // Also fix the recent activity display in dashboard
 function renderRecentActivity(activities) {
@@ -1667,30 +1743,23 @@ function renderRecentActivity(activities) {
     }
     
     tbody.innerHTML = activities.slice(0, 15).map(activity => {
-        // Format action nicely
-        let actionDisplay = activity.action;
-        if (actionDisplay.includes('LOGIN_SUCCESS')) actionDisplay = '✅ Login';
-        else if (actionDisplay.includes('LOGIN_FAILED')) actionDisplay = '❌ Failed Login';
-        else if (actionDisplay.includes('CREATE_HOSTEL')) actionDisplay = '🏠 Created Hostel';
-        else if (actionDisplay.includes('UPDATE_HOSTEL')) actionDisplay = '✏️ Updated Hostel';
-        else if (actionDisplay.includes('DELETE_HOSTEL')) actionDisplay = '🗑️ Deleted Hostel';
-        else if (actionDisplay.includes('STUDENT_SIGNUP')) actionDisplay = '📝 Student Registered';
-        else if (actionDisplay.includes('OWNER_SIGNUP')) actionDisplay = '📝 Owner Registered';
+        let actionDisplay = activity.action_summary || activity.action || 'Unknown';
+        let icon = activity.icon || '📌';
         
-        // Format details
         let details = '';
         if (activity.details) {
             if (activity.details.email) details = activity.details.email;
             else if (activity.details.hostel_name) details = activity.details.hostel_name;
+            else if (activity.details.path) details = activity.details.path;
             else details = JSON.stringify(activity.details).substring(0, 50);
         }
         
         return `
             <tr>
                 <td style="white-space: nowrap;">${formatDate(activity.timestamp)}</td>
-                <td>${escapeHtml(activity.user || 'System')}</td>
-                <td>${escapeHtml(actionDisplay)}</td>
-                <td style="max-width: 300px; word-wrap: break-word;">${escapeHtml(details)}</td>
+                <td>${escapeHtml(activity.user_name || activity.user || 'System')}</td>
+                <td>${icon} ${escapeHtml(actionDisplay)}</td>
+                <td style="max-width: 300px; word-wrap: break-word;">${escapeHtml(details || '—')}</td>
                 <td><code>${activity.ip_address || 'N/A'}</code></td>
             </tr>
         `;
@@ -1705,16 +1774,19 @@ function renderRecentActivity(activities) {
             if (fraudStats) fraudStats.innerHTML = `<div class="stat-card"><div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-info"><h3>${highRisk.length}</h3><p>High Risk Users</p></div></div>`;
             const tbody = document.getElementById('fraudBody');
             if (!tbody) return;
-            tbody.innerHTML = highRisk.map(u => `
-                 <tr>
-                     Was${escapeHtml(u.email)} \n
-                     Was${u.role} \n
-                     Was<span class="badge ${u.fraud_score > 70 ? 'badge-danger' : 'badge-warning'}">${u.fraud_score || 0}</span> \n
-                     Was${u.failed_login_attempts || 0} \n
-                     Was${u.locked_until ? formatDate(u.locked_until) : 'Not locked'} \n
-                    <td class="action-icons"><i class="fas fa-unlock" onclick="unlockUser('${u.id}')"></i>${u.role === 'owner' ? `<i class="fas fa-chart-line" onclick="updateFraudScore('${u.id}')"></i>` : ''} \n
-                  \n
-            `).join('');
+tbody.innerHTML = highRisk.map(u => `
+    <tr>
+        <td>${escapeHtml(u.email || 'N/A')}</td>
+        <td>${escapeHtml(u.role || 'N/A')}</td>
+        <td><span class="badge ${(u.fraud_score || 0) > 70 ? 'badge-danger' : 'badge-warning'}">${u.fraud_score || 0}</span></td>
+        <td>${u.failed_login_attempts || 0}</td>
+        <td>${u.locked_until ? formatDate(u.locked_until) : 'Not locked'}</td>
+        <td class="action-icons">
+            <i class="fas fa-unlock" onclick="unlockUser('${u.id}')" title="Unlock User"></i>
+            ${u.role === 'owner' ? `<i class="fas fa-chart-line" onclick="updateFraudScore('${u.id}')" title="Update Fraud Score"></i>` : ''}
+        </td>
+    </tr>
+`).join('');
         } catch(e) { console.error(e); }
     }
     
@@ -1723,15 +1795,15 @@ function renderRecentActivity(activities) {
             const data = await apiFetch('/sessions/');
             const tbody = document.getElementById('sessionsBody');
             if (!tbody) return;
-            tbody.innerHTML = (data.sessions || []).map(s => `
-                 <tr>
-                     Was${escapeHtml(s.user)} \n
-                     Was<code>${s.session_token.substring(0,16)}...</code> \n
-                     Was${formatDate(s.expires)} \n
-                     Was${s.ip || 'N/A'} \n
-                     Was${s.user_agent || 'Unknown'} \n
-                  \n
-            `).join('');
+tbody.innerHTML = (data.sessions || []).map(s => `
+    <tr>
+        <td>${escapeHtml(s.user || 'N/A')}</td>
+        <td><code>${(s.session_token || '').substring(0, 16)}...</code></td>
+        <td>${formatDate(s.expires)}</td>
+        <td>${s.ip || 'N/A'}</td>
+        <td>${escapeHtml((s.user_agent || 'Unknown').substring(0, 50))}</td>
+    </tr>
+`).join('');
         } catch(e) { console.error(e); }
     }
     
@@ -2152,6 +2224,7 @@ window.verifyStudent = async function(id) {
     window.loadSessions = loadSessions;
     window.loadUserAnalytics = loadUserAnalytics;
     window.loadHostelAnalytics = loadHostelAnalytics;
+    window.showPanel = showPanel;
     
     async function init() {
         renderSidebarMenu();
