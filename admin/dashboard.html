@@ -931,6 +931,7 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
     // CONFIGURATION
     // ============================================
     const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api/auth';
+    const SUBSCRIPTION_API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api/subscriptions';
     
     // Global variables
     let students = [], owners = [], hostels = [], auditLogs = [], notifications = [], bookings = [];
@@ -1025,6 +1026,33 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
             throw e; 
         }
     }
+
+    // Subscription API Fetch - uses SUBSCRIPTION_API_BASE
+async function subscriptionApiFetch(url, options = {}) {
+    const currentToken = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
+    if (!currentToken) { 
+        window.location.href = 'login.html'; 
+        return null; 
+    }
+    try {
+        const fullUrl = `${SUBSCRIPTION_API_BASE}${url}`;
+        const res = await fetch(fullUrl, {
+            ...options,
+            headers: { 'Authorization': `Bearer ${currentToken}`, 'Content-Type': 'application/json', ...options.headers }
+        });
+        if (res.status === 401) { 
+            localStorage.clear(); 
+            sessionStorage.clear(); 
+            window.location.href = 'login.html'; 
+            return null; 
+        }
+        if (!res.ok) throw new Error((await res.json().catch(()=>({}))).message || `HTTP ${res.status}`);
+        return await res.json();
+    } catch(e) { 
+        console.error('Subscription API Error:', e); 
+        throw e; 
+    }
+}
     
     // ============================================
     // AVATAR UPLOAD FUNCTION
@@ -2331,16 +2359,15 @@ async function loadAllSubscriptions() {
     const search = document.getElementById('subscriptionSearch')?.value || '';
     const filter = document.getElementById('subscriptionFilter')?.value || 'all';
     
-    let url = `/subscriptions/admin/all/?page=${currentSubscriptionPage}&page_size=20`;
+    let url = `/admin/all/?page=${currentSubscriptionPage}&page_size=20`;
     if (search) url += `&search=${encodeURIComponent(search)}`;
     if (filter !== 'all') url += `&status=${filter}`;
     
     try {
-        const data = await apiFetch(url);
+        const data = await subscriptionApiFetch(url);  // ✅ Use subscriptionApiFetch
         const items = data.results || data || [];
         allSubscriptions = items;
         
-        // Update stats
         updateSubscriptionStats(data);
         
         const tbody = document.getElementById('subscriptionsBody');
@@ -2354,14 +2381,17 @@ async function loadAllSubscriptions() {
         tbody.innerHTML = items.map(sub => {
             const isActive = sub.is_active && new Date(sub.end_date) > new Date();
             const daysLeft = sub.days_remaining || 0;
+            const ownerEmail = sub.owner_email || sub.owner?.email || '';
+            const ownerName = sub.owner_name || sub.owner?.full_name || ownerEmail;
+            const ownerId = sub.owner_id || sub.owner?.id || '';
             
             return `
                 <tr>
                     <td>
-                        <strong>${escapeHtml(sub.owner_name || sub.owner_email || 'N/A')}</strong><br>
-                        <small>${escapeHtml(sub.owner_email || '')}</small>
+                        <strong>${escapeHtml(ownerName)}</strong><br>
+                        <small>${escapeHtml(ownerEmail)}</small>
                     </td>
-                    <td>${escapeHtml(sub.plan_name || 'Free')}</td>
+                    <td>${escapeHtml(sub.plan_display_name || sub.plan_name || 'Free')}</td>
                     <td>
                         <span class="badge ${isActive ? 'badge-success' : (sub.payment_status === 'pending' ? 'badge-warning' : 'badge-danger')}">
                             ${isActive ? 'Active' : (sub.payment_status === 'pending' ? 'Pending' : 'Inactive')}
@@ -2377,10 +2407,8 @@ async function loadAllSubscriptions() {
                         ${sub.is_bonus ? '<span class="badge badge-success"><i class="fas fa-gift"></i> Bonus</span>' : '<span class="badge">Regular</span>'}
                     </td>
                     <td class="action-icons">
-                        <i class="fas fa-gift" onclick="showGrantBonusModal('${sub.owner_id}', '${sub.owner_email}')" title="Grant Bonus"></i>
-                        <i class="fas fa-calendar-plus" onclick="showExtendModal('${sub.id}', '${sub.owner_email}')" title="Extend"></i>
-                        ${isActive ? `<i class="fas fa-ban" onclick="revokeSubscription('${sub.id}', '${sub.owner_email}')" title="Revoke"></i>` : ''}
-                        <i class="fas fa-eye" onclick="viewSubscriptionDetails('${sub.id}')" title="View Details"></i>
+                        <i class="fas fa-gift" onclick="showGrantBonusModal('${ownerId}', '${ownerEmail.replace(/'/g, "\\'")}')" title="Grant Bonus"></i>
+                        ${isActive ? `<i class="fas fa-ban" onclick="revokeSubscription('${sub.id}', '${ownerEmail.replace(/'/g, "\\'")}')" title="Revoke"></i>` : ''}
                     </td>
                 </tr>
             `;
@@ -2390,7 +2418,7 @@ async function loadAllSubscriptions() {
         
     } catch(e) {
         console.error('Load subscriptions error:', e);
-        showToast('Failed to load subscriptions', 'error');
+        showToast('Failed to load subscriptions: ' + e.message, 'error');
     }
 }
 
@@ -2398,32 +2426,38 @@ function updateSubscriptionStats(data) {
     const statsDiv = document.getElementById('subscriptionStats');
     if (!statsDiv) return;
     
+    // Count active and bonus from items if not in data
+    const items = data.results || data || [];
+    const activeCount = items.filter(s => s.is_active && new Date(s.end_date) > new Date()).length;
+    const bonusCount = items.filter(s => s.is_bonus).length;
+    const totalRevenue = items.reduce((sum, s) => sum + (parseFloat(s.amount_paid) || 0), 0);
+    
     statsDiv.innerHTML = `
         <div class="stat-card">
             <div class="stat-icon"><i class="fas fa-users"></i></div>
             <div class="stat-info">
-                <h3>${data.total || 0}</h3>
+                <h3>${data.total || items.length || 0}</h3>
                 <p>Total Subscriptions</p>
             </div>
         </div>
         <div class="stat-card">
             <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
             <div class="stat-info">
-                <h3>${data.active_subscriptions || 0}</h3>
+                <h3>${data.active_subscriptions || activeCount}</h3>
                 <p>Active</p>
             </div>
         </div>
         <div class="stat-card">
             <div class="stat-icon"><i class="fas fa-gift"></i></div>
             <div class="stat-info">
-                <h3>${data.bonus_subscriptions || 0}</h3>
+                <h3>${data.bonus_subscriptions || bonusCount}</h3>
                 <p>Bonus</p>
             </div>
         </div>
         <div class="stat-card">
             <div class="stat-icon"><i class="fas fa-money-bill"></i></div>
             <div class="stat-info">
-                <h3>${formatCurrency(data.total_revenue || 0)}</h3>
+                <h3>${formatCurrency(data.total_revenue || totalRevenue)}</h3>
                 <p>Total Revenue</p>
             </div>
         </div>
@@ -2460,7 +2494,7 @@ function goToSubscriptionPage(page) {
 
 async function loadSubscriptionPlans() {
     try {
-        const data = await apiFetch('/subscriptions/plans/');
+        const data = await subscriptionApiFetch('/plans/');  // ✅ Use subscriptionApiFetch
         const items = Array.isArray(data) ? data : (data.results || []);
         
         const tbody = document.getElementById('plansBody');
@@ -2483,7 +2517,7 @@ async function loadSubscriptionPlans() {
                 <td><span class="badge ${plan.is_active ? 'badge-success' : 'badge-danger'}">${plan.is_active ? 'Active' : 'Inactive'}</span></td>
                 <td class="action-icons">
                     <i class="fas fa-edit" onclick="editPlan('${plan.id}')" title="Edit"></i>
-                    <i class="fas fa-toggle-${plan.is_active ? 'on' : 'off'}" onclick="togglePlanStatus('${plan.id}')" title="Toggle Status"></i>
+                    <i class="fas fa-power-off" onclick="togglePlanStatus('${plan.id}')" title="Toggle Status"></i>
                 </td>
             </tr>
         `).join('');
@@ -2539,7 +2573,7 @@ function showGrantBonusModal(ownerId = '', ownerEmail = '') {
 
 async function loadPlansForSelect() {
     try {
-        const data = await apiFetch('/subscriptions/plans/');
+        const data = await subscriptionApiFetch('/plans/');  // ✅ Use subscriptionApiFetch
         const items = Array.isArray(data) ? data : (data.results || []);
         const select = document.getElementById('bonusPlanId');
         if (select) {
@@ -2564,7 +2598,7 @@ async function grantBonusSubscription() {
     }
     
     try {
-        const response = await apiFetch('/subscriptions/admin/grant-bonus/', {
+        const response = await subscriptionApiFetch('/admin/grant-bonus/', {  // ✅ Use subscriptionApiFetch
             method: 'POST',
             body: JSON.stringify({
                 owner_email: ownerEmail,
@@ -2585,7 +2619,7 @@ async function grantBonusSubscription() {
 async function revokeSubscription(subscriptionId, ownerEmail) {
     showConfirm(`Revoke subscription for ${ownerEmail}?`, async () => {
         try {
-            await apiFetch('/subscriptions/admin/revoke/', {
+            await subscriptionApiFetch('/admin/revoke/', {  
                 method: 'POST',
                 body: JSON.stringify({ subscription_id: subscriptionId })
             });
@@ -2596,6 +2630,41 @@ async function revokeSubscription(subscriptionId, ownerEmail) {
         }
     });
 }
+
+// Add after the subscription functions
+function showAddPlanModal() {
+    showToast('Add plan feature coming soon', 'info');
+    // You can implement a modal similar to grantBonusModal
+}
+
+function editPlan(planId) {
+    showToast('Edit plan feature coming soon', 'info');
+    console.log('Edit plan:', planId);
+}
+
+function togglePlanStatus(planId) {
+    showToast('Toggle plan status coming soon', 'info');
+    console.log('Toggle plan:', planId);
+}
+
+function showExtendModal(subscriptionId, ownerEmail) {
+    showToast('Extend subscription feature coming soon', 'info');
+    console.log('Extend subscription:', subscriptionId, ownerEmail);
+}
+
+function viewSubscriptionDetails(subscriptionId) {
+    showToast('View details feature coming soon', 'info');
+    console.log('View subscription:', subscriptionId);
+}
+
+// Make them globally accessible
+window.showExtendModal = showExtendModal;
+window.viewSubscriptionDetails = viewSubscriptionDetails;
+
+// Make them globally accessible
+window.showAddPlanModal = showAddPlanModal;
+window.editPlan = editPlan;
+window.togglePlanStatus = togglePlanStatus;
 
 // Make functions globally accessible
 window.loadAllSubscriptions = loadAllSubscriptions;
