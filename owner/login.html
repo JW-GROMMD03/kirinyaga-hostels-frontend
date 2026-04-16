@@ -148,6 +148,10 @@
             outline: none;
             border-color: var(--kyu-green);
         }
+        input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
         .otp-group {
             display: flex;
             gap: 8px;
@@ -245,6 +249,40 @@
             background: #14532d;
             color: #86efac;
         }
+        .rate-limit-message {
+            background: #fef3c7;
+            color: #b45309;
+            padding: 1rem;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            display: none;
+            text-align: center;
+            border-left: 5px solid #b45309;
+        }
+        body.dark-mode .rate-limit-message {
+            background: #78350f;
+            color: #fde047;
+        }
+        .lockout-message {
+            background: #fef3c7;
+            color: #b45309;
+            padding: 1rem;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            display: none;
+            text-align: center;
+            border-left: 5px solid #b45309;
+        }
+        body.dark-mode .lockout-message {
+            background: #78350f;
+            color: #fde047;
+        }
+        .countdown-timer {
+            font-size: 1.2rem;
+            font-weight: bold;
+            font-family: monospace;
+            margin-top: 0.5rem;
+        }
         .signup-link {
             text-align: center;
             margin-top: 2rem;
@@ -288,16 +326,18 @@
 
             <div id="error-message" class="error-message"></div>
             <div id="info-message" class="info-message"></div>
+            <div id="rate-limit-message" class="rate-limit-message"></div>
+            <div id="lockout-message" class="lockout-message"></div>
 
             <form id="login-form">
                 <div class="form-group">
                     <label>Email Address</label>
-                    <input type="email" id="email" value="eugkipkomen75@gmail.com" required>
+                    <input type="email" id="email" placeholder="your@email.com" required>
                 </div>
 
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" id="password" required>
+                    <input type="password" id="password" placeholder="Enter your password" required>
                 </div>
 
                 <!-- OTP Field (hidden initially) -->
@@ -385,14 +425,20 @@
         const spinner = document.getElementById('spinner');
         const errorDiv = document.getElementById('error-message');
         const infoDiv = document.getElementById('info-message');
+        const rateLimitDiv = document.getElementById('rate-limit-message');
+        const lockoutDiv = document.getElementById('lockout-message');
         const resendBtn = document.getElementById('resend-otp-btn');
         
         let otpTimer = null;
+        let rateLimitTimer = null;
+        let lockoutTimer = null;
 
         function showError(message) {
             errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
             errorDiv.style.display = 'block';
             infoDiv.style.display = 'none';
+            rateLimitDiv.style.display = 'none';
+            lockoutDiv.style.display = 'none';
             setTimeout(() => errorDiv.style.display = 'none', 5000);
         }
 
@@ -400,7 +446,76 @@
             infoDiv.innerHTML = `<i class="fas fa-${isSuccess ? 'check-circle' : 'info-circle'}"></i> ${message}`;
             infoDiv.style.display = 'block';
             errorDiv.style.display = 'none';
+            rateLimitDiv.style.display = 'none';
+            lockoutDiv.style.display = 'none';
             setTimeout(() => infoDiv.style.display = 'none', 5000);
+        }
+
+        function showRateLimit() {
+            rateLimitDiv.innerHTML = `<i class="fas fa-clock"></i> Too many login attempts. Please wait 5 minutes before trying again.<br><div class="countdown-timer" id="rate-countdown">5:00</div>`;
+            rateLimitDiv.style.display = 'block';
+            errorDiv.style.display = 'none';
+            infoDiv.style.display = 'none';
+            lockoutDiv.style.display = 'none';
+            loginBtn.disabled = true;
+            email.disabled = true;
+            password.disabled = true;
+            
+            let remaining = 300;
+            if (rateLimitTimer) clearInterval(rateLimitTimer);
+            rateLimitTimer = setInterval(() => {
+                remaining--;
+                if (remaining <= 0) {
+                    clearInterval(rateLimitTimer);
+                    rateLimitTimer = null;
+                    rateLimitDiv.style.display = 'none';
+                    loginBtn.disabled = false;
+                    email.disabled = false;
+                    password.disabled = false;
+                    rateLimitDiv.innerHTML = '';
+                    showInfo('You can now try logging in again.', true);
+                } else {
+                    const mins = Math.floor(remaining / 60);
+                    const secs = remaining % 60;
+                    const countdownEl = document.getElementById('rate-countdown');
+                    if (countdownEl) countdownEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+
+        function showLockout(message, remainingSeconds) {
+            lockoutDiv.innerHTML = `<i class="fas fa-lock"></i> ${message}<br><div class="countdown-timer" id="lockout-countdown"></div>`;
+            lockoutDiv.style.display = 'block';
+            errorDiv.style.display = 'none';
+            infoDiv.style.display = 'none';
+            rateLimitDiv.style.display = 'none';
+            loginBtn.disabled = true;
+            email.disabled = true;
+            password.disabled = true;
+            
+            let remaining = remainingSeconds;
+            if (lockoutTimer) clearInterval(lockoutTimer);
+            
+            const updateLockout = () => {
+                remaining--;
+                if (remaining <= 0) {
+                    clearInterval(lockoutTimer);
+                    lockoutTimer = null;
+                    lockoutDiv.style.display = 'none';
+                    loginBtn.disabled = false;
+                    email.disabled = false;
+                    password.disabled = false;
+                    showInfo('Account unlocked. You can now try again.', true);
+                } else {
+                    const mins = Math.floor(remaining / 60);
+                    const secs = remaining % 60;
+                    const countdownEl = document.getElementById('lockout-countdown');
+                    if (countdownEl) countdownEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+                }
+            };
+            
+            updateLockout();
+            lockoutTimer = setInterval(updateLockout, 1000);
         }
 
         function getOtp() {
@@ -503,6 +618,8 @@
             spinner.style.display = 'block';
             errorDiv.style.display = 'none';
             infoDiv.style.display = 'none';
+            rateLimitDiv.style.display = 'none';
+            lockoutDiv.style.display = 'none';
 
             try {
                 const res = await fetch(`${API_BASE}/auth/owner/login/`, {
@@ -525,126 +642,87 @@
                 console.log('Parsed data:', data);
                 console.log('Response status:', res.status);
 
-if (!res.ok) {
-    let requiresOtp = false;
-    let errorMsg = '';
-    let isBlocked = false;
-    let isLocked = false;
-    let lockedMessage = '';
-    let remainingSeconds = 0;
-    
-    //  Check for blocked account (object response)
-    if (data.blocked === true) {
-        isBlocked = true;
-        errorMsg = data.message || 'This account has been blocked by the admin. Please contact support.';
-    }
-    
-    //  Check for locked account
-    if (data.locked === true) {
-        isLocked = true;
-        lockedMessage = data.message || 'Account temporarily locked.';
-        remainingSeconds = data.remaining_seconds || 0;
-    }
-    
-    // Check if non_field_errors exists and is an array
-    if (data.non_field_errors && Array.isArray(data.non_field_errors) && data.non_field_errors.length > 0) {
-        const firstError = data.non_field_errors[0];
-        
-        if (typeof firstError === 'object' && firstError !== null) {
-            if (firstError.requires_otp === true || firstError.requires_otp === "True") {
-                requiresOtp = true;
-                errorMsg = firstError.message || 'Verification code sent to your email';
-            }
-            if (firstError.blocked === true) {
-                isBlocked = true;
-                errorMsg = firstError.message || 'Account blocked.';
-            }
-            if (firstError.locked === true) {
-                isLocked = true;
-                lockedMessage = firstError.message || 'Account locked.';
-                remainingSeconds = firstError.remaining_seconds || 0;
-            }
-        } else if (typeof firstError === 'string') {
-            errorMsg = firstError;
-            if (typeof errorMsg === 'string') {
-                if (errorMsg.toLowerCase().includes('otp') || 
-                    errorMsg.toLowerCase().includes('verification') ||
-                    errorMsg.toLowerCase().includes('code sent')) {
-                    requiresOtp = true;
+                if (res.status === 429) {
+                    showRateLimit();
+                    spinner.style.display = 'none';
+                    return;
                 }
-            }
-        }
-    }
-    
-    // Check direct fields
-    if (data.requires_otp === true || data.requires_otp === "True") {
-        requiresOtp = true;
-        errorMsg = data.message || 'Verification code required';
-    }
-    
-    // Handle blocked account
-    if (isBlocked) {
-        showError(errorMsg);
-        loginBtn.disabled = true;
-        email.disabled = true;
-        password.disabled = true;
-        spinner.style.display = 'none';
-        return;
-    }
-    
-    // Handle locked account
-    if (isLocked) {
-        showError(lockedMessage);
-        loginBtn.disabled = true;
-        if (remainingSeconds) {
-            setTimeout(() => {
-                loginBtn.disabled = false;
-                showInfo('You can now try again.');
-            }, remainingSeconds * 1000);
-        }
-        spinner.style.display = 'none';
-        return;
-    }
-    
-    // Handle OTP requirement
-    if (requiresOtp) {
-        otpGroup.style.display = 'block';
-        startOtpTimer();
-        showInfo('Verification code sent to your email. Please enter it below.');
-        loginBtn.disabled = false;
-        spinner.style.display = 'none';
-        return;
-    }
-    
-    // Show attempts warning
-    if (data.attempts_left) {
-        showError(`${errorMsg || 'Invalid email or password'} (${data.attempts_left} attempt(s) remaining)`);
-    } else if (typeof errorMsg === 'string') {
-        showError(errorMsg || 'Invalid email or password. Please try again.');
-    } else {
-        showError('Invalid email or password. Please try again.');
-    }
-    loginBtn.disabled = false;
-    spinner.style.display = 'none';
-    return;
-}
+
+                if (!res.ok) {
+                    let requiresOtp = false;
+                    let errorMsg = '';
+                    let isBlocked = false;
+                    let isLocked = false;
+                    let lockedMessage = '';
+                    let remainingSeconds = 0;
                     
-                    // Also check if there's a direct requires_otp field
+                    // Check for blocked account (object response)
+                    if (data.blocked === true) {
+                        isBlocked = true;
+                        errorMsg = data.message || 'This account has been blocked by the admin. Please contact support.';
+                    }
+                    
+                    // Check for locked account
+                    if (data.locked === true) {
+                        isLocked = true;
+                        lockedMessage = data.message || 'Account temporarily locked.';
+                        remainingSeconds = data.remaining_seconds || 0;
+                    }
+                    
+                    // Check if non_field_errors exists and is an array
+                    if (data.non_field_errors && Array.isArray(data.non_field_errors) && data.non_field_errors.length > 0) {
+                        const firstError = data.non_field_errors[0];
+                        
+                        if (typeof firstError === 'object' && firstError !== null) {
+                            if (firstError.requires_otp === true || firstError.requires_otp === "True") {
+                                requiresOtp = true;
+                                errorMsg = firstError.message || 'Verification code sent to your email';
+                            }
+                            if (firstError.blocked === true) {
+                                isBlocked = true;
+                                errorMsg = firstError.message || 'Account blocked.';
+                            }
+                            if (firstError.locked === true) {
+                                isLocked = true;
+                                lockedMessage = firstError.message || 'Account locked.';
+                                remainingSeconds = firstError.remaining_seconds || 0;
+                            }
+                        } else if (typeof firstError === 'string') {
+                            errorMsg = firstError;
+                            if (typeof errorMsg === 'string') {
+                                if (errorMsg.toLowerCase().includes('otp') || 
+                                    errorMsg.toLowerCase().includes('verification') ||
+                                    errorMsg.toLowerCase().includes('code sent')) {
+                                    requiresOtp = true;
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Check direct fields
                     if (data.requires_otp === true || data.requires_otp === "True") {
                         requiresOtp = true;
                         errorMsg = data.message || 'Verification code required';
                     }
                     
-                    // Check message field
-                    if (data.message && !errorMsg) {
-                        errorMsg = data.message;
-                        if (errorMsg.toLowerCase().includes('otp') || 
-                            errorMsg.toLowerCase().includes('verification')) {
-                            requiresOtp = true;
-                        }
+                    // Handle blocked account
+                    if (isBlocked) {
+                        showError(errorMsg);
+                        loginBtn.disabled = true;
+                        email.disabled = true;
+                        password.disabled = true;
+                        spinner.style.display = 'none';
+                        return;
                     }
                     
-                    // If OTP is required, show the OTP field
+                    // Handle locked account
+                    if (isLocked) {
+                        showLockout(lockedMessage, remainingSeconds);
+                        spinner.style.display = 'none';
+                        return;
+                    }
+                    
+                    // Handle OTP requirement
                     if (requiresOtp) {
                         otpGroup.style.display = 'block';
                         startOtpTimer();
@@ -654,25 +732,13 @@ if (!res.ok) {
                         return;
                     }
                     
-                    // Check for lockout
-                    if (data.locked === true) {
-                        showError(data.message);
-                        loginBtn.disabled = true;
-                        if (data.remaining_seconds) {
-                            setTimeout(() => {
-                                loginBtn.disabled = false;
-                                showInfo('You can now try again.');
-                            }, data.remaining_seconds * 1000);
-                        }
-                        spinner.style.display = 'none';
-                        return;
-                    }
-                    
                     // Show attempts warning
                     if (data.attempts_left) {
                         showError(`${errorMsg || 'Invalid email or password'} (${data.attempts_left} attempt(s) remaining)`);
+                    } else if (typeof errorMsg === 'string' && errorMsg) {
+                        showError(errorMsg);
                     } else {
-                        showError(errorMsg || 'Invalid email or password. Please try again.');
+                        showError('Invalid email or password. Please try again.');
                     }
                     loginBtn.disabled = false;
                     spinner.style.display = 'none';

@@ -677,30 +677,45 @@
                 setTimeout(() => successDiv.style.display = 'none', 3000);
             }
 
-            function showRateLimit() {
-                rateLimitDiv.innerHTML = `<i class="fas fa-clock"></i> Too many login attempts. Please wait 5 minutes before trying again.<br><div class="countdown-timer" id="rate-countdown">5:00</div>`;
-                rateLimitDiv.style.display = 'block';
-                errorDiv.style.display = 'none';
-                infoDiv.style.display = 'none';
-                successDiv.style.display = 'none';
-                lockoutDiv.style.display = 'none';
-                loginBtn.disabled = true;
-                
-                let remaining = 300;
-                if (rateLimitTimer) clearInterval(rateLimitTimer);
-                rateLimitTimer = setInterval(() => {
-                    if (remaining <= 0) {
-                        clearInterval(rateLimitTimer);
-                        rateLimitDiv.style.display = 'none';
-                        loginBtn.disabled = false;
-                    } else {
-                        const mins = Math.floor(remaining / 60);
-                        const secs = remaining % 60;
-                        document.getElementById('rate-countdown').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
-                        remaining--;
-                    }
-                }, 1000);
-            }
+function showRateLimit() {
+    rateLimitDiv.innerHTML = `<i class="fas fa-clock"></i> Too many login attempts. Please wait 5 minutes before trying again.<br><div class="countdown-timer" id="rate-countdown">5:00</div>`;
+    rateLimitDiv.style.display = 'block';
+    errorDiv.style.display = 'none';
+    infoDiv.style.display = 'none';
+    successDiv.style.display = 'none';
+    lockoutDiv.style.display = 'none';
+    loginBtn.disabled = true;
+    emailInput.disabled = true;      // Disable email field
+    passwordInput.disabled = true;   // Disable password field
+    
+    let remaining = 300; // 5 minutes in seconds
+    if (rateLimitTimer) clearInterval(rateLimitTimer);
+    
+    rateLimitTimer = setInterval(() => {
+        remaining--;
+        
+        if (remaining <= 0) {
+            clearInterval(rateLimitTimer);
+            rateLimitTimer = null;
+            rateLimitDiv.style.display = 'none';
+            
+            //  RE-ENABLE EVERYTHING
+            loginBtn.disabled = false;
+            emailInput.disabled = false;
+            passwordInput.disabled = false;
+            
+            // Clear the rate limit message
+            rateLimitDiv.innerHTML = '';
+            
+            //  Show info that they can try again
+            showInfo('You can now try logging in again.', true);
+        } else {
+            const mins = Math.floor(remaining / 60);
+            const secs = remaining % 60;
+            document.getElementById('rate-countdown').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+    }, 1000);
+}
 
             function showLockout(message, remainingSeconds) {
                 lockoutDiv.style.display = 'block';
