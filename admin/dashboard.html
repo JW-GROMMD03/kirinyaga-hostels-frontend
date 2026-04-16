@@ -960,7 +960,20 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
     }
     
     function openModal(id) { document.getElementById(id)?.classList.add('active'); }
-    function closeModal(id) { document.getElementById(id)?.classList.remove('active'); }
+    function closeModal(id) { 
+    const modal = document.getElementById(id);
+    if (modal) {
+        modal.classList.remove('active');
+        // If it's the bonus modal, remove it completely after animation
+        if (id === 'grantBonusModal') {
+            setTimeout(() => {
+                if (modal.parentNode) {
+                    modal.remove();
+                }
+            }, 200);
+        }
+    }
+}
     window.openModal = openModal;
     window.closeModal = closeModal;
     
@@ -2355,6 +2368,19 @@ window.stopImpersonation = async function() {
 let currentSubscriptionPage = 1;
 let allSubscriptions = [];
 
+
+function closeAndRemoveModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('active');
+        setTimeout(() => {
+            if (modal.parentNode) {
+                modal.remove();
+            }
+        }, 200);
+    }
+}
+
 async function loadAllSubscriptions() {
     const search = document.getElementById('subscriptionSearch')?.value || '';
     const filter = document.getElementById('subscriptionFilter')?.value || 'all';
@@ -2528,7 +2554,14 @@ async function loadSubscriptionPlans() {
 }
 
 // Bonus Modal Functions
+// Bonus Modal Functions
 function showGrantBonusModal(ownerId = '', ownerEmail = '') {
+    // Remove any existing bonus modal first
+    const existingModal = document.getElementById('grantBonusModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
     const modal = document.createElement('div');
     modal.className = 'modal active';
     modal.id = 'grantBonusModal';
@@ -2536,7 +2569,7 @@ function showGrantBonusModal(ownerId = '', ownerEmail = '') {
         <div class="modal-content">
             <div class="modal-header">
                 <h3><i class="fas fa-gift"></i> Grant Bonus Subscription</h3>
-                <span class="modal-close" onclick="closeModal('grantBonusModal')">&times;</span>
+                <span class="modal-close" onclick="closeAndRemoveModal('grantBonusModal')">&times;</span>
             </div>
             <div class="modal-body">
                 <div class="alert-info" style="margin-bottom: 1rem;">
@@ -2560,7 +2593,7 @@ function showGrantBonusModal(ownerId = '', ownerEmail = '') {
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeModal('grantBonusModal')">Cancel</button>
+                <button class="btn btn-outline" onclick="closeAndRemoveModal('grantBonusModal')">Cancel</button>
                 <button class="btn btn-primary" onclick="grantBonusSubscription()">Grant Bonus</button>
             </div>
         </div>
@@ -2609,7 +2642,7 @@ async function grantBonusSubscription() {
         });
         
         showToast(response.message || 'Bonus subscription granted successfully', 'success');
-        closeModal('grantBonusModal');
+        closeAndRemoveModal('grantBonusModal');
         loadAllSubscriptions();
     } catch(e) {
         showToast(e.message || 'Failed to grant bonus', 'error');
@@ -2658,21 +2691,22 @@ function viewSubscriptionDetails(subscriptionId) {
 }
 
 // Make them globally accessible
-window.showExtendModal = showExtendModal;
-window.viewSubscriptionDetails = viewSubscriptionDetails;
+    window.showExtendModal = showExtendModal;
+    window.viewSubscriptionDetails = viewSubscriptionDetails;
 
 // Make them globally accessible
-window.showAddPlanModal = showAddPlanModal;
-window.editPlan = editPlan;
-window.togglePlanStatus = togglePlanStatus;
+    window.showAddPlanModal = showAddPlanModal;
+    window.editPlan = editPlan;
+    window.togglePlanStatus = togglePlanStatus;
 
 // Make functions globally accessible
-window.loadAllSubscriptions = loadAllSubscriptions;
-window.loadSubscriptionPlans = loadSubscriptionPlans;
-window.showGrantBonusModal = showGrantBonusModal;
-window.grantBonusSubscription = grantBonusSubscription;
-window.revokeSubscription = revokeSubscription;
-window.goToSubscriptionPage = goToSubscriptionPage;
+    window.loadAllSubscriptions = loadAllSubscriptions;
+    window.loadSubscriptionPlans = loadSubscriptionPlans;
+    window.showGrantBonusModal = showGrantBonusModal;
+    window.grantBonusSubscription = grantBonusSubscription;
+    window.revokeSubscription = revokeSubscription;
+    window.goToSubscriptionPage = goToSubscriptionPage;
+    window.closeAndRemoveModal = closeAndRemoveModal;
     
     // Make load functions globally available
     window.loadBookings = loadBookings;
