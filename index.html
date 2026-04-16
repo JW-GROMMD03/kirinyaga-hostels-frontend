@@ -6,6 +6,8 @@
     <title>Kirinyaga University Hostels - Student Accommodation</title>
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
+    <!-- Font Awesome for Social Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -35,10 +37,22 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: sticky;
+            position: fixed;
             top: 0;
+            left: 0;
+            right: 0;
             z-index: 1000;
             border-bottom: 3px solid var(--kyu-gold);
+            transition: transform 0.3s ease;
+        }
+
+        header.hide {
+            transform: translateY(-100%);
+        }
+
+        /* Add padding to body to account for fixed header */
+        body {
+            padding-top: 90px;
         }
 
         .logo {
@@ -47,7 +61,7 @@
             gap: 15px;
         }
 
-        .logo img {
+        .logo svg {
             height: 60px;
             width: auto;
         }
@@ -100,6 +114,16 @@
             color: var(--kyu-green) !important;
         }
 
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            color: var(--kyu-green);
+            cursor: pointer;
+        }
+
         /* Hero Section */
         .hero {
             background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
@@ -111,6 +135,8 @@
             text-align: center;
             color: white;
             position: relative;
+            margin-top: -90px;
+            padding-top: 90px;
         }
 
         .hero-content {
@@ -669,7 +695,7 @@
 
         /* Footer */
         footer {
-            background: var(--kyu-dark);
+            background: var(--kyu-green);
             color: white;
             padding: 4rem 2rem 2rem;
         }
@@ -690,13 +716,13 @@
         }
 
         .footer-section p {
-            color: #ccc;
+            color: #e0e0e0;
             margin-bottom: 1rem;
             line-height: 1.8;
         }
 
         .footer-section a {
-            color: #ccc;
+            color: #e0e0e0;
             text-decoration: none;
             display: block;
             margin-bottom: 0.8rem;
@@ -716,7 +742,7 @@
         .social-links a {
             width: 45px;
             height: 45px;
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.15);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -727,7 +753,8 @@
         }
 
         .social-links a:hover {
-            background: var(--kyu-green);
+            background: var(--kyu-gold);
+            color: var(--kyu-green);
             transform: translateY(-5px);
         }
 
@@ -742,27 +769,30 @@
             border: none;
             border-radius: 30px;
             outline: none;
+            background: rgba(255,255,255,0.9);
         }
 
         .newsletter-form button {
-            background: var(--kyu-green);
-            color: white;
+            background: var(--kyu-gold);
+            color: var(--kyu-green);
             border: none;
             padding: 0.8rem 1.5rem;
             border-radius: 30px;
             cursor: pointer;
             transition: all 0.3s;
+            font-weight: 600;
         }
 
         .newsletter-form button:hover {
-            background: #004d33;
+            background: white;
+            transform: translateY(-2px);
         }
 
         .copyright {
             text-align: center;
             padding-top: 2rem;
-            border-top: 1px solid #444;
-            color: #aaa;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            color: #e0e0e0;
             font-size: 0.9rem;
         }
 
@@ -802,15 +832,54 @@
 
         /* Responsive */
         @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-                gap: 1rem;
-                text-align: center;
+            body {
+                padding-top: 70px;
             }
-            
+
+            header {
+                padding: 0.8rem 1.5rem;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
             nav {
-                flex-wrap: wrap;
-                justify-content: center;
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: white;
+                flex-direction: column;
+                padding: 1.5rem;
+                gap: 0.8rem;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+                transform: translateY(-150%);
+                transition: transform 0.3s ease;
+                z-index: 999;
+                border-bottom: 3px solid var(--kyu-gold);
+            }
+
+            nav.active {
+                transform: translateY(0);
+            }
+
+            nav a {
+                width: 100%;
+                text-align: center;
+                padding: 0.8rem !important;
+            }
+
+            .logo svg {
+                height: 45px;
+            }
+
+            .logo-text h1 {
+                font-size: 1.2rem;
+            }
+
+            .logo-text span {
+                font-size: 0.8rem;
             }
             
             .hero h1 {
@@ -842,15 +911,21 @@
 </head>
 <body>
     <!-- Header -->
-    <header>
+    <header id="mainHeader">
         <div class="logo">
-            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
+            <svg width="60" height="60" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <rect width="100" height="100" fill="#006747" rx="20"/>
+                <text x="50%" y="68" fill="#FFD700" font-size="42" font-family="Arial" font-weight="bold" text-anchor="middle">KyU</text>
+            </svg>
             <div class="logo-text">
                 <h1>Kirinyaga Hostels</h1>
                 <span>Official Student Accommodation</span>
             </div>
         </div>
-        <nav>
+        <button class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        <nav id="mainNav">
             <a href="#home">Home</a>
             <a href="#about">About</a>
             <a href="#how-it-works">How It Works</a>
@@ -969,10 +1044,11 @@
                 <h3>Kirinyaga Hostels</h3>
                 <p>Official student accommodation platform for Kirinyaga University. We connect students with safe, verified hostels near campus.</p>
                 <div class="social-links">
-                    <a href="#">f</a>
-                    <a href="#">t</a>
-                    <a href="#">in</a>
-                    <a href="#">ig</a>
+                    <a href="#" target="_blank" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" target="_blank" title="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" target="_blank" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="https://wa.me/254703250550" target="_blank" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
                 </div>
             </div>
             
@@ -987,10 +1063,11 @@
             
             <div class="footer-section">
                 <h3>Contact Info</h3>
-                <p>📍 Kirinyaga University, Kerugoya, Kenya</p>
-                <p>📞 <a href="tel:+254703250550" style="display: inline; color: var(--kyu-gold);">0703 250 550</a></p>
-                <p>✉️ <a href="mailto:dux.technicae941@gmail.com" style="display: inline; color: var(--kyu-gold);">dux.technicae941@gmail.com</a></p>
-                <p>🕒 Mon-Fri: 8:00 AM - 5:00 PM</p>
+                <p><i class="fas fa-map-marker-alt" style="margin-right: 8px; color: var(--kyu-gold);"></i> Kirinyaga University, Kerugoya, Kenya</p>
+                <p><i class="fas fa-phone-alt" style="margin-right: 8px; color: var(--kyu-gold);"></i> <a href="tel:+254703250550" style="display: inline; color: var(--kyu-gold);">0703 250 550</a></p>
+                <p><i class="fab fa-whatsapp" style="margin-right: 8px; color: var(--kyu-gold);"></i> <a href="https://wa.me/254703250550" style="display: inline; color: var(--kyu-gold);">0703 250 550 (WhatsApp)</a></p>
+                <p><i class="fas fa-envelope" style="margin-right: 8px; color: var(--kyu-gold);"></i> <a href="mailto:dux.technicae941@gmail.com" style="display: inline; color: var(--kyu-gold);">dux.technicae941@gmail.com</a></p>
+                <p><i class="fas fa-clock" style="margin-right: 8px; color: var(--kyu-gold);"></i> Mon-Fri: 8:00 AM - 5:00 PM</p>
             </div>
             
             <div class="footer-section">
@@ -1004,7 +1081,9 @@
         </div>
         
         <div class="copyright">
-            <p>&copy; 2025 Kirinyaga University Hostels. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+            <p>&copy; 2025 Kirinyaga University Hostels. All rights reserved. | 
+               <a href="privacy.html">Privacy Policy</a> | 
+               <a href="terms.html">Terms of Service</a></p>
         </div>
     </footer>
 
@@ -1014,7 +1093,71 @@
     <script>
         (function() {
             // API Base URL
-          const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
+            const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
+            
+            // ============================================
+            // MOBILE NAVBAR - Hide on scroll down, show on scroll up
+            // ============================================
+            const header = document.getElementById('mainHeader');
+            const menuToggle = document.getElementById('menuToggle');
+            const mainNav = document.getElementById('mainNav');
+            let lastScrollY = window.scrollY;
+            let isMenuOpen = false;
+            
+            // Toggle mobile menu
+            menuToggle.addEventListener('click', function() {
+                isMenuOpen = !isMenuOpen;
+                mainNav.classList.toggle('active');
+                const icon = this.querySelector('i');
+                icon.classList.toggle('fa-bars');
+                icon.classList.toggle('fa-times');
+            });
+            
+            // Close menu when clicking a link
+            mainNav.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        isMenuOpen = false;
+                        mainNav.classList.remove('active');
+                        const icon = menuToggle.querySelector('i');
+                        icon.classList.add('fa-bars');
+                        icon.classList.remove('fa-times');
+                    }
+                });
+            });
+            
+            // Hide header on scroll down, show on scroll up (only on mobile)
+            window.addEventListener('scroll', function() {
+                if (window.innerWidth <= 768) {
+                    const currentScrollY = window.scrollY;
+                    
+                    if (!isMenuOpen) {
+                        if (currentScrollY > lastScrollY && currentScrollY > 100) {
+                            // Scrolling down - hide header
+                            header.classList.add('hide');
+                        } else {
+                            // Scrolling up - show header
+                            header.classList.remove('hide');
+                        }
+                    }
+                    
+                    lastScrollY = currentScrollY;
+                } else {
+                    header.classList.remove('hide');
+                }
+            });
+            
+            // Reset header visibility on window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    header.classList.remove('hide');
+                    mainNav.classList.remove('active');
+                    isMenuOpen = false;
+                    const icon = menuToggle.querySelector('i');
+                    icon.classList.add('fa-bars');
+                    icon.classList.remove('fa-times');
+                }
+            });
             
             // ============================================
             // FETCH FEATURED HOSTELS FROM BACKEND
