@@ -1258,53 +1258,88 @@
             document.getElementById('profileModal').classList.remove('active');
         }
 
-        // ==================== SUBSCRIPTION STATUS ====================
-        async function loadSubscriptionStatus() {
-            try {
-                const data = await apiFetch('/subscriptions/my/');
-                if (data) {
-                    const planDisplay = data.plan_display || 'Free';
-                    const maxHostels = data.max_hostels || 1;
-                    const currentHostels = data.current_hostels || 0;
-                    const daysRemaining = data.days_remaining;
-                    const canAddHostel = data.can_add_hostel;
-                    
-                    document.getElementById('currentPlanName').textContent = planDisplay;
-                    document.getElementById('planBadge').textContent = planDisplay + ' Plan';
-                    document.getElementById('planLimits').innerHTML = `Up to ${maxHostels} hostel${maxHostels !== 1 ? 's' : ''} per month`;
-                    
-                    if (daysRemaining && daysRemaining > 0) {
-                        document.getElementById('planExpiry').innerHTML = `<i class="fas fa-clock"></i> Expires in ${daysRemaining} days`;
-                    } else if (data.has_active_subscription === false && planDisplay !== 'Free') {
-                        document.getElementById('planExpiry').innerHTML = `<i class="fas fa-exclamation-triangle" style="color: #fcd34d;"></i> Subscription expired. Please renew.`;
-                    } else {
-                        document.getElementById('planExpiry').innerHTML = '';
-                    }
-                    
-                    // Show upgrade warning if free tier limit reached
-                    const upgradeWarning = document.getElementById('upgradeWarning');
-                    if (planDisplay === 'Free' && currentHostels >= maxHostels) {
-                        upgradeWarning.style.display = 'block';
-                    } else {
-                        upgradeWarning.style.display = 'none';
-                    }
-                    
-                    // Change button text based on current plan
-                    const upgradeBtn = document.getElementById('upgradeBtn');
-                    if (planDisplay === 'Free') {
-                        upgradeBtn.innerHTML = '<i class="fas fa-arrow-up"></i> Subscribe Now';
-                    } else {
-                        upgradeBtn.innerHTML = '<i class="fas fa-arrow-up"></i> Upgrade Plan';
-                    }
+// ==================== SUBSCRIPTION STATUS ====================
+async function loadSubscriptionStatus() {
+    try {
+        const data = await apiFetch('/subscriptions/my/');
+        if (data) {
+            const planDisplay = data.plan_display || 'Free';
+            const maxHostels = data.max_hostels || 1;
+            const currentHostels = data.current_hostels || 0;
+            const daysRemaining = data.days_remaining;
+            const canAddHostel = data.can_add_hostel;
+            const isBonus = data.is_bonus || false;
+            const bonusWeeks = data.bonus_weeks;
+            const bonusReason = data.bonus_reason;
+            
+            // Update subscription card with bonus info if applicable
+            const subscriptionCard = document.getElementById('subscriptionCard');
+            const subscriptionInfo = subscriptionCard.querySelector('.subscription-info');
+            
+            if (isBonus) {
+                // Change card styling for bonus
+                subscriptionCard.style.background = 'linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)';
+                
+                // Update header to show bonus
+                subscriptionInfo.querySelector('h3').innerHTML = '<i class="fas fa-gift"></i> 🎁 BONUS SUBSCRIPTION';
+                
+                // Show bonus details
+                let bonusMessage = `<strong>${planDisplay}</strong> (Bonus)`;
+                if (bonusWeeks) {
+                    bonusMessage += ` - ${bonusWeeks} weeks`;
                 }
-            } catch (error) {
-                console.error('Failed to load subscription status:', error);
-                // Use default values
-                document.getElementById('currentPlanName').textContent = 'Free';
-                document.getElementById('planBadge').textContent = 'Free Plan';
-                document.getElementById('planLimits').innerHTML = 'Up to 1 hostel per month';
+                if (bonusReason) {
+                    bonusMessage += `<br><small style="opacity: 0.9;">Reason: ${escapeHtml(bonusReason)}</small>`;
+                }
+                document.getElementById('currentPlanName').innerHTML = bonusMessage;
+                document.getElementById('planBadge').textContent = `🎁 BONUS: ${planDisplay}`;
+                document.getElementById('planBadge').style.background = '#FBBF24';
+                document.getElementById('planBadge').style.color = '#1e293b';
+            } else {
+                // Reset to default styling
+                subscriptionCard.style.background = '';
+                subscriptionInfo.querySelector('h3').innerHTML = '<i class="fas fa-crown"></i> Subscription Status';
+                document.getElementById('currentPlanName').textContent = planDisplay;
+                document.getElementById('planBadge').textContent = planDisplay + ' Plan';
+                document.getElementById('planBadge').style.background = '';
+                document.getElementById('planBadge').style.color = '';
+            }
+            
+            document.getElementById('planLimits').innerHTML = `Up to ${maxHostels} hostel${maxHostels !== 1 ? 's' : ''} per month`;
+            
+            if (daysRemaining && daysRemaining > 0) {
+                document.getElementById('planExpiry').innerHTML = `<i class="fas fa-clock"></i> Expires in ${daysRemaining} days`;
+            } else if (data.has_active_subscription === false && planDisplay !== 'Free') {
+                document.getElementById('planExpiry').innerHTML = `<i class="fas fa-exclamation-triangle" style="color: #fcd34d;"></i> Subscription expired. Please renew.`;
+            } else {
+                document.getElementById('planExpiry').innerHTML = '';
+            }
+            
+            // Show upgrade warning if free tier limit reached
+            const upgradeWarning = document.getElementById('upgradeWarning');
+            if (planDisplay === 'Free' && currentHostels >= maxHostels) {
+                upgradeWarning.style.display = 'block';
+            } else {
+                upgradeWarning.style.display = 'none';
+            }
+            
+            // Change button text based on current plan
+            const upgradeBtn = document.getElementById('upgradeBtn');
+            if (planDisplay === 'Free') {
+                upgradeBtn.innerHTML = '<i class="fas fa-arrow-up"></i> Subscribe Now';
+            } else if (isBonus) {
+                upgradeBtn.innerHTML = '<i class="fas fa-arrow-up"></i> Upgrade (Bonus Active)';
+            } else {
+                upgradeBtn.innerHTML = '<i class="fas fa-arrow-up"></i> Upgrade Plan';
             }
         }
+    } catch (error) {
+        console.error('Failed to load subscription status:', error);
+        document.getElementById('currentPlanName').textContent = 'Free';
+        document.getElementById('planBadge').textContent = 'Free Plan';
+        document.getElementById('planLimits').innerHTML = 'Up to 1 hostel per month';
+    }
+}
 
         // ==================== STATS ====================
         async function loadStats() {

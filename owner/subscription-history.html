@@ -326,39 +326,52 @@
             return response.json();
         }
 
-        async function loadSubscriptions() {
-            try {
-                const data = await apiFetch('/subscriptions/history/');
-                const subscriptions = data.results || data || [];
-                const tbody = document.getElementById('subscriptionsBody');
-                
-                if (subscriptions.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No subscriptions found</td></tr>';
-                    return;
-                }
-                
-                tbody.innerHTML = subscriptions.map(sub => {
-                    let statusClass = sub.is_active && !sub.is_expired ? 'badge-success' : 'badge-danger';
-                    let statusText = sub.is_active && !sub.is_expired ? 'Active' : 'Expired';
-                    if (sub.payment_status === 'pending') {
-                        statusClass = 'badge-pending';
-                        statusText = 'Pending';
-                    }
-                    return `
-                        <tr>
-                            <td>${sub.plan_details?.display_name || 'Free'}</td>
-                            <td>${new Date(sub.start_date).toLocaleDateString()}</td>
-                            <td>${sub.end_date ? new Date(sub.end_date).toLocaleDateString() : 'N/A'}</td>
-                            <td><span class="badge ${statusClass}">${statusText}</span></td>
-                            <td>KSh ${sub.amount_paid?.toLocaleString() || 0}</td>
-                            <td>${sub.payment_method || 'Free'}</td>
-                        </tr>
-                    `;
-                }).join('');
-            } catch (error) {
-                document.getElementById('subscriptionsBody').innerHTML = '<tr><td colspan="6" class="empty-state">Failed to load subscriptions</td></tr>';
-            }
+async function loadSubscriptions() {
+    try {
+        const data = await apiFetch('/subscriptions/history/');
+        const subscriptions = data.results || data || [];
+        const tbody = document.getElementById('subscriptionsBody');
+        
+        if (subscriptions.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No subscriptions found</td></tr>';
+            return;
         }
+        
+        tbody.innerHTML = subscriptions.map(sub => {
+            let statusClass = sub.is_active && !sub.is_expired ? 'badge-success' : 'badge-danger';
+            let statusText = sub.is_active && !sub.is_expired ? 'Active' : 'Expired';
+            if (sub.payment_status === 'pending') {
+                statusClass = 'badge-pending';
+                statusText = 'Pending';
+            }
+            
+            // ✅ Check if this is a bonus subscription
+            const isBonus = sub.is_bonus || false;
+            const planName = sub.plan_details?.display_name || 'Free';
+            const displayName = isBonus ? `🎁 ${planName} (Bonus)` : planName;
+            
+            return `
+                <tr>
+                    <td>${escapeHtml(displayName)}</td>
+                    <td>${new Date(sub.start_date).toLocaleDateString()}</td>
+                    <td>${sub.end_date ? new Date(sub.end_date).toLocaleDateString() : 'N/A'}</td>
+                    <td><span class="badge ${statusClass}">${statusText}</span></td>
+                    <td>KSh ${sub.amount_paid?.toLocaleString() || 0}</td>
+                    <td>${sub.payment_method || 'Free'}${isBonus ? ' (Bonus)' : ''}</td>
+                </tr>
+            `;
+        }).join('');
+    } catch (error) {
+        document.getElementById('subscriptionsBody').innerHTML = '<tr><td colspan="6" class="empty-state">Failed to load subscriptions</td></tr>';
+    }
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
 
         async function loadPayments() {
             try {

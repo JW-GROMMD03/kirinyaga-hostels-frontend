@@ -663,63 +663,87 @@
             }
         }
 
-        // ==================== SUBSCRIPTION STATUS ====================
-        async function loadCurrentSubscription() {
-            try {
-                const data = await apiFetch('/subscriptions/my/');
-                console.log('Current subscription data:', data);
-                currentSubscription = data;
-                
-                const container = document.getElementById('currentPlanSection');
-                
-                if (!container) return;
-                
-                if (data && data.has_active_subscription) {
-                    const daysLeft = data.days_remaining || 0;
-                    
-                    container.innerHTML = `
-                        <div class="current-plan-card">
-                            <h3>Your Current Plan: ${data.plan_display || 'Free'}</h3>
-                            <div class="plan-badge">${data.has_active_subscription ? 'ACTIVE' : 'EXPIRED'}</div>
-                            ${data.expires_at ? `<p>Expires: ${new Date(data.expires_at).toLocaleDateString()}</p>` : ''}
-                            <div class="plan-limits">
-                                <div class="limit-item"><i class="fas fa-home"></i> Hostels: ${data.current_hostels || 0}/${data.max_hostels || 1}</div>
-                                <div class="limit-item"><i class="fas fa-image"></i> Images: ${data.max_images_per_hostel || 6} per hostel</div>
-                                <div class="limit-item"><i class="fas fa-star"></i> Featured: ${data.can_feature ? '✓' : '✗'}</div>
-                                <div class="limit-item"><i class="fas fa-chart-line"></i> Analytics: ${data.has_analytics_access ? '✓' : '✗'}</div>
-                            </div>
-                            ${daysLeft > 0 ? `<p style="margin-top: 1rem;"><strong>${daysLeft} days remaining</strong></p>` : ''}
-                            ${!data.has_active_subscription ? `<p style="margin-top: 1rem;"><i class="fas fa-exclamation-triangle"></i> Your subscription has expired. Please renew to continue adding hostels.</p>` : ''}
-                        </div>
-                    `;
-                } else {
-                    container.innerHTML = `
-                        <div class="current-plan-card">
-                            <h3>Free Plan</h3>
-                            <p>You are currently on the Free plan. Upgrade to unlock more features!</p>
-                            <div class="plan-limits">
-                                <div class="limit-item"><i class="fas fa-home"></i> Hostels: ${(data && data.current_hostels) || 0}/1 per month</div>
-                                <div class="limit-item"><i class="fas fa-image"></i> Images: ${(data && data.max_images_per_hostel) || 6} per hostel</div>
-                                <div class="limit-item"><i class="fas fa-star"></i> Featured listings: ${(data && data.can_feature) ? '✓' : '✗'}</div>
-                                <div class="limit-item"><i class="fas fa-chart-line"></i> Analytics: ${(data && data.has_analytics_access) ? '✓' : '✗'}</div>
-                            </div>
-                            ${(data && !data.can_add_hostel) ? `<p style="margin-top: 1rem; color: var(--warning);"><i class="fas fa-exclamation-triangle"></i> You have reached your free tier limit. Subscribe to add more hostels.</p>` : ''}
-                        </div>
-                    `;
-                }
-            } catch (error) {
-                console.error('Failed to load current subscription:', error);
-                const container = document.getElementById('currentPlanSection');
-                if (container) {
-                    container.innerHTML = `
-                        <div class="current-plan-card">
-                            <h3>Free Plan</h3>
-                            <p>You are currently on the Free plan. Upgrade to unlock more features!</p>
-                        </div>
-                    `;
-                }
+// ==================== SUBSCRIPTION STATUS ====================
+async function loadCurrentSubscription() {
+    try {
+        const data = await apiFetch('/subscriptions/my/');
+        console.log('Current subscription data:', data);
+        currentSubscription = data;
+        
+        const container = document.getElementById('currentPlanSection');
+        
+        if (!container) return;
+        
+        if (data && data.has_active_subscription) {
+            const daysLeft = data.days_remaining || 0;
+            const isBonus = data.is_bonus || false;
+            const bonusWeeks = data.bonus_weeks;
+            const bonusReason = data.bonus_reason;
+            
+            // ✅ Build bonus info if applicable
+            let bonusHtml = '';
+            if (isBonus) {
+                bonusHtml = `
+                    <div style="margin-top: 1rem; padding: 0.5rem 1rem; background: rgba(255,215,0,0.2); border-radius: 12px;">
+                        <i class="fas fa-gift" style="color: #FBBF24;"></i> 
+                        <strong>🎁 BONUS SUBSCRIPTION</strong>
+                        ${bonusWeeks ? ` - ${bonusWeeks} weeks` : ''}
+                        ${bonusReason ? `<br><small>Reason: ${escapeHtml(bonusReason)}</small>` : ''}
+                    </div>
+                `;
             }
+            
+            container.innerHTML = `
+                <div class="current-plan-card" style="${isBonus ? 'background: linear-gradient(135deg, #8B5CF6, #6D28D9);' : ''}">
+                    <h3>Your Current Plan: ${data.plan_display || 'Free'} ${isBonus ? '🎁 (BONUS)' : ''}</h3>
+                    <div class="plan-badge" style="${isBonus ? 'background: #FBBF24; color: #1e293b;' : ''}">${data.has_active_subscription ? 'ACTIVE' : 'EXPIRED'}</div>
+                    ${data.expires_at ? `<p>Expires: ${new Date(data.expires_at).toLocaleDateString()}</p>` : ''}
+                    <div class="plan-limits">
+                        <div class="limit-item"><i class="fas fa-home"></i> Hostels: ${data.current_hostels || 0}/${data.max_hostels || 1}</div>
+                        <div class="limit-item"><i class="fas fa-image"></i> Images: ${data.max_images_per_hostel || 6} per hostel</div>
+                        <div class="limit-item"><i class="fas fa-star"></i> Featured: ${data.can_feature ? '✓' : '✗'}</div>
+                        <div class="limit-item"><i class="fas fa-chart-line"></i> Analytics: ${data.has_analytics_access ? '✓' : '✗'}</div>
+                    </div>
+                    ${bonusHtml}
+                    ${daysLeft > 0 ? `<p style="margin-top: 1rem;"><strong>${daysLeft} days remaining</strong></p>` : ''}
+                    ${!data.has_active_subscription ? `<p style="margin-top: 1rem;"><i class="fas fa-exclamation-triangle"></i> Your subscription has expired. Please renew to continue adding hostels.</p>` : ''}
+                </div>
+            `;
+        } else {
+            container.innerHTML = `
+                <div class="current-plan-card">
+                    <h3>Free Plan</h3>
+                    <p>You are currently on the Free plan. Upgrade to unlock more features!</p>
+                    <div class="plan-limits">
+                        <div class="limit-item"><i class="fas fa-home"></i> Hostels: ${(data && data.current_hostels) || 0}/1 per month</div>
+                        <div class="limit-item"><i class="fas fa-image"></i> Images: ${(data && data.max_images_per_hostel) || 6} per hostel</div>
+                        <div class="limit-item"><i class="fas fa-star"></i> Featured listings: ${(data && data.can_feature) ? '✓' : '✗'}</div>
+                        <div class="limit-item"><i class="fas fa-chart-line"></i> Analytics: ${(data && data.has_analytics_access) ? '✓' : '✗'}</div>
+                    </div>
+                    ${(data && !data.can_add_hostel) ? `<p style="margin-top: 1rem; color: var(--warning);"><i class="fas fa-exclamation-triangle"></i> You have reached your free tier limit. Subscribe to add more hostels.</p>` : ''}
+                </div>
+            `;
         }
+    } catch (error) {
+        console.error('Failed to load current subscription:', error);
+        const container = document.getElementById('currentPlanSection');
+        if (container) {
+            container.innerHTML = `
+                <div class="current-plan-card">
+                    <h3>Free Plan</h3>
+                    <p>You are currently on the Free plan. Upgrade to unlock more features!</p>
+                </div>
+            `;
+        }
+    }
+}
+        
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
 
         // ==================== LOAD PLANS ====================
         async function loadPlans() {
