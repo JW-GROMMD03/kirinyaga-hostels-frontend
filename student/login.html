@@ -901,10 +901,14 @@ function showRateLimit() {
                         let remainingSeconds = 0;
                         
                         // Check for blocked account
-                        if (data.blocked === true) {
-                            isBlocked = true;
-                            errorMsg = data.message || 'This account has been blocked by the admin. Please contact support.';
-                        }
+                            if (data.blocked === true) {
+        showError(data.message || 'This account has been blocked by the admin.');
+        loginBtn.disabled = true;
+        emailInput.disabled = true;
+        passwordInput.disabled = true;
+        setLoading(false);
+        return;
+    }
                         
                         // Check for locked account
                         if (data.locked === true) {
