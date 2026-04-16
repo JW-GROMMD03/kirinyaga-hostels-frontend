@@ -877,119 +877,84 @@
 
                     const data = await res.json();
 
-if (!res.ok) {
-    let requiresOtp = false;
-    let errorMsg = '';
-    let isBlocked = false;
-    let isLocked = false;
-    let lockedMessage = '';
-    let remainingSeconds = 0;
-    
-    // ✅ Check for blocked account (object response)
-    if (data.blocked === true) {
-        isBlocked = true;
-        errorMsg = data.message || 'This account has been blocked by the admin. Please contact support.';
-    }
-    
-    // ✅ Check for locked account
-    if (data.locked === true) {
-        isLocked = true;
-        lockedMessage = data.message || 'Account temporarily locked.';
-        remainingSeconds = data.remaining_seconds || 0;
-    }
-    
-    // Check non_field_errors array (for OTP requirement)
-    if (data.non_field_errors && Array.isArray(data.non_field_errors) && data.non_field_errors.length > 0) {
-        const firstError = data.non_field_errors[0];
-        
-        if (typeof firstError === 'object' && firstError !== null) {
-            if (firstError.requires_otp === true || firstError.requires_otp === "True") {
-                requiresOtp = true;
-                errorMsg = firstError.message || 'Verification code sent to your email';
-            }
-            // Check for blocked in non_field_errors
-            if (firstError.blocked === true) {
-                isBlocked = true;
-                errorMsg = firstError.message || 'Account blocked.';
-            }
-            // Check for locked in non_field_errors
-            if (firstError.locked === true) {
-                isLocked = true;
-                lockedMessage = firstError.message || 'Account locked.';
-                remainingSeconds = firstError.remaining_seconds || 0;
-            }
-        } else if (typeof firstError === 'string') {
-            errorMsg = firstError;
-            // Only call toLowerCase if it's a string
-            if (typeof errorMsg === 'string') {
-                if (errorMsg.toLowerCase().includes('otp') || 
-                    errorMsg.toLowerCase().includes('verification') ||
-                    errorMsg.toLowerCase().includes('code sent')) {
-                    requiresOtp = true;
-                }
-                if (errorMsg.toLowerCase().includes('blocked')) {
-                    isBlocked = true;
-                }
-            }
-        }
-    }
-    
-    // Check if there's a direct requires_otp field
-    if (data.requires_otp === true || data.requires_otp === "True") {
-        requiresOtp = true;
-        errorMsg = data.message || 'Verification code required';
-    }
-    
-    // Handle blocked account display
-    if (isBlocked) {
-        showError(errorMsg);
-        loginBtn.disabled = true;
-        emailInput.disabled = true;
-        passwordInput.disabled = true;
-        setLoading(false);
-        return;
-    }
-    
-    // Handle locked account with countdown
-    if (isLocked) {
-        showLockout(lockedMessage, remainingSeconds);
-        setLoading(false);
-        return;
-    }
-    
-    // Handle OTP requirement
-    if (requiresOtp) {
-        otpGroup.style.display = 'block';
-        startOtpTimer();
-        showInfo('📧 Verification code sent to your email. Please enter it below.');
-        setLoading(false);
-        return;
-    }
-    
-    // Handle attempts left message
-    if (data.attempts_left) {
-        showError(`${errorMsg || 'Invalid email or password'} (${data.attempts_left} attempt(s) remaining)`);
-    } else if (typeof errorMsg === 'string') {
-        showError(errorMsg || '❌ Invalid email or password. Please try again.');
-    } else {
-        showError('❌ Invalid email or password. Please try again.');
-    }
-    setLoading(false);
-    return;
-}
+                    if (!res.ok) {
+                        let requiresOtp = false;
+                        let errorMsg = '';
+                        let isBlocked = false;
+                        let isLocked = false;
+                        let lockedMessage = '';
+                        let remainingSeconds = 0;
                         
+                        // Check for blocked account
+                        if (data.blocked === true) {
+                            isBlocked = true;
+                            errorMsg = data.message || 'This account has been blocked by the admin. Please contact support.';
+                        }
+                        
+                        // Check for locked account
+                        if (data.locked === true) {
+                            isLocked = true;
+                            lockedMessage = data.message || 'Account temporarily locked.';
+                            remainingSeconds = data.remaining_seconds || 0;
+                        }
+                        
+                        // Check non_field_errors array
+                        if (data.non_field_errors && Array.isArray(data.non_field_errors) && data.non_field_errors.length > 0) {
+                            const firstError = data.non_field_errors[0];
+                            
+                            if (typeof firstError === 'object' && firstError !== null) {
+                                if (firstError.requires_otp === true || firstError.requires_otp === "True") {
+                                    requiresOtp = true;
+                                    errorMsg = firstError.message || 'Verification code sent to your email';
+                                }
+                                if (firstError.blocked === true) {
+                                    isBlocked = true;
+                                    errorMsg = firstError.message || 'Account blocked.';
+                                }
+                                if (firstError.locked === true) {
+                                    isLocked = true;
+                                    lockedMessage = firstError.message || 'Account locked.';
+                                    remainingSeconds = firstError.remaining_seconds || 0;
+                                }
+                            } else if (typeof firstError === 'string') {
+                                errorMsg = firstError;
+                                if (typeof errorMsg === 'string') {
+                                    if (errorMsg.toLowerCase().includes('otp') || 
+                                        errorMsg.toLowerCase().includes('verification') ||
+                                        errorMsg.toLowerCase().includes('code sent')) {
+                                        requiresOtp = true;
+                                    }
+                                    if (errorMsg.toLowerCase().includes('blocked')) {
+                                        isBlocked = true;
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Check direct requires_otp field
                         if (data.requires_otp === true || data.requires_otp === "True") {
                             requiresOtp = true;
                             errorMsg = data.message || 'Verification code required';
                         }
                         
-                        if (data.message && !errorMsg) {
-                            errorMsg = data.message;
-                            if (errorMsg.toLowerCase().includes('otp') || errorMsg.toLowerCase().includes('verification')) {
-                                requiresOtp = true;
-                            }
+                        // Handle blocked account
+                        if (isBlocked) {
+                            showError(errorMsg);
+                            loginBtn.disabled = true;
+                            emailInput.disabled = true;
+                            passwordInput.disabled = true;
+                            setLoading(false);
+                            return;
                         }
                         
+                        // Handle locked account
+                        if (isLocked) {
+                            showLockout(lockedMessage, remainingSeconds);
+                            setLoading(false);
+                            return;
+                        }
+                        
+                        // Handle OTP requirement
                         if (requiresOtp) {
                             otpGroup.style.display = 'block';
                             startOtpTimer();
@@ -998,21 +963,19 @@ if (!res.ok) {
                             return;
                         }
                         
-                        if (data.locked === true) {
-                            showLockout(data.message, data.remaining_seconds);
-                            setLoading(false);
-                            return;
-                        }
-                        
+                        // Handle attempts left message
                         if (data.attempts_left) {
                             showError(`${errorMsg || 'Invalid email or password'} (${data.attempts_left} attempt(s) remaining)`);
+                        } else if (typeof errorMsg === 'string' && errorMsg) {
+                            showError(errorMsg);
                         } else {
-                            showError(errorMsg || '❌ Invalid email or password. Please try again.');
+                            showError('❌ Invalid email or password. Please try again.');
                         }
                         setLoading(false);
                         return;
                     }
 
+                    // Login successful
                     if (data.access) {
                         localStorage.setItem('accessToken', data.access);
                         sessionStorage.setItem('accessToken', data.access);
