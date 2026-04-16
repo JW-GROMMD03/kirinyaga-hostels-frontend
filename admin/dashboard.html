@@ -2430,8 +2430,13 @@ async function loadAllSubscriptions() {
                     </td>
                     <td>${formatCurrency(sub.amount_paid || 0)}</td>
                     <td>
-                        ${sub.is_bonus ? '<span class="badge badge-success"><i class="fas fa-gift"></i> Bonus</span>' : '<span class="badge">Regular</span>'}
-                    </td>
+    ${sub.is_bonus ? 
+        `<span class="badge badge-success" title="${escapeHtml(sub.bonus_reason || sub.bonus_weeks + ' weeks bonus')}">
+            <i class="fas fa-gift"></i> ${escapeHtml(sub.bonus_reason || sub.bonus_weeks + 'w')}
+        </span>` : 
+        '<span class="badge">Regular</span>'
+    }
+</td>
                     <td class="action-icons">
                         <i class="fas fa-gift" onclick="showGrantBonusModal('${ownerId}', '${ownerEmail.replace(/'/g, "\\'")}')" title="Grant Bonus"></i>
                         ${isActive ? `<i class="fas fa-ban" onclick="revokeSubscription('${sub.id}', '${ownerEmail.replace(/'/g, "\\'")}')" title="Revoke"></i>` : ''}
