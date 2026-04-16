@@ -22,6 +22,8 @@
             --border-light: #e2e8f0;
             --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.1);
             --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --danger: #dc2626;
+            --warning: #ca8a04;
         }
         body.dark-mode {
             --kyu-green: #2ecc71;
@@ -178,6 +180,11 @@
             outline: none;
             border-color: var(--kyu-green);
             box-shadow: 0 0 0 3px rgba(0, 103, 71, 0.2);
+        }
+        input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: var(--border-light);
         }
         .otp-group {
             display: flex;
@@ -528,7 +535,7 @@
         const resendBtn = document.getElementById('resend-otp-btn');
         
         let otpTimer = null;
-        let countdownInterval = null;
+        let lockoutTimer = null;
         let rateLimitTimer = null;
         let otpExpiryTime = null;
 
@@ -577,7 +584,7 @@
             rateLimitDiv.style.display = 'none';
             attemptsWarning.style.display = 'none';
             
-            if (countdownInterval) clearInterval(countdownInterval);
+            if (lockoutTimer) clearInterval(lockoutTimer);
             
             const startTime = Date.now();
             const endTime = startTime + (remainingSeconds * 1000);
@@ -587,7 +594,8 @@
                 const remaining = Math.max(0, Math.floor((endTime - now) / 1000));
                 
                 if (remaining <= 0) {
-                    clearInterval(countdownInterval);
+                    clearInterval(lockoutTimer);
+                    lockoutTimer = null;
                     lockoutDiv.style.display = 'none';
                     loginBtn.disabled = false;
                     email.disabled = false;
@@ -617,7 +625,7 @@
             }
             
             updateCountdown();
-            countdownInterval = setInterval(updateCountdown, 1000);
+            lockoutTimer = setInterval(updateCountdown, 1000);
             
             loginBtn.disabled = true;
             email.disabled = true;
@@ -631,20 +639,27 @@
             infoDiv.style.display = 'none';
             lockoutDiv.style.display = 'none';
             loginBtn.disabled = true;
+            email.disabled = true;
+            password.disabled = true;
             
             let remaining = 300;
             if (rateLimitTimer) clearInterval(rateLimitTimer);
             rateLimitTimer = setInterval(() => {
+                remaining--;
                 if (remaining <= 0) {
                     clearInterval(rateLimitTimer);
+                    rateLimitTimer = null;
                     rateLimitDiv.style.display = 'none';
                     loginBtn.disabled = false;
+                    email.disabled = false;
+                    password.disabled = false;
+                    rateLimitDiv.innerHTML = '';
+                    showInfo('You can now try logging in again.', true);
                 } else {
                     const mins = Math.floor(remaining / 60);
                     const secs = remaining % 60;
                     const countdownEl = document.getElementById('rate-countdown');
                     if (countdownEl) countdownEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
-                    remaining--;
                 }
             }, 1000);
         }
@@ -676,8 +691,7 @@
             const timerElement = document.getElementById('otp-timer');
             if (otpTimer) clearInterval(otpTimer);
             
-            let remaining = expirySeconds;
-            otpExpiryTime = Date.now() + (remaining * 1000);
+            otpExpiryTime = Date.now() + (expirySeconds * 1000);
             
             function updateTimer() {
                 const now = Date.now();
@@ -685,6 +699,7 @@
                 
                 if (remainingSecs <= 0) {
                     clearInterval(otpTimer);
+                    otpTimer = null;
                     if (timerElement) timerElement.textContent = '';
                     if (resendBtn) resendBtn.style.display = 'inline-block';
                 } else {
@@ -708,7 +723,10 @@
         function hideOtpField() {
             otpGroup.style.display = 'none';
             resetOtp();
-            if (otpTimer) clearInterval(otpTimer);
+            if (otpTimer) {
+                clearInterval(otpTimer);
+                otpTimer = null;
+            }
         }
 
         // OTP input navigation
@@ -823,9 +841,9 @@
 
                 clearTimeout(timeoutId);
 
+                // ✅ FIXED: Handle 429 rate limit FIRST
                 if (res.status === 429) {
                     showRateLimit();
-                    loginBtn.disabled = false;
                     spinner.style.display = 'none';
                     return;
                 }
@@ -836,16 +854,41 @@
                 if (!res.ok) {
                     let requiresOtp = false;
                     let errorMsg = '';
+                    let isBlocked = false;
+                    let isLocked = false;
+                    let lockedMessage = '';
+                    let remainingSeconds = 0;
+                    
+                    // ✅ Check for blocked account FIRST
+                    if (data.blocked === true) {
+                        isBlocked = true;
+                        errorMsg = data.message || 'Your admin account has been disabled. Please contact the system administrator.';
+                    }
+                    
+                    // ✅ Check for locked account
+                    if (data.locked === true) {
+                        isLocked = true;
+                        lockedMessage = data.message || 'Account temporarily locked.';
+                        remainingSeconds = data.remaining_seconds || 0;
+                    }
                     
                     // Check non_field_errors array safely
                     if (data.non_field_errors && Array.isArray(data.non_field_errors) && data.non_field_errors.length > 0) {
                         const firstError = data.non_field_errors[0];
                         
                         if (typeof firstError === 'object' && firstError !== null) {
-                            // Check for requires_otp flag
                             if (firstError.requires_otp === true || firstError.requires_otp === "True") {
                                 requiresOtp = true;
                                 errorMsg = firstError.message || 'Verification code sent to your email';
+                            }
+                            if (firstError.blocked === true) {
+                                isBlocked = true;
+                                errorMsg = firstError.message || 'Account blocked.';
+                            }
+                            if (firstError.locked === true) {
+                                isLocked = true;
+                                lockedMessage = firstError.message || 'Account locked.';
+                                remainingSeconds = firstError.remaining_seconds || 0;
                             }
                         } else if (typeof firstError === 'string') {
                             errorMsg = firstError;
@@ -854,6 +897,9 @@
                                 lowerMsg.includes('verification') ||
                                 lowerMsg.includes('code sent')) {
                                 requiresOtp = true;
+                            }
+                            if (lowerMsg.includes('blocked')) {
+                                isBlocked = true;
                             }
                         }
                     }
@@ -864,18 +910,24 @@
                         errorMsg = data.message || 'Verification code required';
                     }
                     
-                    // Check message field safely
-                    if (data.message && !errorMsg) {
-                        errorMsg = safeGetErrorMessage(data.message);
-                        if (typeof errorMsg === 'string') {
-                            const lowerMsg = errorMsg.toLowerCase();
-                            if (lowerMsg.includes('otp') || lowerMsg.includes('verification')) {
-                                requiresOtp = true;
-                            }
-                        }
+                    // ✅ Handle blocked account
+                    if (isBlocked) {
+                        showError(errorMsg);
+                        loginBtn.disabled = true;
+                        email.disabled = true;
+                        password.disabled = true;
+                        spinner.style.display = 'none';
+                        return;
                     }
                     
-                    // If OTP is required, show the OTP field
+                    // ✅ Handle locked account
+                    if (isLocked) {
+                        showLockout(lockedMessage, remainingSeconds);
+                        spinner.style.display = 'none';
+                        return;
+                    }
+                    
+                    // Handle OTP requirement
                     if (requiresOtp) {
                         showOtpField();
                         startOtpTimer(600);
@@ -885,29 +937,22 @@
                         return;
                     }
                     
-                    // Check for lockout
-                    if (data.locked === true) {
-                        showLockout(data.message, data.remaining_seconds);
-                        spinner.style.display = 'none';
-                        return;
-                    }
-                    
                     // Show attempts warning
                     if (data.attempts_left) {
                         showAttemptsWarning(data.attempts_left);
                         showError(`${safeGetErrorMessage(errorMsg) || 'Invalid email or password'} (${data.attempts_left} attempt(s) remaining)`);
+                    } else if (typeof errorMsg === 'string' && errorMsg) {
+                        showError(errorMsg);
                     } else {
-                        showError(safeGetErrorMessage(errorMsg) || '❌ Invalid email or password. Please try again.');
+                        showError('❌ Invalid email or password. Please try again.');
                     }
                     loginBtn.disabled = false;
                     spinner.style.display = 'none';
                     return;
                 }
 
-                // ==================== CRITICAL FIX ====================
-                // Store tokens with ADMIN role explicitly
+                // ==================== LOGIN SUCCESS ====================
                 if (data.access) {
-                    // Store access token
                     sessionStorage.setItem('accessToken', data.access);
                     if (remember.checked) {
                         localStorage.setItem('accessToken', data.access);
@@ -920,30 +965,21 @@
                     }
                 }
                 
-                // CRITICAL: Store user role as 'admin' for admin users
                 if (data.role) {
                     sessionStorage.setItem('userRole', data.role);
                     localStorage.setItem('userRole', data.role);
                 } else {
-                    // If role not in response, set as 'admin' for admin login
                     sessionStorage.setItem('userRole', 'admin');
                     localStorage.setItem('userRole', 'admin');
                 }
                 
-                // Also store the email for debugging
                 sessionStorage.setItem('userEmail', email.value);
                 localStorage.setItem('userEmail', email.value);
                 
-                console.log('Admin login successful. Stored tokens and role:', {
-                    accessToken: data.access ? 'stored' : 'missing',
-                    refreshToken: data.refresh ? 'stored' : 'missing',
-                    role: data.role || 'admin',
-                    remember: remember.checked
-                });
+                console.log('Admin login successful. Stored tokens and role.');
                 
                 showInfo('✅ Admin login successful! Redirecting to admin dashboard...', true);
                 
-                // Redirect to admin dashboard after a short delay
                 setTimeout(() => {
                     window.location.href = 'dashboard.html';
                 }, 1500);
