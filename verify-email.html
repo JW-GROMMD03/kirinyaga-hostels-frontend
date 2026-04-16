@@ -138,6 +138,7 @@
             background: transparent;
             border: 2px solid var(--kyu-green);
             color: var(--kyu-green);
+            margin-right: 1rem;
         }
 
         .btn-outline:hover {
@@ -166,7 +167,7 @@
             <div class="success-icon">✓</div>
             <h2>Email Verified!</h2>
             <p class="message">Your email has been successfully verified. You can now log in to your account.</p>
-            <a href="student/login.html" class="btn">Go to Login</a>
+            <a href="login.html" class="btn">Go to Login</a>
         </div>
 
         <div id="error" class="hidden">
@@ -174,7 +175,7 @@
             <h2>Verification Failed</h2>
             <p class="message" id="errorMessage">The verification link is invalid or has expired.</p>
             <div>
-                <a href="student/login.html" class="btn btn-outline">Back to Login</a>
+                <a href="login.html" class="btn btn-outline">Back to Login</a>
                 <button class="btn" id="resendBtn">Resend Verification</button>
             </div>
         </div>
@@ -182,10 +183,27 @@
 
     <script>
         (function() {
+            // ✅ USE PRODUCTION API URL
+            const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
+            
             // Get URL parameters
             const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('token');
-            const email = urlParams.get('email');
+            let token = urlParams.get('token');
+            let email = urlParams.get('email');
+            
+            // ✅ FALLBACK: Try to get from hash if URL params are empty (Brevo redirect issue)
+            if (!token || !email) {
+                const hash = window.location.hash.substring(1);
+                if (hash) {
+                    const hashParams = new URLSearchParams(hash);
+                    token = hashParams.get('token') || token;
+                    email = hashParams.get('email') || email;
+                }
+            }
+            
+            // ✅ DEBUG: Log what we received
+            console.log('Verification attempt:', { email, token });
+            console.log('Full URL:', window.location.href);
 
             const loading = document.getElementById('loading');
             const success = document.getElementById('success');
@@ -194,14 +212,16 @@
             const resendBtn = document.getElementById('resendBtn');
 
             if (!token || !email) {
-                showError('Invalid verification link. Missing parameters.');
+                console.error('Missing parameters:', { token, email });
+                showError('Invalid verification link. Missing parameters. Please request a new verification email.');
                 return;
             }
 
             // Verify email
             async function verifyEmail() {
                 try {
-                    const response = await fetch('http://localhost:8000/api/auth/verify-email/', {
+                    // ✅ USE CORRECT API URL
+                    const response = await fetch(`${API_BASE}/auth/verify-email/`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -210,6 +230,7 @@
                     });
 
                     const data = await response.json();
+                    console.log('Verification response:', data);
 
                     if (!response.ok) {
                         if (data.email) {
@@ -218,8 +239,10 @@
                             showError(data.token[0]);
                         } else if (data.non_field_errors) {
                             showError(data.non_field_errors[0]);
+                        } else if (data.message) {
+                            showError(data.message);
                         } else {
-                            showError('Verification failed. Please try again.');
+                            showError('Verification failed. The link may have expired.');
                         }
                         return;
                     }
@@ -228,9 +251,9 @@
                     loading.classList.add('hidden');
                     success.classList.remove('hidden');
 
-                } catch (error) {
-                    console.error('Verification error:', error);
-                    showError('Network error. Please check your connection.');
+                } catch (err) {
+                    console.error('Verification error:', err);
+                    showError('Network error. Please check your connection and try again.');
                 }
             }
 
@@ -242,11 +265,16 @@
 
             // Resend verification
             resendBtn?.addEventListener('click', async function() {
+                if (!email) {
+                    alert('Email address is missing. Please request a new verification email from the login page.');
+                    return;
+                }
+                
                 this.disabled = true;
                 this.textContent = 'Sending...';
 
                 try {
-                    const response = await fetch('http://localhost:8000/api/auth/resend-verification/', {
+                    const response = await fetch(`${API_BASE}/auth/resend-verification/`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -261,7 +289,8 @@
                     } else {
                         alert('Verification email sent! Please check your inbox.');
                     }
-                } catch (error) {
+                } catch (err) {
+                    console.error('Resend error:', err);
                     alert('Network error. Please try again.');
                 } finally {
                     this.disabled = false;
