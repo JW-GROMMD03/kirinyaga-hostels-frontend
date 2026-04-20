@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - Kirinyaga Hostels</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        :root {
+            --kyu-green: #006747;
+            --kyu-gold: #FFD700;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border-light: #e2e8f0;
+            --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        body.dark-mode {
+            --kyu-green: #2ecc71;
+            --kyu-gold: #f1c40f;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --bg-light: #0f172a;
+            --bg-white: #1e293b;
+            --border-light: #334155;
+        }
+
+        body {
+            background: var(--bg-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: var(--bg-white);
+            box-shadow: var(--shadow-sm);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--kyu-gold);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+        }
+
+        .logo img {
+            height: 50px;
+        }
+
+        .logo span {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--kyu-green);
+        }
+
+        .btn-back {
+            padding: 0.6rem 1.2rem;
+            border: 2px solid var(--kyu-green);
+            background: transparent;
+            color: var(--kyu-green);
+            border-radius: 40px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn-back:hover {
+            background: var(--kyu-green);
+            color: white;
+        }
+
+        .container {
+            flex: 1;
+            max-width: 1000px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .policy-card {
+            background: var(--bg-white);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .policy-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border-light);
+        }
+
+        .policy-header h1 {
+            font-size: 2rem;
+            color: var(--kyu-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .policy-header p {
+            color: var(--text-secondary);
+        }
+
+        .policy-section {
+            margin-bottom: 2rem;
+        }
+
+        .policy-section h2 {
+            font-size: 1.3rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .policy-section h3 {
+            font-size: 1.1rem;
+            color: var(--kyu-green);
+            margin: 1rem 0 0.5rem 0;
+        }
+
+        .policy-section p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 0.8rem;
+        }
+
+        .policy-section ul, .policy-section ol {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin: 0.8rem 0 0.8rem 1.5rem;
+        }
+
+        .policy-section li {
+            margin-bottom: 0.5rem;
+        }
+
+        .effective-date {
+            background: var(--bg-light);
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        footer {
+            background: #1e293b;
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
+            border-top: 3px solid var(--kyu-gold);
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .policy-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='dashboard.html'">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='18' y='68' fill='%23FFD700' font-size='48' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
+            <span>Kirinyaga Hostels</span>
+        </div>
+        <a href="dashboard.html" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </header>
+
+    <div class="container">
+        <div class="policy-card">
+            <div class="policy-header">
+                <h1>Privacy Policy</h1>
+                <p>Last Updated: April 1, 2025</p>
+            </div>
+
+            <div class="policy-section">
+                <h2>1. Introduction</h2>
+                <p>Kirinyaga University Hostels ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform. We comply with the Kenya Data Protection Act, 2019, the General Data Protection Regulation (GDPR), and other applicable international privacy laws.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2>2. Information We Collect</h2>
+                <h3>Personal Information</h3>
+                <p>We may collect the following personal information:</p>
+                <ul>
+                    <li><strong>Identity Data:</strong> Full name, date of birth, national ID/Passport number</li>
+                    <li><strong>Contact Data:</strong> Email address, phone number, physical address</li>
+                    <li><strong>Account Data:</strong> Username, password, account preferences</li>
+                    <li><strong>Financial Data:</strong> Payment information, transaction history</li>
+                    <li><strong>Technical Data:</strong> IP address, browser type, device information</li>
+                    <li><strong>Usage Data:</strong> How you use our platform, bookings, reviews</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h2>3. How We Use Your Information</h2>
+                <p>We use your information to:</p>
+                <ul>
+                    <li>Create and manage your account</li>
+                    <li>Process hostel bookings and payments</li>
+                    <li>Communicate with you about bookings and updates</li>
+                    <li>Improve our services and user experience</li>
+                    <li>Comply with legal obligations under Kenyan law</li>
+                    <li>Prevent fraud and ensure platform security</li>
+                    <li>Send you promotional materials (with your consent)</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h2>4. Legal Basis for Processing (GDPR)</h2>
+                <p>For users in the European Economic Area, we process your personal data based on:</p>
+                <ul>
+                    <li><strong>Contractual Necessity:</strong> To provide our services to you</li>
+                    <li><strong>Legal Obligation:</strong> To comply with Kenyan and international laws</li>
+                    <li><strong>Legitimate Interests:</strong> To improve our services and prevent fraud</li>
+                    <li><strong>Consent:</strong> For marketing communications</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h2>5. Data Sharing and Disclosure</h2>
+                <p>We may share your information with:</p>
+                <ul>
+                    <li><strong>Hostel Owners:</strong> To facilitate bookings and communication</li>
+                    <li><strong>Service Providers:</strong> Payment processors, hosting services, email providers</li>
+                    <li><strong>Law Enforcement:</strong> When required by Kenyan law or court order</li>
+                    <li><strong>Business Transfers:</strong> In case of merger, acquisition, or sale of assets</li>
+                </ul>
+                <p>We never sell your personal information to third parties.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2>6. Data Security</h2>
+                <p>We implement appropriate technical and organizational measures to protect your data, including:</p>
+                <ul>
+                    <li>Encryption of sensitive data in transit (SSL/TLS) and at rest</li>
+                    <li>Regular security assessments and vulnerability scans</li>
+                    <li>Access controls and authentication mechanisms</li>
+                    <li>Secure data centers with physical security measures</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h2>7. Data Retention</h2>
+                <p>We retain your personal information for as long as necessary to:</p>
+                <ul>
+                    <li>Provide our services to you</li>
+                    <li>Comply with legal obligations under Kenyan law (minimum 7 years for financial records)</li>
+                    <li>Resolve disputes and enforce our agreements</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h2>8. Your Rights</h2>
+                <p>Under the Kenya Data Protection Act and GDPR, you have the right to:</p>
+                <ul>
+                    <li><strong>Access:</strong> Request a copy of your personal data</li>
+                    <li><strong>Rectification:</strong> Correct inaccurate or incomplete data</li>
+                    <li><strong>Erasure:</strong> Request deletion of your data (subject to legal obligations)</li>
+                    <li><strong>Restriction:</strong> Limit how we use your data</li>
+                    <li><strong>Portability:</strong> Receive your data in a portable format</li>
+                    <li><strong>Objection:</strong> Object to certain processing activities</li>
+                    <li><strong>Withdraw Consent:</strong> Withdraw consent at any time</li>
+                </ul>
+                <p>To exercise these rights, contact us at <strong>dux.technicae941@gmail.com</strong></p>
+            </div>
+
+            <div class="policy-section">
+                <h2>9. Cookies and Tracking</h2>
+                <p>We use cookies to enhance your experience. You can control cookie preferences through your browser settings. Essential cookies cannot be disabled as they are necessary for platform functionality.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2>10. Children's Privacy</h2>
+                <p>Our services are not intended for individuals under 18 years of age. We do not knowingly collect data from minors.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2>11. International Data Transfers</h2>
+                <p>Your information may be transferred to and processed in countries outside Kenya. We ensure appropriate safeguards are in place, including Standard Contractual Clauses where required by GDPR.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2>12. Complaints</h2>
+                <p>If you have concerns about our data handling practices, you have the right to lodge a complaint with:</p>
+                <ul>
+                    <li><strong>Office of the Data Protection Commissioner (Kenya):</strong> www.odpc.go.ke</li>
+                    <li><strong>Your local supervisory authority (for EU residents)</strong></li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h2>13. Changes to This Policy</h2>
+                <p>We may update this Privacy Policy periodically. We will notify you of material changes via email or platform notification.</p>
+            </div>
+
+            <div class="policy-section">
+                <h2>14. Contact Us</h2>
+                <p>If you have questions about this Privacy Policy or our data practices, please contact us:</p>
+                <ul>
+                    <li><strong>Email:</strong> dux.technicae941@gmail.com</li>
+                    <li><strong>Phone:</strong> 0703250550</li>
+                    <li><strong>Address:</strong> Kirinyaga University, P.O. Box 143-10300, Kerugoya, Kenya</li>
+                </ul>
+            </div>
+
+            <div class="effective-date">
+                <i class="fas fa-calendar-alt"></i> This Privacy Policy is effective as of April 1, 2025
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 Kirinyaga University Hostels. All rights reserved.</p>
+    </footer>
+
+    <script>
+        function applyDarkMode() {
+            const savedTheme = localStorage.getItem('ownerTheme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+        }
+        applyDarkMode();
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'ownerTheme') applyDarkMode();
+        });
+    </script>
+</body>
+</html>
