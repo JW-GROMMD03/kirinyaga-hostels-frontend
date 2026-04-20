@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Saved Hostels - Kirinyaga Hostels</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Saved Hostels - Kirinyaga University Hostels</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -13,44 +14,73 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
+        /* ============================================
+           CSS CUSTOM PROPERTIES (VARIABLES)
+           ============================================ */
         :root {
             --kyu-green: #006747;
             --kyu-gold: #FFD700;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border-light: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1);
             --danger: #dc2626;
+            --danger-light: #fee2e2;
             --success: #16a34a;
+            --success-light: #d1fae5;
             --warning: #ca8a04;
+            --warning-light: #fef3c7;
             --info: #2563eb;
+            --info-light: #dbeafe;
+            --border-radius-sm: 8px;
+            --border-radius-md: 12px;
+            --border-radius-lg: 16px;
+            --border-radius-xl: 24px;
+            --border-radius-2xl: 32px;
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            --hostel-name-color: #006747;
+            --hostel-desc-color: #64748b;
+            --heading-color: #006747;
+        }
+
+        /* ============================================
+           DARK MODE OVERRIDES
+           ============================================ */
+        body.dark-mode {
+            --kyu-green: #2ecc71;
+            --kyu-gold: #f1c40f;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --bg-light: #0f172a;
+            --bg-white: #1e293b;
+            --border-light: #334155;
+            --hostel-name-color: #2ecc71;
+            --hostel-desc-color: #ffffff;
+            --heading-color: #2ecc71;
         }
 
         body {
-            background: #f8fafc;
+            background: var(--bg-light);
             min-height: 100vh;
-            transition: background 0.3s, color 0.3s;
+            transition: background var(--transition-normal), color var(--transition-normal);
+            line-height: 1.5;
         }
 
-        body.dark-mode {
-            background: #0f172a;
-            color: #e2e8f0;
-        }
-
-        body.dark-mode .hostel-card,
-        body.dark-mode header {
-            background: #1e293b;
-            border-color: #334155;
-        }
-
-        body.dark-mode .hostel-distance {
-            color: #94a3b8;
-        }
-
-        body.dark-mode .btn-remove {
-            background: #b91c1c;
-        }
-
-        /* Header */
+        /* ============================================
+           HEADER STYLES
+           ============================================ */
         header {
-            background: white;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            background: var(--bg-white);
+            box-shadow: var(--shadow-md);
             padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
@@ -58,18 +88,24 @@
             border-bottom: 3px solid var(--kyu-gold);
             position: sticky;
             top: 0;
-            z-index: 1000;
-            transition: background 0.3s;
+            z-index: 100;
+            transition: background var(--transition-normal);
         }
 
         .logo {
             display: flex;
             align-items: center;
             gap: 15px;
+            cursor: pointer;
+            transition: opacity var(--transition-fast);
+        }
+        .logo:hover {
+            opacity: 0.85;
         }
 
         .logo img {
             height: 50px;
+            width: auto;
         }
 
         .logo span {
@@ -84,24 +120,67 @@
             gap: 20px;
         }
 
+        .dark-mode-toggle {
+            background: var(--bg-light);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all var(--transition-normal);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dark-mode-toggle:hover {
+            background: var(--border-light);
+            transform: rotate(15deg);
+        }
+
         .notifications {
             position: relative;
             cursor: pointer;
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            transition: color var(--transition-fast);
+        }
+        .notifications:hover {
+            color: var(--kyu-green);
         }
 
         .notifications .badge {
             position: absolute;
-            top: -5px;
-            right: -5px;
+            top: -8px;
+            right: -8px;
             background: var(--danger);
             color: white;
             border-radius: 50%;
             width: 20px;
             height: 20px;
-            font-size: 12px;
+            font-size: 11px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 5px 15px;
+            background: var(--bg-light);
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+        }
+
+        .user-info:hover {
+            background: var(--border-light);
+            transform: translateY(-1px);
         }
 
         .user-avatar {
@@ -115,21 +194,86 @@
             justify-content: center;
             font-weight: 700;
             font-size: 1.2rem;
-            cursor: pointer;
         }
 
-        .dark-mode-toggle {
-            cursor: pointer;
-            font-size: 1.5rem;
-            user-select: none;
+        .user-details {
+            display: flex;
+            flex-direction: column;
         }
 
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-role {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .btn-logout {
+            padding: 0.6rem 1.2rem;
+            border: 2px solid var(--danger);
+            background: transparent;
+            color: var(--danger);
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-logout:hover {
+            background: var(--danger);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        /* ============================================
+           BACK BUTTON STYLES
+           ============================================ */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            border: 2px solid var(--kyu-green);
+            color: var(--kyu-green);
+            padding: 0.6rem 1.2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+        .back-button:hover {
+            background: var(--kyu-green);
+            color: white;
+            transform: translateX(-3px);
+        }
+        .back-button i {
+            font-size: 1rem;
+            transition: transform var(--transition-fast);
+        }
+        .back-button:hover i {
+            transform: translateX(-3px);
+        }
+
+        /* ============================================
+           MAIN CONTAINER
+           ============================================ */
         .container {
             max-width: 1200px;
             margin: 2rem auto;
             padding: 0 2rem;
         }
 
+        /* ============================================
+           PAGE HEADER
+           ============================================ */
         .page-header {
             display: flex;
             justify-content: space-between;
@@ -140,20 +284,14 @@
         }
 
         .page-header h1 {
-            color: var(--kyu-green);
+            color: var(--heading-color, var(--kyu-green));
             font-size: 2rem;
+            font-weight: 700;
         }
 
-        .page-header a {
-            color: var(--kyu-green);
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .page-header a:hover {
-            text-decoration: underline;
-        }
-
+        /* ============================================
+           HOSTEL GRID
+           ============================================ */
         .hostel-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -161,18 +299,18 @@
         }
 
         .hostel-card {
-            background: white;
-            border-radius: 20px;
+            background: var(--bg-white);
+            border-radius: var(--border-radius-xl);
             overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-md);
             cursor: pointer;
-            transition: transform 0.3s, box-shadow 0.3s;
-            border: 1px solid #e2e8f0;
+            transition: all var(--transition-normal);
+            border: 1px solid var(--border-light);
         }
 
         .hostel-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            box-shadow: var(--shadow-lg);
         }
 
         .hostel-image {
@@ -189,18 +327,18 @@
         .hostel-name {
             font-size: 1.3rem;
             font-weight: 700;
-            color: var(--kyu-green);
+            color: var(--hostel-name-color, var(--kyu-green));
             margin-bottom: 0.5rem;
         }
 
         .hostel-price {
-            color: var(--kyu-green);
+            color: var(--hostel-name-color, var(--kyu-green));
             font-weight: 600;
             margin-bottom: 0.5rem;
         }
 
         .hostel-distance {
-            color: #666;
+            color: var(--hostel-desc-color, var(--text-secondary));
             font-size: 0.9rem;
             margin-bottom: 0.5rem;
         }
@@ -209,28 +347,32 @@
             background: var(--danger);
             color: white;
             border: none;
-            padding: 0.5rem 1rem;
+            padding: 0.6rem 1rem;
             border-radius: 30px;
             cursor: pointer;
             width: 100%;
             margin-top: 1rem;
             font-weight: 600;
-            transition: background 0.3s;
+            transition: all var(--transition-fast);
         }
 
         .btn-remove:hover {
             background: #b91c1c;
+            transform: translateY(-1px);
         }
 
         .no-hostels {
             text-align: center;
             padding: 3rem;
-            color: #666;
+            color: var(--text-secondary);
             grid-column: 1 / -1;
         }
 
+        /* ============================================
+           LOADING & ERROR STATES
+           ============================================ */
         .spinner {
-            border: 4px solid rgba(0,0,0,0.1);
+            border: 4px solid rgba(0,103,71,0.1);
             border-left-color: var(--kyu-green);
             border-radius: 50%;
             width: 40px;
@@ -238,15 +380,67 @@
             animation: spin 1s linear infinite;
             margin: 2rem auto;
         }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
 
         .error-message {
             color: var(--danger);
             text-align: center;
             padding: 2rem;
+            background: var(--danger-light);
+            border-radius: var(--border-radius-lg);
+            margin: 1rem;
         }
 
+        /* ============================================
+           TOAST NOTIFICATION
+           ============================================ */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 12px 24px;
+            border-radius: var(--border-radius-md);
+            z-index: 10000;
+            animation: slideInToast 0.3s ease;
+            box-shadow: var(--shadow-lg);
+        }
+        .toast.error {
+            background: var(--danger);
+        }
+        @keyframes slideInToast {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* ============================================
+           RESPONSIVE DESIGN
+           ============================================ */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            .page-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .user-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .container {
+                padding: 0 1rem;
+            }
+        }
+
+        /* ============================================
+           FOOTER
+           ============================================ */
         footer {
             background: #1a2e3a;
             color: #e2e8f0;
@@ -255,32 +449,50 @@
             margin-top: 3rem;
             border-top: 3px solid var(--kyu-gold);
         }
-
-        @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            .page-header {
-                flex-direction: column;
-                text-align: center;
-            }
+        body.dark-mode footer {
+            background: #0f172a;
+        }
+        footer a {
+            color: var(--kyu-gold);
+            text-decoration: none;
         }
     </style>
 </head>
 <body>
+    <!-- Header Section -->
     <header>
-        <div class="logo">
+        <div class="logo" onclick="window.location.href='dashboard.html'">
             <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23FFD700' font-size='42' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
             <span>Kirinyaga Hostels</span>
         </div>
-        
+        <div class="user-menu">
+            <button class="dark-mode-toggle" id="darkModeToggle" aria-label="Toggle dark mode">
+                <i class="fas fa-moon"></i>
+            </button>
+            <div class="notifications" id="notificationsIcon" aria-label="Notifications">
+                <i class="fas fa-bell"></i>
+                <span class="badge" id="notificationBadge" style="display: none;">0</span>
+            </div>
+            <div class="user-info" id="profileBtn" aria-label="Profile">
+                <div class="user-avatar" id="userAvatar">S</div>
+                <div class="user-details">
+                    <span class="user-name" id="userName">Student</span>
+                    <span class="user-role">Student</span>
+                </div>
+            </div>
+            <button class="btn-logout" id="logoutBtn" aria-label="Logout">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
     </header>
 
+    <!-- Main Container -->
     <div class="container">
         <div class="page-header">
-            <h1>Saved Hostels</h1>
-            <a href="dashboard.html">← Back to Dashboard</a>
+            <h1><i class="fas fa-heart"></i> Saved Hostels</h1>
+            <button class="back-button" onclick="window.location.href='dashboard.html'">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </button>
         </div>
 
         <div id="savedGrid" class="hostel-grid">
@@ -288,26 +500,103 @@
         </div>
     </div>
 
+    <!-- Footer -->
     <footer>
-        <p>© 2025 Kirinyaga University Hostels</p>
+        <p>© 2025 Kirinyaga University Hostels. All rights reserved.</p>
+        <p style="margin-top: 0.5rem; font-size: 0.85rem;">
+            <a href="privacy.html">Privacy Policy</a> | 
+            <a href="terms.html">Terms of Service</a> | 
+            <a href="contact.html">Contact Us</a>
+        </p>
     </footer>
 
+    <!-- Theme Sync Script -->
     <script>
+        // ============================================
+        // GLOBAL THEME MANAGEMENT - SYNC ACROSS ALL PAGES
+        // ============================================
+        
+        // Apply dark mode based on localStorage
+        function applyDarkMode() {
+            const savedTheme = localStorage.getItem('studentTheme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                const darkToggle = document.getElementById('darkModeToggle');
+                if (darkToggle) darkToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                document.body.classList.remove('dark-mode');
+                const darkToggle = document.getElementById('darkModeToggle');
+                if (darkToggle) darkToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+        }
+        
+        // Initialize dark mode on page load
+        applyDarkMode();
+        
+        // Listen for storage events (sync across tabs/windows)
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'studentTheme') {
+                applyDarkMode();
+            }
+        });
+        
+        // Toggle dark mode and save to localStorage
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('click', () => {
+                const isDark = document.body.classList.toggle('dark-mode');
+                localStorage.setItem('studentTheme', isDark ? 'dark' : 'light');
+                darkModeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            });
+        }
+    </script>
+
+    <script>
+        // ============================================
+        // SAVED HOSTELS PAGE - COMPLETE FUNCTIONALITY
+        // ============================================
+        
         (function() {
             const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
             const accessToken = sessionStorage.getItem('accessToken');
+            
+            // Authentication check
             if (!accessToken) {
+                console.warn('No access token found. Redirecting to login page.');
                 window.location.href = 'login.html';
                 return;
             }
 
+            // DOM Elements
             const savedGrid = document.getElementById('savedGrid');
-            const darkModeToggle = document.getElementById('darkModeToggle');
             const notificationBadge = document.getElementById('notificationBadge');
             const notificationsIcon = document.getElementById('notificationsIcon');
             const userAvatar = document.getElementById('userAvatar');
+            const userName = document.getElementById('userName');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const profileBtn = document.getElementById('profileBtn');
 
-            // Helper: fetch with auth
+            // ============================================
+            // HELPER FUNCTIONS
+            // ============================================
+            function showToast(message, isError = false) {
+                const toast = document.createElement('div');
+                toast.className = `toast ${isError ? 'error' : ''}`;
+                toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${message}`;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 4000);
+            }
+
+            function escapeHtml(text) {
+                if (!text) return '';
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // ============================================
+            // API HELPER
+            // ============================================
             async function authFetch(url, options = {}) {
                 const headers = {
                     'Content-Type': 'application/json',
@@ -317,95 +606,125 @@
                 const response = await fetch(url, { ...options, headers, credentials: 'include' });
                 if (response.status === 401) {
                     sessionStorage.removeItem('accessToken');
+                    localStorage.removeItem('accessToken');
                     window.location.href = 'login.html';
                 }
                 return response;
             }
 
-            // Load user profile for avatar
+            // ============================================
+            // LOAD USER PROFILE
+            // ============================================
             async function loadProfile() {
                 try {
                     const res = await authFetch(`${API_BASE}/auth/profile/`);
-                    if (!res.ok) throw new Error('Profile fetch failed');
-                    const data = await res.json();
-                    const initials = data.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2);
-                    userAvatar.textContent = initials || 'S';
+                    if (res.ok) {
+                        const data = await res.json();
+                        const fullName = data.full_name || 'Student';
+                        userName.textContent = fullName;
+                        const initials = fullName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+                        userAvatar.textContent = initials || 'S';
+                    }
                 } catch (e) {
-                    console.error('Failed to load profile', e);
+                    console.error('Failed to load profile:', e);
                 }
             }
 
-            // Load notifications for badge
+            // ============================================
+            // LOAD NOTIFICATIONS COUNT
+            // ============================================
             async function loadNotifications() {
                 try {
                     const res = await authFetch(`${API_BASE}/notifications/`);
-                    if (!res.ok) throw new Error('Notifications fetch failed');
-                    const data = await res.json();
-                    const notifs = Array.isArray(data) ? data : (data.results || []);
-                    const unreadCount = notifs.filter(n => !n.is_read).length;
-                    notificationBadge.textContent = unreadCount;
-                    notificationBadge.style.display = unreadCount > 0 ? 'flex' : 'none';
+                    if (res.ok) {
+                        const data = await res.json();
+                        const notifs = Array.isArray(data) ? data : (data.results || []);
+                        const unreadCount = notifs.filter(n => !n.is_read).length;
+                        if (notificationBadge) {
+                            notificationBadge.textContent = unreadCount;
+                            notificationBadge.style.display = unreadCount > 0 ? 'flex' : 'none';
+                        }
+                    }
                 } catch (e) {
-                    console.error('Failed to load notifications', e);
+                    console.error('Failed to load notifications:', e);
                 }
             }
 
-            // Load saved hostels
-            async function loadSaved() {
+            // ============================================
+            // LOAD SAVED HOSTELS
+            // ============================================
+            async function loadSavedHostels() {
                 savedGrid.innerHTML = '<div class="spinner"></div>';
                 try {
                     const res = await authFetch(`${API_BASE}/hostels/saved/`);
-                    if (!res.ok) throw new Error('Saved fetch failed');
+                    if (!res.ok) throw new Error('Failed to fetch saved hostels');
+                    
                     const data = await res.json();
                     const savedList = Array.isArray(data) ? data : (data.results || []);
+                    
                     if (savedList.length === 0) {
-                        savedGrid.innerHTML = '<div class="no-hostels">You have no saved hostels. Start exploring and save your favourites!</div>';
+                        savedGrid.innerHTML = `
+                            <div class="no-hostels">
+                                <i class="fas fa-heart-broken" style="font-size: 3rem; color: var(--text-secondary); margin-bottom: 1rem; display: block;"></i>
+                                <p>You have no saved hostels yet.</p>
+                                <p>Start exploring and save your favourite hostels!</p>
+                                <button class="back-button" onclick="window.location.href='hostel-list.html'" style="margin-top: 1rem;">
+                                    <i class="fas fa-search"></i> Explore Hostels
+                                </button>
+                            </div>
+                        `;
                         return;
                     }
+                    
                     let html = '';
-                    savedList.forEach(item => {
+                    for (const item of savedList) {
                         const h = item.hostel;
-                        if (!h) return; // skip if no hostel data
-                        const primaryImage = h.primary_image || 'https://via.placeholder.com/300x200?text=No+Image';
+                        if (!h) continue;
+                        
+                        const primaryImage = h.primary_image || (h.images && h.images[0]) || 'https://placehold.co/400x200/006747/white?text=Hostel';
                         const distance = h.distance_to_university ? `${h.distance_to_university} km from KyU` : '';
+                        
                         html += `
                             <div class="hostel-card" data-id="${h.id}">
                                 <div class="hostel-image" style="background-image: url('${primaryImage}')"></div>
                                 <div class="hostel-info">
-                                    <div class="hostel-name">${h.name || 'Unnamed'}</div>
-                                    <div class="hostel-price">KSh ${h.price || 0}/month</div>
-                                    ${distance ? `<div class="hostel-distance">📍 ${distance}</div>` : ''}
-                                    <button class="btn-remove" data-save-id="${item.id}">Remove</button>
+                                    <div class="hostel-name">${escapeHtml(h.name || 'Unnamed Hostel')}</div>
+                                    <div class="hostel-price">KSh ${(h.price || 0).toLocaleString()}/month</div>
+                                    ${distance ? `<div class="hostel-distance">📍 ${escapeHtml(distance)}</div>` : ''}
+                                    <button class="btn-remove" data-save-id="${item.id}">
+                                        <i class="fas fa-trash-alt"></i> Remove
+                                    </button>
                                 </div>
                             </div>
                         `;
-                    });
+                    }
                     savedGrid.innerHTML = html;
 
-                    // Attach remove button listeners
+                    // Attach remove button event listeners
                     document.querySelectorAll('.btn-remove').forEach(btn => {
                         btn.addEventListener('click', async (e) => {
                             e.stopPropagation();
                             const saveId = btn.dataset.saveId;
                             if (!saveId) return;
+                            
                             try {
                                 const delRes = await authFetch(`${API_BASE}/hostels/saved/${saveId}/`, {
                                     method: 'DELETE'
                                 });
                                 if (delRes.ok) {
-                                    // refresh list
-                                    loadSaved();
-                                    // also refresh badge count (maybe saved count in dashboard)
+                                    showToast('Removed from saved hostels');
+                                    loadSavedHostels(); // Refresh the list
                                 } else {
-                                    alert('Failed to remove');
+                                    showToast('Failed to remove', true);
                                 }
-                            } catch (e) {
-                                alert('Error removing');
+                            } catch (err) {
+                                console.error('Error removing saved hostel:', err);
+                                showToast('Error removing hostel', true);
                             }
                         });
                     });
 
-                    // Click on card (but not button) to go to detail
+                    // Click on card to go to detail page
                     document.querySelectorAll('.hostel-card').forEach(card => {
                         card.addEventListener('click', (e) => {
                             if (e.target.classList.contains('btn-remove')) return;
@@ -413,32 +732,62 @@
                         });
                     });
 
-                } catch (e) {
-                    console.error('Error loading saved hostels:', e);
+                } catch (err) {
+                    console.error('Error loading saved hostels:', err);
                     savedGrid.innerHTML = '<div class="error-message">Failed to load saved hostels. Please try again.</div>';
                 }
             }
 
-            // Dark mode
-            darkModeToggle.addEventListener('click', () => {
-                document.body.classList.toggle('dark-mode');
-                darkModeToggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
-                localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
-            });
-            if (localStorage.getItem('darkMode') === 'true') {
-                document.body.classList.add('dark-mode');
-                darkModeToggle.textContent = '☀️';
+            // ============================================
+            // LOGOUT FUNCTION
+            // ============================================
+            function initLogout() {
+                if (!logoutBtn) return;
+                logoutBtn.addEventListener('click', () => {
+                    sessionStorage.removeItem('accessToken');
+                    localStorage.removeItem('accessToken');
+                    showToast('Logged out successfully');
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 500);
+                });
             }
 
-            // Notifications click – go to notifications page
-            notificationsIcon.addEventListener('click', () => {
-                window.location.href = 'notifications.html';
-            });
+            // ============================================
+            // PROFILE CLICK
+            // ============================================
+            function initProfile() {
+                if (profileBtn) {
+                    profileBtn.addEventListener('click', () => {
+                        window.location.href = 'dashboard.html';
+                    });
+                }
+            }
 
-            // Load everything
-            loadProfile();
-            loadNotifications();
-            loadSaved();
+            // ============================================
+            // NOTIFICATIONS CLICK
+            // ============================================
+            function initNotifications() {
+                if (notificationsIcon) {
+                    notificationsIcon.addEventListener('click', () => {
+                        window.location.href = 'notifications.html';
+                    });
+                }
+            }
+
+            // ============================================
+            // INITIALIZE
+            // ============================================
+            async function init() {
+                await loadProfile();
+                await loadNotifications();
+                await loadSavedHostels();
+                initLogout();
+                initProfile();
+                initNotifications();
+            }
+            
+            init();
         })();
     </script>
 </body>

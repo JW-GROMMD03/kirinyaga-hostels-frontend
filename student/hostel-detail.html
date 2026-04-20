@@ -2,47 +2,88 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hostel Details - Kirinyaga Hostels</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Hostel Details - Kirinyaga University Hostels</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* ============================================
+           RESET & BASE STYLES
+           ============================================ */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
+
+        /* ============================================
+           CSS CUSTOM PROPERTIES (VARIABLES)
+           ============================================ */
         :root {
             --kyu-green: #006747;
             --kyu-gold: #FFD700;
             --text-primary: #1e293b;
             --text-secondary: #64748b;
+            --text-muted: #94a3b8;
             --bg-light: #f8fafc;
             --bg-white: #ffffff;
             --border-light: #e2e8f0;
-            --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.1);
-            --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1);
             --danger: #dc2626;
+            --danger-light: #fee2e2;
             --success: #16a34a;
+            --success-light: #d1fae5;
             --warning: #ca8a04;
+            --warning-light: #fef3c7;
+            --info: #2563eb;
+            --info-light: #dbeafe;
+            --border-radius-sm: 8px;
+            --border-radius-md: 12px;
+            --border-radius-lg: 16px;
+            --border-radius-xl: 24px;
+            --border-radius-2xl: 32px;
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            --hostel-name-color: #006747;
+            --hostel-desc-color: #64748b;
+            --heading-color: #006747;
         }
+
+        /* ============================================
+           DARK MODE OVERRIDES
+           ============================================ */
         body.dark-mode {
             --kyu-green: #2ecc71;
             --kyu-gold: #f1c40f;
             --text-primary: #f1f5f9;
             --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
             --bg-light: #0f172a;
             --bg-white: #1e293b;
             --border-light: #334155;
+            --hostel-name-color: #2ecc71;
+            --hostel-desc-color: #ffffff;
+            --heading-color: #2ecc71;
         }
+
         body {
             background: var(--bg-light);
             min-height: 100vh;
-            transition: background 0.3s ease;
+            transition: background var(--transition-normal), color var(--transition-normal);
+            line-height: 1.5;
         }
+
+        /* ============================================
+           HEADER STYLES
+           ============================================ */
         header {
             background: var(--bg-white);
-            box-shadow: var(--shadow-sm);
+            box-shadow: var(--shadow-md);
             padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
@@ -51,40 +92,198 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            transition: background var(--transition-normal);
         }
+
         .logo {
             display: flex;
             align-items: center;
             gap: 15px;
             cursor: pointer;
+            transition: opacity var(--transition-fast);
         }
+        .logo:hover {
+            opacity: 0.85;
+        }
+
         .logo img {
             height: 50px;
+            width: auto;
         }
+
         .logo span {
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--kyu-green);
         }
-        .back-link {
-            margin-bottom: 2rem;
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
         }
-        .back-link a {
+
+        .dark-mode-toggle {
+            background: var(--bg-light);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all var(--transition-normal);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dark-mode-toggle:hover {
+            background: var(--border-light);
+            transform: rotate(15deg);
+        }
+
+        .notifications {
+            position: relative;
+            cursor: pointer;
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            transition: color var(--transition-fast);
+        }
+        .notifications:hover {
             color: var(--kyu-green);
-            text-decoration: none;
+        }
+
+        .notifications .badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: 600;
         }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 5px 15px;
+            background: var(--bg-light);
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+        }
+
+        .user-info:hover {
+            background: var(--border-light);
+            transform: translateY(-1px);
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--kyu-green);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-role {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .btn-logout {
+            padding: 0.6rem 1.2rem;
+            border: 2px solid var(--danger);
+            background: transparent;
+            color: var(--danger);
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-logout:hover {
+            background: var(--danger);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        /* ============================================
+           BACK BUTTON STYLES
+           ============================================ */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            border: 2px solid var(--kyu-green);
+            color: var(--kyu-green);
+            padding: 0.5rem 1rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .back-button:hover {
+            background: var(--kyu-green);
+            color: white;
+            transform: translateX(-3px);
+        }
+        .back-button i {
+            font-size: 0.9rem;
+            transition: transform var(--transition-fast);
+        }
+        .back-button:hover i {
+            transform: translateX(-3px);
+        }
+
+        /* ============================================
+           MAIN CONTAINER
+           ============================================ */
         .container {
             max-width: 1200px;
             margin: 2rem auto;
             padding: 0 2rem;
         }
+
+        /* ============================================
+           HOSTEL DETAIL STYLES
+           ============================================ */
         .hostel-detail {
             background: var(--bg-white);
-            border-radius: 30px;
+            border-radius: var(--border-radius-xl);
             padding: 2rem;
             box-shadow: var(--shadow-md);
         }
+
         .hostel-title {
             display: flex;
             justify-content: space-between;
@@ -93,10 +292,13 @@
             flex-wrap: wrap;
             gap: 1rem;
         }
+
         .hostel-title h1 {
-            color: var(--kyu-green);
+            color: var(--heading-color, var(--kyu-green));
             font-size: 2rem;
+            font-weight: 700;
         }
+
         .featured-badge {
             background: var(--kyu-gold);
             color: #000;
@@ -104,12 +306,14 @@
             border-radius: 30px;
             font-weight: 600;
         }
+
+        /* Slideshow */
         .slideshow-container {
             position: relative;
             width: 100%;
             height: 400px;
             overflow: hidden;
-            border-radius: 20px;
+            border-radius: var(--border-radius-xl);
             margin-bottom: 2rem;
         }
         .slide {
@@ -167,52 +371,72 @@
         .dot.active {
             background-color: var(--kyu-green);
         }
+
+        /* Details Grid */
         .details-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 2rem;
             margin-bottom: 2rem;
         }
+
         .detail-section {
             background: var(--bg-light);
             padding: 1.5rem;
-            border-radius: 20px;
+            border-radius: var(--border-radius-xl);
         }
+
         .detail-section h3 {
-            color: var(--kyu-green);
+            color: var(--heading-color, var(--kyu-green));
             margin-bottom: 1rem;
+            font-size: 1.2rem;
         }
+
         .detail-item {
             margin-bottom: 0.8rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
             flex-wrap: wrap;
+            color: var(--text-primary);
         }
+
         .amenities-list {
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
         }
+
         .amenity-tag {
             background: var(--bg-white);
             padding: 0.3rem 1rem;
             border-radius: 30px;
             border: 1px solid var(--border-light);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            color: var(--text-primary);
         }
+
         .owner-contact {
             background: var(--bg-light);
             padding: 1.5rem;
-            border-radius: 20px;
+            border-radius: var(--border-radius-xl);
             margin-top: 2rem;
         }
+
+        .owner-contact h3 {
+            color: var(--heading-color, var(--kyu-green));
+            margin-bottom: 1rem;
+        }
+
         .contact-item {
             display: flex;
             align-items: center;
             gap: 1rem;
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
+            color: var(--text-primary);
         }
+
+        /* Buttons */
         .btn-save {
             background: transparent;
             border: 2px solid var(--kyu-green);
@@ -222,7 +446,7 @@
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all var(--transition-normal);
             width: 100%;
             margin-top: 1rem;
         }
@@ -233,7 +457,9 @@
         .btn-save:hover {
             background: var(--kyu-green);
             color: white;
+            transform: translateY(-2px);
         }
+
         .btn-book {
             background: var(--kyu-green);
             color: white;
@@ -244,17 +470,21 @@
             width: 100%;
             margin-top: 1rem;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all var(--transition-normal);
         }
         .btn-book:hover {
             background: #004d33;
+            transform: translateY(-2px);
         }
         .btn-book:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+            transform: none;
         }
+
+        /* Spinner & Error */
         .spinner {
-            border: 4px solid rgba(0,0,0,0.1);
+            border: 4px solid rgba(0,103,71,0.1);
             border-left-color: var(--kyu-green);
             border-radius: 50%;
             width: 40px;
@@ -265,6 +495,8 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
@@ -283,13 +515,13 @@
         }
         .modal-content {
             background: var(--bg-white);
-            border-radius: 40px;
+            border-radius: var(--border-radius-xl);
             padding: 2rem;
             max-width: 500px;
             width: 90%;
-            max-height: 90vh;
+            max-height: 85vh;
             overflow-y: auto;
-            box-shadow: var(--shadow-lg);
+            box-shadow: var(--shadow-xl);
         }
         .modal-header {
             display: flex;
@@ -298,16 +530,18 @@
             margin-bottom: 1.5rem;
         }
         .modal-header h2 {
-            color: var(--kyu-green);
+            color: var(--heading-color, var(--kyu-green));
         }
         .modal-close {
             font-size: 2rem;
             cursor: pointer;
             color: var(--text-secondary);
+            transition: color var(--transition-fast);
         }
         .modal-close:hover {
             color: var(--danger);
         }
+
         .form-group {
             margin-bottom: 1.2rem;
         }
@@ -323,7 +557,7 @@
             width: 100%;
             padding: 0.8rem;
             border: 2px solid var(--border-light);
-            border-radius: 20px;
+            border-radius: var(--border-radius-md);
             font-size: 1rem;
             background: var(--bg-white);
             color: var(--text-primary);
@@ -332,18 +566,20 @@
             display: block;
             margin-top: 0.3rem;
             color: var(--text-secondary);
-            font-size: 0.8rem;
+            font-size: 0.75rem;
         }
+
         .payment-summary {
             background: var(--bg-light);
             padding: 1rem;
-            border-radius: 20px;
+            border-radius: var(--border-radius-lg);
             margin: 1rem 0;
         }
         .payment-summary .row {
             display: flex;
             justify-content: space-between;
             margin-bottom: 0.5rem;
+            color: var(--text-primary);
         }
         .payment-summary .total {
             border-top: 1px solid var(--border-light);
@@ -352,6 +588,7 @@
             font-weight: 700;
             font-size: 1.1rem;
         }
+
         .modal-footer {
             display: flex;
             gap: 1rem;
@@ -366,6 +603,10 @@
             border-radius: 40px;
             font-weight: 600;
             cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+        .btn-primary:hover {
+            background: #004d33;
         }
         .btn-primary:disabled {
             opacity: 0.6;
@@ -380,7 +621,13 @@
             border-radius: 40px;
             font-weight: 600;
             cursor: pointer;
+            transition: all var(--transition-fast);
         }
+        .btn-secondary:hover {
+            background: var(--border-light);
+        }
+
+        /* Rating Stars */
         .rating {
             display: flex;
             flex-direction: row-reverse;
@@ -394,12 +641,15 @@
             font-size: 2rem;
             color: #ccc;
             cursor: pointer;
+            transition: color var(--transition-fast);
         }
         .rating input:checked ~ label,
         .rating label:hover,
         .rating label:hover ~ label {
             color: var(--kyu-gold);
         }
+
+        /* Toast */
         .toast {
             position: fixed;
             bottom: 20px;
@@ -407,28 +657,46 @@
             background: var(--success);
             color: white;
             padding: 12px 24px;
-            border-radius: 12px;
+            border-radius: var(--border-radius-md);
             z-index: 10000;
-            animation: slideIn 0.3s ease;
+            animation: slideInToast 0.3s ease;
+            box-shadow: var(--shadow-lg);
         }
         .toast.error {
             background: var(--danger);
         }
-        @keyframes slideIn {
+        @keyframes slideInToast {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
+
+        /* Footer */
         footer {
             background: #1a2e3a;
             color: #e2e8f0;
             padding: 2rem;
             text-align: center;
             margin-top: 3rem;
+            border-top: 3px solid var(--kyu-gold);
         }
+        body.dark-mode footer {
+            background: #0f172a;
+        }
+        footer a {
+            color: var(--kyu-gold);
+            text-decoration: none;
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
             header {
                 flex-direction: column;
                 gap: 1rem;
+                padding: 1rem;
+            }
+            .user-menu {
+                flex-wrap: wrap;
+                justify-content: center;
             }
             .details-grid {
                 grid-template-columns: 1fr;
@@ -436,28 +704,55 @@
             .slideshow-container {
                 height: 250px;
             }
+            .container {
+                padding: 0 1rem;
+            }
+            .hostel-title h1 {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Header Section -->
     <header>
         <div class="logo" onclick="window.location.href='dashboard.html'">
             <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747' rx='20'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23FFD700' font-size='42' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E" alt="KyU Logo">
             <span>Kirinyaga Hostels</span>
         </div>
-        <a href="javascript:history.back()" style="color: var(--kyu-green); text-decoration: none;">← Back</a>
+        <div class="user-menu">
+            <button class="dark-mode-toggle" id="darkModeToggle" aria-label="Toggle dark mode">
+                <i class="fas fa-moon"></i>
+            </button>
+            <div class="notifications" id="notificationsIcon" aria-label="Notifications">
+                <i class="fas fa-bell"></i>
+                <span class="badge" id="notificationBadge" style="display: none;">0</span>
+            </div>
+            <div class="user-info" id="profileBtn" aria-label="Profile">
+                <div class="user-avatar" id="userAvatar">S</div>
+                <div class="user-details">
+                    <span class="user-name" id="userName">Student</span>
+                    <span class="user-role">Student</span>
+                </div>
+            </div>
+            <button class="btn-logout" id="logoutBtn" aria-label="Logout">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
     </header>
 
+    <!-- Main Container -->
     <div class="container">
         <div id="hostelDetail">
             <div class="spinner"></div>
         </div>
     </div>
 
+    <!-- Review Modal -->
     <div class="modal" id="reviewModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Leave a Review</h2>
+                <h2><i class="fas fa-star"></i> Leave a Review</h2>
                 <span class="modal-close" onclick="closeModal('reviewModal')">&times;</span>
             </div>
             <div id="reviewModalBody">
@@ -474,7 +769,7 @@
                     </div>
                     <div class="form-group">
                         <label>Comment</label>
-                        <textarea id="reviewComment" rows="4" required></textarea>
+                        <textarea id="reviewComment" rows="4" placeholder="Share your experience..." required></textarea>
                     </div>
                 </form>
                 <div class="modal-footer">
@@ -485,24 +780,71 @@
         </div>
     </div>
 
+    <!-- Booking Modal -->
     <div class="modal" id="bookingModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Request Booking</h2>
+                <h2><i class="fas fa-calendar-check"></i> Request Booking</h2>
                 <span class="modal-close" onclick="closeBookingModal()">&times;</span>
             </div>
             <div id="bookingModalBody"></div>
         </div>
     </div>
 
+    <!-- Footer -->
     <footer>
         <p>© 2025 Kirinyaga University Hostels. All rights reserved.</p>
+        <p style="margin-top: 0.5rem; font-size: 0.85rem;">
+            <a href="privacy.html">Privacy Policy</a> | 
+            <a href="terms.html">Terms of Service</a> | 
+            <a href="contact.html">Contact Us</a>
+        </p>
     </footer>
 
+    <!-- Theme Sync Script -->
     <script>
+        // ============================================
+        // GLOBAL THEME MANAGEMENT - SYNC ACROSS ALL PAGES
+        // ============================================
+        
+        function applyDarkMode() {
+            const savedTheme = localStorage.getItem('studentTheme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                const darkToggle = document.getElementById('darkModeToggle');
+                if (darkToggle) darkToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                document.body.classList.remove('dark-mode');
+                const darkToggle = document.getElementById('darkModeToggle');
+                if (darkToggle) darkToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+        }
+        
+        applyDarkMode();
+        
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'studentTheme') {
+                applyDarkMode();
+            }
+        });
+        
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('click', () => {
+                const isDark = document.body.classList.toggle('dark-mode');
+                localStorage.setItem('studentTheme', isDark ? 'dark' : 'light');
+                darkModeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            });
+        }
+    </script>
+
+    <script>
+        // ============================================
+        // HOSTEL DETAIL PAGE - COMPLETE FUNCTIONALITY
+        // ============================================
+        
         (function() {
             const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
-            const CLOUDINARY_BASE = 'https://res.cloudinary.com/dqujm2fhm/';
             const token = sessionStorage.getItem('accessToken');
             const urlParams = new URLSearchParams(window.location.search);
             const hostelId = urlParams.get('id');
@@ -512,18 +854,29 @@
                 return;
             }
 
+            // DOM Elements
             const hostelDetail = document.getElementById('hostelDetail');
+            const notificationBadge = document.getElementById('notificationBadge');
+            const notificationsIcon = document.getElementById('notificationsIcon');
+            const userAvatar = document.getElementById('userAvatar');
+            const userName = document.getElementById('userName');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const profileBtn = document.getElementById('profileBtn');
+
             let slideIndex = 1;
             let slideInterval;
+            let currentBookingHostel = null;
+            let isBookingInProgress = false;
 
-            function getFullImageUrl(url) {
-                if (!url) return null;
-                if (url.startsWith('http://res.cloudinary.com')) {
-                    url = url.replace('http://', 'https://');
-                }
-                if (url.startsWith('http')) return url;
-                if (url.startsWith('image/upload/')) return `https://res.cloudinary.com/dqujm2fhm/${url}`;
-                return url;
+            // ============================================
+            // HELPER FUNCTIONS
+            // ============================================
+            function showToast(message, isError = false) {
+                const toast = document.createElement('div');
+                toast.className = `toast ${isError ? 'error' : ''}`;
+                toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${message}`;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 4000);
             }
 
             function escapeHtml(text) {
@@ -533,41 +886,103 @@
                 return div.innerHTML;
             }
 
-            function showToast(message, isError = false) {
-                const toast = document.createElement('div');
-                toast.className = `toast ${isError ? 'error' : ''}`;
-                toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${message}`;
-                document.body.appendChild(toast);
-                setTimeout(() => toast.remove(), 5000);
+            function getFullImageUrl(url) {
+                if (!url) return null;
+                if (url.startsWith('http')) return url;
+                if (url.startsWith('image/upload/')) return `https://res.cloudinary.com/dqujm2fhm/${url}`;
+                return url;
             }
 
             window.openModal = (id) => document.getElementById(id).classList.add('active');
             window.closeModal = (id) => document.getElementById(id).classList.remove('active');
 
-            async function loadHostel() {
+            // ============================================
+            // API HELPER
+            // ============================================
+            async function authFetch(url, options = {}) {
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': token ? `Bearer ${token}` : '',
+                    ...options.headers
+                };
+                const response = await fetch(url, { ...options, headers, credentials: 'include' });
+                if (response.status === 401 && token) {
+                    sessionStorage.removeItem('accessToken');
+                    localStorage.removeItem('accessToken');
+                    window.location.href = 'login.html';
+                }
+                return response;
+            }
+
+            // ============================================
+            // LOAD USER PROFILE
+            // ============================================
+            async function loadProfile() {
+                if (!token) return;
                 try {
-                    const res = await fetch(`${API_BASE}/hostels/${hostelId}/`);
-                    if (!res.ok) {
-                        throw new Error(`HTTP ${res.status}`);
+                    const res = await authFetch(`${API_BASE}/auth/profile/`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        const fullName = data.full_name || 'Student';
+                        if (userName) userName.textContent = fullName;
+                        const initials = fullName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+                        if (userAvatar) userAvatar.textContent = initials || 'S';
                     }
-                    const hostel = await res.json();
-                    renderHostel(hostel);
                 } catch (e) {
-                    console.error('Error loading hostel:', e);
-                    hostelDetail.innerHTML = '<div style="text-align:center; padding:3rem;">Error loading hostel details.</div>';
+                    console.error('Failed to load profile:', e);
                 }
             }
 
+            // ============================================
+            // LOAD NOTIFICATIONS COUNT
+            // ============================================
+            async function loadNotifications() {
+                if (!token) return;
+                try {
+                    const res = await authFetch(`${API_BASE}/notifications/`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        const notifs = Array.isArray(data) ? data : (data.results || []);
+                        const unreadCount = notifs.filter(n => !n.is_read).length;
+                        if (notificationBadge) {
+                            notificationBadge.textContent = unreadCount;
+                            notificationBadge.style.display = unreadCount > 0 ? 'flex' : 'none';
+                        }
+                    }
+                } catch (e) {
+                    console.error('Failed to load notifications:', e);
+                }
+            }
+
+            // ============================================
+            // LOAD HOSTEL DETAILS
+            // ============================================
+            async function loadHostel() {
+                try {
+                    const res = await fetch(`${API_BASE}/hostels/${hostelId}/`);
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    const hostel = await res.json();
+                    renderHostel(hostel);
+                    if (token) checkSaved(hostel.id);
+                } catch (e) {
+                    console.error('Error loading hostel:', e);
+                    hostelDetail.innerHTML = '<div style="text-align:center; padding:3rem; color: var(--danger);">Error loading hostel details. Please try again.</div>';
+                }
+            }
+
+            // ============================================
+            // RENDER HOSTEL DETAILS
+            // ============================================
             function renderHostel(h) {
                 let slidesHtml = '', dotsHtml = '';
                 if (h.images && h.images.length > 0) {
                     h.images.forEach((img, idx) => {
                         const imageUrl = getFullImageUrl(img.image || img.image_url || img.url);
-                        slidesHtml += `<div class="slide ${idx === 0 ? 'active' : ''}"><img src="${imageUrl}" alt="Hostel image" onerror="this.src='https://via.placeholder.com/800x400?text=No+Image'"></div>`;
+                        slidesHtml += `<div class="slide ${idx === 0 ? 'active' : ''}"><img src="${imageUrl}" alt="Hostel image" onerror="this.src='https://placehold.co/800x400/006747/white?text=No+Image'"></div>`;
                         dotsHtml += `<span class="dot ${idx === 0 ? 'active' : ''}" onclick="currentSlide(${idx+1})"></span>`;
                     });
                 } else {
-                    slidesHtml = '<div class="slide active"><img src="https://via.placeholder.com/800x400?text=No+Image" alt="No image"></div>';
+                    slidesHtml = '<div class="slide active"><img src="https://placehold.co/800x400/006747/white?text=No+Image" alt="No image"></div>';
                     dotsHtml = '<span class="dot active"></span>';
                 }
 
@@ -581,13 +996,20 @@
                     });
                 }
 
-                const featuredBadge = h.is_featured ? '<div class="featured-badge">⭐ Featured Hostel</div>' : '';
+                const featuredBadge = h.is_featured ? '<div class="featured-badge"><i class="fas fa-star"></i> Featured Hostel</div>' : '';
                 const isAvailable = h.available !== false;
 
                 const html = `
-                    <div class="back-link"><a href="javascript:history.back()">← Back</a></div>
+                    <div style="margin-bottom: 1rem;">
+                        <button class="back-button" onclick="window.location.href='hostel-list.html'">
+                            <i class="fas fa-arrow-left"></i> Back to Hostels
+                        </button>
+                    </div>
                     <div class="hostel-detail">
-                        <div class="hostel-title"><h1>${escapeHtml(h.name)}</h1>${featuredBadge}</div>
+                        <div class="hostel-title">
+                            <h1>${escapeHtml(h.name)}</h1>
+                            ${featuredBadge}
+                        </div>
                         <div class="slideshow-container" id="slideshowContainer">
                             ${slidesHtml}
                             <a class="prev" onclick="changeSlide(-1)">❮</a>
@@ -596,53 +1018,55 @@
                         </div>
                         <div class="details-grid">
                             <div class="detail-section">
-                                <h3>📍 Location & Distance</h3>
+                                <h3><i class="fas fa-map-marker-alt"></i> Location & Distance</h3>
                                 <div class="detail-item"><strong>Address:</strong> ${escapeHtml(h.address || 'Not specified')}</div>
                                 <div class="detail-item"><strong>Distance from KyU:</strong> ${h.distance_to_university || '?'} km</div>
                             </div>
                             <div class="detail-section">
-                                <h3>💰 Pricing</h3>
-                                <div class="detail-item"><strong>Monthly Rent:</strong> KSh ${Number(h.price || 0).toLocaleString()}</div>
-                                <div class="detail-item"><strong>Deposit:</strong> KSh ${Number(h.deposit || 0).toLocaleString()}</div>
+                                <h3><i class="fas fa-money-bill-wave"></i> Pricing</h3>
+                                <div class="detail-item"><strong>Monthly Rent:</strong> KSh ${(h.price || 0).toLocaleString()}</div>
+                                <div class="detail-item"><strong>Deposit:</strong> KSh ${(h.deposit || 0).toLocaleString()}</div>
                                 ${h.utilities ? `<div class="detail-item"><strong>Utilities:</strong> KSh ${Number(h.utilities).toLocaleString()}</div>` : ''}
                             </div>
                         </div>
-                        <div class="detail-section"><h3>📝 Description</h3><p>${escapeHtml(h.description || 'No description provided.')}</p></div>
                         <div class="detail-section">
-                            <h3>✨ Amenities</h3>
+                            <h3><i class="fas fa-align-left"></i> Description</h3>
+                            <p>${escapeHtml(h.description || 'No description provided.')}</p>
+                        </div>
+                        <div class="detail-section">
+                            <h3><i class="fas fa-concierge-bell"></i> Amenities</h3>
                             <div class="amenities-list">${amenitiesHtml || '<span class="amenity-tag">No amenities listed</span>'}</div>
                         </div>
                         <div class="owner-contact">
-                            <h3>👤 Hostel Owner Contact</h3>
+                            <h3><i class="fas fa-user-circle"></i> Hostel Owner Contact</h3>
                             <div class="contact-item"><strong>Name:</strong> ${escapeHtml(h.owner_name || 'Hostel Owner')}</div>
                             <div class="contact-item"><strong>Phone:</strong> ${escapeHtml(h.owner_phone || 'Not available')}</div>
                         </div>
                         ${!isAvailable ? `
-                            <div style="background: #fee2e2; color: #b91c1c; padding: 1rem; border-radius: 20px; text-align: center; margin-top: 1rem;">
+                            <div style="background: var(--danger-light); color: var(--danger); padding: 1rem; border-radius: var(--border-radius-lg); text-align: center; margin-top: 1rem;">
                                 <i class="fas fa-ban"></i> This hostel is currently taken and not available for booking.
                             </div>
                         ` : ''}
-                        ${isAvailable ? `
-                            <button class="btn-book" id="bookNowBtn">📅 Request Booking</button>
+                        ${isAvailable && token ? `
+                            <button class="btn-book" id="bookNowBtn"><i class="fas fa-calendar-plus"></i> Request Booking</button>
                         ` : ''}
                         ${token ? `
-                            <button class="btn-save" id="saveBtn">❤️ Save Hostel</button>
+                            <button class="btn-save" id="saveBtn"><i class="fas fa-heart"></i> Save Hostel</button>
                         ` : `
-                            <p style="text-align:center; margin-top:2rem;"><a href="login.html" style="color: var(--kyu-green);">Log in</a> to save this hostel.</p>
+                            <p style="text-align:center; margin-top:2rem;"><a href="login.html" style="color: var(--kyu-green);">Log in</a> to save or book this hostel.</p>
                         `}
                     </div>
                 `;
 
                 hostelDetail.innerHTML = html;
-                if (h.images && h.images.length > 1) {
-                    slideInterval = setInterval(() => changeSlide(1), 3000);
-                }
-                if (token) checkSaved(h.id);
                 
-                // Add event listener for book button
+                if (h.images && h.images.length > 1) {
+                    slideInterval = setInterval(() => changeSlide(1), 5000);
+                }
+                
                 const bookBtn = document.getElementById('bookNowBtn');
                 if (bookBtn) {
-                    bookBtn.addEventListener('click', () => openBookingModalFromDetail(h));
+                    bookBtn.addEventListener('click', () => openBookingModal(h));
                 }
                 
                 const saveBtn = document.getElementById('saveBtn');
@@ -651,6 +1075,9 @@
                 }
             }
 
+            // ============================================
+            // SLIDESHOW FUNCTIONS
+            // ============================================
             window.changeSlide = function(n) {
                 const slides = document.querySelectorAll('.slide');
                 const dots = document.querySelectorAll('.dot');
@@ -675,53 +1102,43 @@
                 dots[slideIndex-1].classList.add('active');
             };
 
+            // ============================================
+            // CHECK IF HOSTEL IS SAVED
+            // ============================================
             async function checkSaved(id) {
                 try {
-                    const res = await fetch(`${API_BASE}/hostels/saved/`, {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    if (res.status === 401) {
-                        sessionStorage.removeItem('accessToken');
-                        window.location.href = 'login.html';
-                        return;
-                    }
-                    if (!res.ok) throw new Error('Failed to fetch saved hostels');
+                    const res = await authFetch(`${API_BASE}/hostels/saved/`);
+                    if (!res.ok) return;
                     const saved = await res.json();
                     const savedArray = Array.isArray(saved) ? saved : (saved.results || []);
                     const isSaved = savedArray.some(s => s.hostel?.id === id);
                     const btn = document.getElementById('saveBtn');
                     if (btn && isSaved) {
                         btn.classList.add('saved');
-                        btn.textContent = '❤️ Saved';
+                        btn.innerHTML = '<i class="fas fa-heart"></i> Saved';
                     }
                 } catch (e) {
                     console.error('Error checking saved status:', e);
                 }
             }
 
+            // ============================================
+            // TOGGLE SAVE HOSTEL
+            // ============================================
             async function toggleSave(id) {
                 const btn = document.getElementById('saveBtn');
                 if (btn.classList.contains('saved')) {
                     try {
-                        const res = await fetch(`${API_BASE}/hostels/saved/`, {
-                            headers: { 'Authorization': `Bearer ${token}` }
-                        });
-                        if (res.status === 401) {
-                            sessionStorage.removeItem('accessToken');
-                            window.location.href = 'login.html';
-                            return;
-                        }
+                        const res = await authFetch(`${API_BASE}/hostels/saved/`);
+                        if (!res.ok) throw new Error('Failed to fetch saved hostels');
                         const saved = await res.json();
                         const savedArray = Array.isArray(saved) ? saved : (saved.results || []);
                         const savedItem = savedArray.find(s => s.hostel?.id === id);
                         if (savedItem) {
-                            const delRes = await fetch(`${API_BASE}/hostels/saved/${savedItem.id}/`, {
-                                method: 'DELETE',
-                                headers: { 'Authorization': `Bearer ${token}` }
-                            });
+                            const delRes = await authFetch(`${API_BASE}/hostels/saved/${savedItem.id}/`, { method: 'DELETE' });
                             if (delRes.ok) {
                                 btn.classList.remove('saved');
-                                btn.textContent = '🤍 Save';
+                                btn.innerHTML = '<i class="fas fa-heart"></i> Save Hostel';
                                 showToast('Removed from saved');
                             }
                         }
@@ -731,17 +1148,13 @@
                     }
                 } else {
                     try {
-                        const res = await fetch(`${API_BASE}/hostels/saved/`, {
+                        const res = await authFetch(`${API_BASE}/hostels/saved/`, {
                             method: 'POST',
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json'
-                            },
                             body: JSON.stringify({ hostel_id: id })
                         });
                         if (res.ok) {
                             btn.classList.add('saved');
-                            btn.textContent = '❤️ Saved';
+                            btn.innerHTML = '<i class="fas fa-heart"></i> Saved';
                             showToast('Saved successfully');
                         } else {
                             const data = await res.json();
@@ -754,18 +1167,16 @@
                 }
             }
 
-            // ==================== BOOKING FUNCTIONS ====================
-            let currentBookingHostel = null;
-            let isBookingInProgress = false;
-
-            function openBookingModalFromDetail(hostel) {
+            // ============================================
+            // BOOKING MODAL FUNCTIONS
+            // ============================================
+            function openBookingModal(hostel) {
                 if (isBookingInProgress) {
                     showToast('Please wait, processing previous request...', true);
                     return;
                 }
                 
                 currentBookingHostel = hostel;
-                
                 const today = new Date().toISOString().split('T')[0];
                 const nextMonth = new Date();
                 nextMonth.setMonth(nextMonth.getMonth() + 1);
@@ -818,7 +1229,7 @@
                     </div>
                 `;
                 
-                document.getElementById('submitBookingBtn').onclick = submitBookingFromDetail;
+                document.getElementById('submitBookingBtn').onclick = submitBooking;
                 openModal('bookingModal');
             }
 
@@ -828,7 +1239,7 @@
                 isBookingInProgress = false;
             };
 
-            async function submitBookingFromDetail() {
+            async function submitBooking() {
                 if (isBookingInProgress) {
                     showToast('Please wait, processing...', true);
                     return;
@@ -841,7 +1252,7 @@
                 const specialRequests = document.getElementById('specialRequests')?.value;
 
                 if (!moveInDate || !numGuests) {
-                    alert('Please fill all required fields');
+                    showToast('Please fill all required fields', true);
                     return;
                 }
 
@@ -871,18 +1282,18 @@
                     
                     if (!response.ok) {
                         if (data.existing_booking_id) {
-                            alert(`You have already booked this hostel. Check your bookings page for details.\nStatus: ${data.status}`);
-                            window.location.href = 'bookings.html';
+                            showToast(`You have already booked this hostel. Status: ${data.status || 'Pending'}`, true);
+                            setTimeout(() => { window.location.href = 'bookings.html'; }, 2000);
                         } else {
                             throw new Error(data.error || data.message || 'Booking request failed');
                         }
                     } else {
-                        alert('Booking request submitted! You have 4 hours to complete payment.\nThe hostel is now held for you.');
+                        showToast('Booking request submitted! You have 4 hours to complete payment.');
                         closeBookingModal();
-                        window.location.href = 'bookings.html';
+                        setTimeout(() => { window.location.href = 'bookings.html'; }, 1500);
                     }
                 } catch (e) {
-                    alert('Error: ' + e.message);
+                    showToast('Error: ' + e.message, true);
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = 'Request Booking';
                 } finally {
@@ -890,41 +1301,86 @@
                 }
             }
 
-            // Review modal
+            // ============================================
+            // REVIEW FUNCTIONS
+            // ============================================
             let currentReviewHostelId = null;
+            
             window.openReviewModal = function(hostelId) {
                 currentReviewHostelId = hostelId;
                 openModal('reviewModal');
             };
+            
             window.submitReview = async function() {
                 const rating = document.querySelector('input[name="rating"]:checked')?.value;
                 const comment = document.getElementById('reviewComment').value;
-                if (!rating) { alert('Please select a rating'); return; }
-                if (!comment.trim()) { alert('Please enter a comment'); return; }
+                if (!rating) { showToast('Please select a rating', true); return; }
+                if (!comment.trim()) { showToast('Please enter a comment', true); return; }
+                
                 const payload = { hostel: currentReviewHostelId, rating: parseInt(rating), comment: comment };
                 try {
-                    const res = await fetch(`${API_BASE}/reviews/`, {
+                    const res = await authFetch(`${API_BASE}/reviews/`, {
                         method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        },
                         body: JSON.stringify(payload)
                     });
-                    if (res.status === 401) {
-                        sessionStorage.removeItem('accessToken');
-                        window.location.href = 'login.html';
-                        return;
-                    }
                     if (!res.ok) throw new Error('Review submission failed');
-                    alert('Thank you for your review!');
+                    showToast('Thank you for your review!');
                     closeModal('reviewModal');
+                    document.getElementById('reviewComment').value = '';
+                    document.querySelectorAll('input[name="rating"]').forEach(r => r.checked = false);
                 } catch (e) {
-                    alert('Error submitting review: ' + e.message);
+                    showToast('Error submitting review: ' + e.message, true);
                 }
             };
 
-            loadHostel();
+            // ============================================
+            // LOGOUT
+            // ============================================
+            function initLogout() {
+                if (!logoutBtn) return;
+                logoutBtn.addEventListener('click', () => {
+                    sessionStorage.removeItem('accessToken');
+                    localStorage.removeItem('accessToken');
+                    showToast('Logged out successfully');
+                    setTimeout(() => { window.location.href = 'login.html'; }, 500);
+                });
+            }
+
+            // ============================================
+            // PROFILE CLICK
+            // ============================================
+            function initProfile() {
+                if (profileBtn) {
+                    profileBtn.addEventListener('click', () => {
+                        window.location.href = 'dashboard.html';
+                    });
+                }
+            }
+
+            // ============================================
+            // NOTIFICATIONS CLICK
+            // ============================================
+            function initNotifications() {
+                if (notificationsIcon) {
+                    notificationsIcon.addEventListener('click', () => {
+                        window.location.href = 'notifications.html';
+                    });
+                }
+            }
+
+            // ============================================
+            // INITIALIZE
+            // ============================================
+            async function init() {
+                await loadProfile();
+                await loadNotifications();
+                await loadHostel();
+                initLogout();
+                initProfile();
+                initNotifications();
+            }
+            
+            init();
         })();
     </script>
 </body>
