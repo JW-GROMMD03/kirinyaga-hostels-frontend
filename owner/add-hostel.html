@@ -781,40 +781,39 @@
             if (e.key === 'ownerTheme') applyDarkMode();
         });
 
-        // ==================== LOAD OWNER PROFILE ====================
-        async function loadOwnerProfile() {
-            try {
-                const data = await apiFetch('/auth/profile/');
-                
-                if (data) {
-                    // Auto-fill hostel name from profile using hostel_name (from signup)
-                    const hostelName = data.hostel_name || data.full_name || 'Owner';
-                    const nameInput = document.getElementById('name');
-                    if (nameInput) nameInput.value = hostelName;
-                    
-                    // Update header with hostel name or full name
-                    const displayName = data.hostel_name || data.full_name || 'Owner';
-                    const userNameSpan = document.getElementById('userName');
-                    const userAvatarDiv = document.getElementById('userAvatar');
-                    
-                    if (userNameSpan) userNameSpan.textContent = displayName;
-                    if (userAvatarDiv) {
-                        const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase();
-                        userAvatarDiv.textContent = initials.slice(0, 2);
-                    }
-                    
-                    console.log('✅ Profile loaded:', hostelName);
-                    return data;
-                }
-            } catch (error) {
-                console.error('Failed to load profile:', error);
-                // Don't show error message for auth failures (they redirect)
-                if (!error.message.includes('Authentication')) {
-                    showMessage('Failed to load profile. Please refresh the page.', 'error');
-                }
+// ==================== LOAD OWNER PROFILE ====================
+async function loadOwnerProfile() {
+    try {
+        const data = await apiFetch('/auth/profile/');
+        
+        if (data) {
+            //  Get hostel_name from owner_profile (nested object)
+            const hostelName = data.owner_profile?.hostel_name || data.hostel_name || 'Your Hostel';
+            const nameInput = document.getElementById('name');
+            if (nameInput) nameInput.value = hostelName;
+            
+            // Update header with owner's full name (not hostel name)
+            const displayName = data.full_name || 'Owner';
+            const userNameSpan = document.getElementById('userName');
+            const userAvatarDiv = document.getElementById('userAvatar');
+            
+            if (userNameSpan) userNameSpan.textContent = displayName;
+            if (userAvatarDiv) {
+                const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase();
+                userAvatarDiv.textContent = initials.slice(0, 2);
             }
-            return null;
+            
+            console.log('✅ Profile loaded - Hostel name:', hostelName);
+            return data;
         }
+    } catch (error) {
+        console.error('Failed to load profile:', error);
+        if (!error.message.includes('Authentication')) {
+            showMessage('Failed to load profile. Please refresh the page.', 'error');
+        }
+    }
+    return null;
+}
 
         // ==================== UI HELPERS ====================
         const form = document.getElementById('addHostelForm');
