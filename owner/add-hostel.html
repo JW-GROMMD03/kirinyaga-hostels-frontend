@@ -851,22 +851,22 @@ async function loadOwnerProfile() {
             }
         }
 
-        function initPhotoFields() {
-            if (!photoGrid) return;
-            let html = '';
-            const photoLabels = ['Front View', 'Room Interior', 'Bathroom', 'Kitchen', 'Common Area', 'Other'];
-            for (let i = 1; i <= 6; i++) {
-                html += `
-                    <div class="photo-item">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <input type="file" id="photo${i}" accept="image/*" capture>
-                        <input type="text" id="photo${i}_desc" placeholder="${photoLabels[i-1]}" maxlength="50">
-                        ${i === 1 ? '<small style="color: var(--kyu-green);">Primary photo</small>' : ''}
-                    </div>
-                `;
-            }
-            photoGrid.innerHTML = html;
-        }
+function initPhotoFields() {
+    if (!photoGrid) return;
+    let html = '';
+    const photoLabels = ['Front View', 'Room Interior', 'Bathroom', 'Kitchen', 'Common Area', 'Other'];
+    for (let i = 1; i <= 6; i++) {
+        html += `
+            <div class="photo-item">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <input type="file" id="photo${i}" accept="image/*">
+                <input type="text" id="photo${i}_desc" placeholder="${photoLabels[i-1]}" maxlength="50">
+                ${i === 1 ? '<small style="color: var(--kyu-green);">Primary photo</small>' : ''}
+            </div>
+        `;
+    }
+    photoGrid.innerHTML = html;
+}
 
         async function checkImageUploadLimit(imageCount) {
             try {
