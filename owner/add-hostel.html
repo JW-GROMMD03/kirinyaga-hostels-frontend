@@ -542,10 +542,7 @@
             <button class="dark-mode-toggle" id="darkModeToggle">
                 <i class="fas fa-moon"></i>
             </button>
-            <div class="user-info">
-                <div class="user-avatar" id="userAvatar">O</div>
-                <span class="user-name" id="userName">Owner</span>
-            </div>
+
             <a href="hostels.html" class="btn-back">
                 <i class="fas fa-arrow-left"></i> My Hostels
             </a>
@@ -713,10 +710,50 @@
 
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBizaLbe_k0W-xEOBEhkNFcwZPC8eFl-OQ&libraries=places&callback=initMap" async defer></script>
     <script>
+        // ==================== CONFIGURATION ====================
         const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
-        const token = sessionStorage.getItem('accessToken');
         
-        if (!token) window.location.href = 'login.html';
+        // Get token from sessionStorage or localStorage
+        let token = sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken');
+        
+        // If no token, redirect to login
+        if (!token) {
+            console.error('No authentication token found');
+            window.location.href = 'login.html';
+        }
+
+        // ==================== API HELPER WITH AUTO-REDIRECT ON 401 ====================
+        async function apiFetch(url, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${url}`, {
+                    ...options,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+
+                // Handle 401 Unauthorized - token expired or invalid
+                if (response.status === 401) {
+                    console.error('Authentication failed. Redirecting to login...');
+                    sessionStorage.removeItem('accessToken');
+                    localStorage.removeItem('accessToken');
+                    window.location.href = 'login.html';
+                    throw new Error('Authentication required');
+                }
+
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({}));
+                    throw new Error(error.message || error.detail || `HTTP ${response.status}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
 
         // ==================== DARK MODE SYNC ====================
         function applyDarkMode() {
@@ -747,13 +784,9 @@
         // ==================== LOAD OWNER PROFILE ====================
         async function loadOwnerProfile() {
             try {
-                const response = await fetch(`${API_BASE}/auth/profile/`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                const data = await apiFetch('/auth/profile/');
                 
-                if (response.ok) {
-                    const data = await response.json();
-                    
+                if (data) {
                     // Auto-fill hostel name from profile using hostel_name (from signup)
                     const hostelName = data.hostel_name || data.full_name || 'Owner';
                     const nameInput = document.getElementById('name');
@@ -770,11 +803,15 @@
                         userAvatarDiv.textContent = initials.slice(0, 2);
                     }
                     
+                    console.log('✅ Profile loaded:', hostelName);
                     return data;
                 }
             } catch (error) {
                 console.error('Failed to load profile:', error);
-                showMessage('Failed to load profile. Please refresh the page.', 'error');
+                // Don't show error message for auth failures (they redirect)
+                if (!error.message.includes('Authentication')) {
+                    showMessage('Failed to load profile. Please refresh the page.', 'error');
+                }
             }
             return null;
         }
@@ -834,10 +871,7 @@
 
         async function checkImageUploadLimit(imageCount) {
             try {
-                const response = await fetch(`${API_BASE}/subscriptions/my/`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await response.json();
+                const data = await apiFetch('/subscriptions/my/');
                 const maxImages = data.max_images_per_hostel || 6;
                 
                 if (imageCount > maxImages) {
@@ -847,7 +881,7 @@
                 return true;
             } catch (error) {
                 console.error('Failed to check image limit:', error);
-                return true;
+                return true; // Allow upload if check fails
             }
         }
 
@@ -855,11 +889,7 @@
             if (!amenitiesLoading || !amenitiesList) return;
             
             try {
-                const res = await fetch(`${API_BASE}/hostels/amenities/`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const data = await res.json();
+                const data = await apiFetch('/hostels/amenities/');
                 let amenities = Array.isArray(data) ? data : (data.results || []);
                 
                 amenitiesLoading.style.display = 'none';
@@ -879,6 +909,7 @@
                     amenitiesList.innerHTML = html;
                     amenitiesList.style.display = 'grid';
                 }
+                console.log('✅ Amenities loaded:', amenities.length);
             } catch (e) {
                 console.error('Error loading amenities:', e);
                 amenitiesLoading.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Failed to load amenities. You can still add your hostel.';
@@ -892,7 +923,7 @@
             // Initialize map centered on the broader Kerugoya area
             map = new google.maps.Map(mapDiv, {
                 center: kerugoyaArea,
-                zoom: 15, // Zoom level 15 shows local landmarks and streets clearly
+                zoom: 15,
                 mapTypeControl: true,
                 streetViewControl: true,
                 fullscreenControl: true
@@ -932,7 +963,7 @@
                 title: 'Kirinyaga University'
             });
             
-            console.log('Map initialized successfully');
+            console.log('✅ Map initialized successfully');
         };
 
         function calculateDistance(lat, lng) {
@@ -1030,6 +1061,13 @@
                         body: formData
                     });
 
+                    if (res.status === 401) {
+                        sessionStorage.removeItem('accessToken');
+                        localStorage.removeItem('accessToken');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+
                     const data = await res.json();
 
                     if (res.ok) {
@@ -1096,6 +1134,7 @@
         if (logoutBtn) {
             logoutBtn.addEventListener('click', () => {
                 sessionStorage.removeItem('accessToken');
+                localStorage.removeItem('accessToken');
                 localStorage.removeItem('ownerTheme');
                 window.location.href = 'login.html';
             });
@@ -1103,18 +1142,19 @@
 
         // Initialize everything when DOM is fully loaded
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('DOM loaded, initializing page...');
+            console.log('🚀 DOM loaded, initializing page...');
+            console.log('🔑 Token present:', !!token);
             
-            // Load profile first (doesn't depend on map)
+            // Load profile first
             await loadOwnerProfile();
             
-            // Initialize photo fields (pure DOM manipulation)
+            // Initialize photo fields
             initPhotoFields();
             
-            // Load amenities (API call)
+            // Load amenities
             await loadAmenities();
             
-            console.log('Page initialization complete. Waiting for Google Maps to load...');
+            console.log('✅ Page initialization complete');
         });
     </script>
 </body>
