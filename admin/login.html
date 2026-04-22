@@ -634,37 +634,82 @@
                 password.disabled = true;
             }
 
-            function showRateLimit() {
-                rateLimitDiv.innerHTML = `<i class="fas fa-clock"></i> Too many login attempts. Please wait 5 minutes before trying again.<br><div class="countdown-timer" id="rate-countdown">5:00</div>`;
-                rateLimitDiv.style.display = 'block';
-                errorDiv.style.display = 'none';
-                infoDiv.style.display = 'none';
-                lockoutDiv.style.display = 'none';
-                loginBtn.disabled = true;
-                email.disabled = true;
-                password.disabled = true;
-                
-                let remaining = 300;
-                if (rateLimitTimer) clearInterval(rateLimitTimer);
-                rateLimitTimer = setInterval(() => {
-                    remaining--;
-                    if (remaining <= 0) {
-                        clearInterval(rateLimitTimer);
-                        rateLimitTimer = null;
-                        rateLimitDiv.style.display = 'none';
-                        loginBtn.disabled = false;
-                        email.disabled = false;
-                        password.disabled = false;
-                        rateLimitDiv.innerHTML = '';
-                        showInfo('You can now try logging in again.', true);
-                    } else {
-                        const mins = Math.floor(remaining / 60);
-                        const secs = remaining % 60;
-                        const countdownEl = document.getElementById('rate-countdown');
-                        if (countdownEl) countdownEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
-                    }
-                }, 1000);
+function showRateLimit(data) {
+    // Clear any existing timer
+    if (rateLimitTimer) clearInterval(rateLimitTimer);
+    
+    let message = 'Too many login attempts.';
+    let lockoutSeconds = 300; // Default 5 minutes
+    
+    // Check if we have lockout info from the response
+    if (data && data.locked === true) {
+        if (data.remaining_seconds) {
+            lockoutSeconds = data.remaining_seconds;
+        }
+        if (data.lockout_hours) {
+            lockoutSeconds = data.lockout_hours * 3600;
+        }
+        message = data.error || data.message || `Account locked. Please try again later.`;
+    } else {
+        message = 'Too many login attempts. Please wait before trying again.';
+    }
+    
+    // Format initial time
+    const hours = Math.floor(lockoutSeconds / 3600);
+    const minutes = Math.floor((lockoutSeconds % 3600) / 60);
+    const seconds = lockoutSeconds % 60;
+    
+    let timeString = '';
+    if (hours > 0) {
+        timeString = `${hours}h ${minutes}m ${seconds}s`;
+    } else if (minutes > 0) {
+        timeString = `${minutes}m ${seconds}s`;
+    } else {
+        timeString = `${seconds}s`;
+    }
+    
+    rateLimitDiv.innerHTML = `
+        <i class="fas fa-clock"></i> ${message}<br>
+        <div class="countdown-timer" id="rate-countdown">${timeString}</div>
+    `;
+    rateLimitDiv.style.display = 'block';
+    errorDiv.style.display = 'none';
+    infoDiv.style.display = 'none';
+    lockoutDiv.style.display = 'none';
+    loginBtn.disabled = true;
+    email.disabled = true;
+    password.disabled = true;
+    
+    let remaining = lockoutSeconds;
+    rateLimitTimer = setInterval(() => {
+        remaining--;
+        if (remaining <= 0) {
+            clearInterval(rateLimitTimer);
+            rateLimitTimer = null;
+            rateLimitDiv.style.display = 'none';
+            loginBtn.disabled = false;
+            email.disabled = false;
+            password.disabled = false;
+            showInfo('You can now try logging in again.', true);
+        } else {
+            const hrs = Math.floor(remaining / 3600);
+            const mins = Math.floor((remaining % 3600) / 60);
+            const secs = remaining % 60;
+            const countdownEl = document.getElementById('rate-countdown');
+            
+            let displayTime = '';
+            if (hrs > 0) {
+                displayTime = `${hrs}h ${mins}m ${secs}s`;
+            } else if (mins > 0) {
+                displayTime = `${mins}m ${secs}s`;
+            } else {
+                displayTime = `${secs}s`;
             }
+            
+            if (countdownEl) countdownEl.textContent = displayTime;
+        }
+    }, 1000);
+}
 
             function showAttemptsWarning(attemptsLeft) {
                 attemptsWarning.style.display = 'block';
@@ -845,7 +890,7 @@
                     clearTimeout(timeoutId);
 
                     if (res.status === 429) {
-                        showRateLimit();
+                        showRateLimit(data);
                         spinner.style.display = 'none';
                         return;
                     }
