@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Find Hostels - Kirinyaga Hostels</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='10' y='70' fill='%23FFD700' font-size='60' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23006747'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23FFD700' font-size='42' font-family='Arial' font-weight='bold'%3EKyU%3C/text%3E%3C/svg%3E">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* Your existing CSS - keep all your styles */
+        /* All your existing CSS - kept exactly the same */
         * {
             margin: 0;
             padding: 0;
@@ -709,6 +709,14 @@
                 <i class="fas fa-moon"></i>
             </button>
             
+            <div class="user-info" id="profileBtn">
+                <div class="user-avatar" id="userAvatar">S</div>
+                <div class="user-details">
+                    <span class="user-name" id="userName">Student</span>
+                    <span class="user-role">Student</span>
+                </div>
+            </div>
+            
             <a href="dashboard.html" class="btn-back">
                 <i class="fas fa-arrow-left"></i> Dashboard
             </a>
@@ -726,7 +734,7 @@
 
         <div class="search-section">
             <div class="search-bar">
-                <input type="text" id="searchInput" placeholder="Search by name or location...">
+                <input type="text" id="57searchInput" placeholder="Search by name or location...">
                 <button id="searchBtn"><i class="fas fa-search"></i> Search</button>
                 <div class="search-spinner" id="searchSpinner"></div>
             </div>
@@ -1002,7 +1010,7 @@
         // ==================== HOSTEL GRID ====================
         let currentPage = 1;
         let nextPageUrl = null;
-        let savedHostels = []; // Initialize as empty array
+        let savedHostels = [];
         let searchTimeout = null;
 
         const searchInput = document.getElementById('searchInput');
@@ -1088,7 +1096,6 @@
                 });
                 if (res.ok) {
                     const data = await res.json();
-                    // Ensure savedHostels is always an array
                     savedHostels = Array.isArray(data) ? data : (data.results || []);
                 } else {
                     savedHostels = [];
@@ -1108,12 +1115,10 @@
                 return;
             }
             
-            // Ensure savedHostels is an array before using .some()
             const savedArray = Array.isArray(savedHostels) ? savedHostels : [];
             
             let html = '';
             hostels.forEach(h => {
-                // Check if hostel is saved - handle different data structures
                 const isSaved = savedArray.some(s => {
                     return (s.hostel?.id === h.id) || (s.id === h.id) || (s.hostel_id === h.id);
                 });
@@ -1153,26 +1158,22 @@
                 hostelGrid.innerHTML = html;
             }
 
-            // Save button listeners
             document.querySelectorAll('.btn-save').forEach(btn => {
                 btn.removeEventListener('click', handleSaveClick);
                 btn.addEventListener('click', handleSaveClick);
             });
 
-            // Book button listeners
             document.querySelectorAll('.btn-book').forEach(btn => {
                 btn.removeEventListener('click', handleBookClick);
                 btn.addEventListener('click', handleBookClick);
             });
 
-            // Card click to detail
             document.querySelectorAll('.hostel-card').forEach(card => {
                 card.removeEventListener('click', handleCardClick);
                 card.addEventListener('click', handleCardClick);
             });
         }
 
-        // Separate event handlers for better organization
         async function handleSaveClick(e) {
             e.stopPropagation();
             const btn = e.currentTarget;
@@ -1181,7 +1182,6 @@
             
             try {
                 if (isSaved) {
-                    // Find the saved entry ID
                     const savedEntry = savedHostels.find(s => s.hostel?.id === hostelId || s.id === hostelId || s.hostel_id === hostelId);
                     const savedId = savedEntry?.id || savedEntry?.hostel_id;
                     
@@ -1194,7 +1194,6 @@
                     
                     btn.classList.remove('saved');
                     btn.textContent = '🤍 Save';
-                    // Refresh saved hostels list
                     await loadSavedHostels();
                 } else {
                     const res = await fetch(`${API_BASE}/hostels/saved/`, {
@@ -1207,8 +1206,7 @@
                     });
                     
                     if (res.ok) {
-                        const saved = await res.json();
-                        await loadSavedHostels(); // Refresh the list
+                        await loadSavedHostels();
                         btn.classList.add('saved');
                         btn.textContent = '❤️ Saved';
                     }
@@ -1223,7 +1221,6 @@
             e.stopPropagation();
             const btn = e.currentTarget;
             const hostelId = btn.dataset.id;
-            // Find the hostel data from current view
             const hostelCards = document.querySelectorAll('.hostel-card');
             let hostel = null;
             for (const card of hostelCards) {
@@ -1303,12 +1300,6 @@
             recommendedGrid.innerHTML = '<div class="spinner"></div>';
             
             try {
-                const token = sessionStorage.getItem('accessToken');
-                if (!token) {
-                    recommendedGrid.innerHTML = '<p class="no-results">Please login to see recommendations</p>';
-                    return;
-                }
-                
                 const response = await fetch(`${API_BASE}/hostels/recommended/`, {
                     headers: { 
                         'Authorization': `Bearer ${token}`,
@@ -1318,17 +1309,12 @@
                 
                 if (!response.ok) {
                     console.error('Recommended hostels API error:', response.status);
-                    if (response.status === 401) {
-                        recommendedGrid.innerHTML = '<p class="no-results">Please login to see recommendations</p>';
-                        return;
-                    }
-                    throw new Error(`HTTP ${response.status}`);
+                    await loadRegularHostelsAsFallback();
+                    return;
                 }
                 
                 const data = await response.json();
-                console.log('Recommended hostels data:', data);
                 
-                // Handle different response formats
                 let hostels = [];
                 if (Array.isArray(data)) {
                     hostels = data;
@@ -1365,7 +1351,6 @@
                 
                 recommendedGrid.innerHTML = html;
                 
-                // Add click handlers
                 recommendedGrid.querySelectorAll('.hostel-card').forEach(card => {
                     card.addEventListener('click', () => {
                         window.location.href = `hostel-detail.html?id=${card.dataset.id}`;
@@ -1374,11 +1359,10 @@
                 
             } catch (e) {
                 console.error('Failed to load recommended hostels:', e);
-                recommendedGrid.innerHTML = '<p class="no-results">Unable to load recommendations. Please try again later.</p>';
+                await loadRegularHostelsAsFallback();
             }
         }
 
-        // Fallback: Load regular hostels if recommended fails
         async function loadRegularHostelsAsFallback() {
             const recommendedGrid = document.getElementById('recommendedGrid');
             if (!recommendedGrid) return;
@@ -1476,7 +1460,6 @@
             await loadSavedHostels();
             await performSearch();
             
-            // Try recommended first, fallback to regular hostels
             try {
                 await loadRecommended();
             } catch (e) {
