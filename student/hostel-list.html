@@ -734,7 +734,7 @@
 
         <div class="search-section">
             <div class="search-bar">
-                <input type="text" id="57searchInput" placeholder="Search by name or location...">
+                <input type="text" id="searchInput" placeholder="Search by name or location...">
                 <button id="searchBtn"><i class="fas fa-search"></i> Search</button>
                 <div class="search-spinner" id="searchSpinner"></div>
             </div>
@@ -804,6 +804,36 @@
         const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
         const CLOUDINARY_BASE = 'https://res.cloudinary.com/dqujm2fhm/';
         const token = sessionStorage.getItem('accessToken');
+
+        // ==================== API HELPER ====================
+async function apiFetch(url, options = {}) {
+    try {
+        const response = await fetch(`${API_BASE}${url}`, {
+            ...options,
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+
+        if (response.status === 401) {
+            sessionStorage.removeItem('accessToken');
+            window.location.href = 'login.html';
+            return null;
+        }
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || error.detail || `HTTP ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('API Error:', error);
+        throw error;
+    }
+}
         
         if (!token) {
             window.location.href = 'login.html';
@@ -1335,35 +1365,7 @@ async function loadRecommended() {
     }
 }
 
-// ==================== API HELPER ====================
-async function apiFetch(url, options = {}) {
-    try {
-        const response = await fetch(`${API_BASE}${url}`, {
-            ...options,
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-                ...options.headers
-            }
-        });
 
-        if (response.status === 401) {
-            sessionStorage.removeItem('accessToken');
-            window.location.href = 'login.html';
-            return null;
-        }
-
-        if (!response.ok) {
-            const error = await response.json().catch(() => ({}));
-            throw new Error(error.message || error.detail || `HTTP ${response.status}`);
-        }
-
-        return await response.json();
-    } catch (error) {
-        console.error('API Error:', error);
-        throw error;
-    }
-}
 
         async function loadRegularHostelsAsFallback() {
             const recommendedGrid = document.getElementById('recommendedGrid');
