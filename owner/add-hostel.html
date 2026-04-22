@@ -542,7 +542,10 @@
             <button class="dark-mode-toggle" id="darkModeToggle">
                 <i class="fas fa-moon"></i>
             </button>
-
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">O</div>
+                <span class="user-name" id="userName">Owner</span>
+            </div>
             <a href="hostels.html" class="btn-back">
                 <i class="fas fa-arrow-left"></i> My Hostels
             </a>
@@ -718,28 +721,27 @@
         // ==================== DARK MODE SYNC ====================
         function applyDarkMode() {
             const savedTheme = localStorage.getItem('ownerTheme');
+            const toggleBtn = document.getElementById('darkModeToggle');
+            if (!toggleBtn) return;
+            
             if (savedTheme === 'dark') {
                 document.body.classList.add('dark-mode');
-                const toggleBtn = document.getElementById('darkModeToggle');
-                if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
+                toggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
             } else {
                 document.body.classList.remove('dark-mode');
-                const toggleBtn = document.getElementById('darkModeToggle');
-                if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
+                toggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
             }
         }
         
-        applyDarkMode();
+        // Apply dark mode as soon as possible
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', applyDarkMode);
+        } else {
+            applyDarkMode();
+        }
         
         window.addEventListener('storage', (e) => {
             if (e.key === 'ownerTheme') applyDarkMode();
-        });
-
-        document.getElementById('darkModeToggle').addEventListener('click', () => {
-            const isDark = document.body.classList.toggle('dark-mode');
-            localStorage.setItem('ownerTheme', isDark ? 'dark' : 'light');
-            const toggleBtn = document.getElementById('darkModeToggle');
-            toggleBtn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
         });
 
         // ==================== LOAD OWNER PROFILE ====================
@@ -754,13 +756,19 @@
                     
                     // Auto-fill hostel name from profile using hostel_name (from signup)
                     const hostelName = data.hostel_name || data.full_name || 'Owner';
-                    document.getElementById('name').value = hostelName;
+                    const nameInput = document.getElementById('name');
+                    if (nameInput) nameInput.value = hostelName;
                     
                     // Update header with hostel name or full name
                     const displayName = data.hostel_name || data.full_name || 'Owner';
-                    document.getElementById('userName').textContent = displayName;
-                    const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase();
-                    document.getElementById('userAvatar').textContent = initials.slice(0, 2);
+                    const userNameSpan = document.getElementById('userName');
+                    const userAvatarDiv = document.getElementById('userAvatar');
+                    
+                    if (userNameSpan) userNameSpan.textContent = displayName;
+                    if (userAvatarDiv) {
+                        const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase();
+                        userAvatarDiv.textContent = initials.slice(0, 2);
+                    }
                     
                     return data;
                 }
@@ -787,6 +795,7 @@
         const universityLocation = { lat: -0.4975, lng: 37.3214 };
 
         function showMessage(text, type) {
+            if (!messageDiv) return;
             messageDiv.textContent = text;
             messageDiv.className = `message ${type}`;
             messageDiv.style.display = 'block';
@@ -797,14 +806,17 @@
         }
 
         function setLoading(isLoading) {
-            submitBtn.disabled = isLoading;
-            spinner.style.display = isLoading ? 'block' : 'none';
-            submitBtn.innerHTML = isLoading ? 
-                '<i class="fas fa-spinner fa-pulse"></i> Adding Hostel...' : 
-                '<i class="fas fa-plus-circle"></i> Add Hostel';
+            if (submitBtn) submitBtn.disabled = isLoading;
+            if (spinner) spinner.style.display = isLoading ? 'block' : 'none';
+            if (submitBtn) {
+                submitBtn.innerHTML = isLoading ? 
+                    '<i class="fas fa-spinner fa-pulse"></i> Adding Hostel...' : 
+                    '<i class="fas fa-plus-circle"></i> Add Hostel';
+            }
         }
 
         function initPhotoFields() {
+            if (!photoGrid) return;
             let html = '';
             const photoLabels = ['Front View', 'Room Interior', 'Bathroom', 'Kitchen', 'Common Area', 'Other'];
             for (let i = 1; i <= 6; i++) {
@@ -840,6 +852,8 @@
         }
 
         async function loadAmenities() {
+            if (!amenitiesLoading || !amenitiesList) return;
+            
             try {
                 const res = await fetch(`${API_BASE}/hostels/amenities/`, {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -871,19 +885,12 @@
             }
         }
 
-        // Character counter for description
-        document.getElementById('description').addEventListener('input', function() {
-            const count = this.value.length;
-            document.getElementById('descCount').textContent = count;
-            if (count > 500) {
-                this.value = this.value.substring(0, 500);
-                document.getElementById('descCount').textContent = 500;
-            }
-        });
-
         window.initMap = function() {
+            const mapDiv = document.getElementById('map');
+            if (!mapDiv) return;
+            
             // Initialize map centered on the broader Kerugoya area
-            map = new google.maps.Map(document.getElementById('map'), {
+            map = new google.maps.Map(mapDiv, {
                 center: kerugoyaArea,
                 zoom: 15, // Zoom level 15 shows local landmarks and streets clearly
                 mapTypeControl: true,
@@ -924,6 +931,8 @@
                 },
                 title: 'Kirinyaga University'
             });
+            
+            console.log('Map initialized successfully');
         };
 
         function calculateDistance(lat, lng) {
@@ -939,128 +948,174 @@
                 distanceText = (distance * 1000).toFixed(0) + ' meters';
             }
             
-            document.getElementById('distance').innerHTML = `<i class="fas fa-walking"></i> ${distanceText}`;
+            const distanceSpan = document.getElementById('distance');
+            if (distanceSpan) {
+                distanceSpan.innerHTML = `<i class="fas fa-walking"></i> ${distanceText}`;
+            }
         }
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
+        // Form submission
+        if (form) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
 
-            const name = document.getElementById('name').value.trim();
-            const houseNumber = document.getElementById('houseNumber').value.trim();
-            const price = document.getElementById('price').value;
-            const address = document.getElementById('address').value.trim();
-            const description = document.getElementById('description').value.trim();
-            const lat = document.getElementById('lat').value;
-            const lng = document.getElementById('lng').value;
+                const name = document.getElementById('name')?.value.trim();
+                const houseNumber = document.getElementById('houseNumber')?.value.trim();
+                const price = document.getElementById('price')?.value;
+                const address = document.getElementById('address')?.value.trim();
+                const description = document.getElementById('description')?.value.trim();
+                const lat = document.getElementById('lat')?.value;
+                const lng = document.getElementById('lng')?.value;
 
-            // Validation
-            if (!name) return showMessage('Hostel name is required', 'error');
-            if (!houseNumber) return showMessage('House/Building number is required', 'error');
-            if (!price || price <= 0) return showMessage('Please enter a valid price', 'error');
-            if (!description) return showMessage('Please enter a description', 'error');
-            if (description.length > 500) return showMessage('Description must be 500 characters or less', 'error');
-            if (!address) return showMessage('Please enter an address', 'error');
-            if (!lat || !lng) return showMessage('Please select a location on the map', 'error');
+                // Validation
+                if (!name) return showMessage('Hostel name is required', 'error');
+                if (!houseNumber) return showMessage('House/Building number is required', 'error');
+                if (!price || price <= 0) return showMessage('Please enter a valid price', 'error');
+                if (!description) return showMessage('Please enter a description', 'error');
+                if (description.length > 500) return showMessage('Description must be 500 characters or less', 'error');
+                if (!address) return showMessage('Please enter an address', 'error');
+                if (!lat || !lng) return showMessage('Please select a location on the map', 'error');
 
-            // Count images being uploaded
-            let imageCount = 0;
-            for (let i = 1; i <= 6; i++) {
-                const fileInput = document.getElementById(`photo${i}`);
-                if (fileInput && fileInput.files[0]) {
-                    imageCount++;
-                }
-            }
-            
-            // Check image upload limit
-            const canUpload = await checkImageUploadLimit(imageCount);
-            if (!canUpload) return;
-
-            setLoading(true);
-            messageDiv.style.display = 'none';
-
-            const formData = new FormData();
-            formData.append('name', name);
-            formData.append('house_number', houseNumber);
-            formData.append('room_type', document.getElementById('roomType').value);
-            formData.append('price', price);
-            formData.append('deposit', document.getElementById('deposit').value || 0);
-            formData.append('description', description);
-            formData.append('address', address);
-            formData.append('location_lat', lat);
-            formData.append('location_lng', lng);
-            
-            document.querySelectorAll('#amenitiesList input:checked').forEach(cb => {
-                formData.append('amenities', cb.value);
-            });
-            
-            const otherAmenities = document.getElementById('otherAmenities').value.trim();
-            if (otherAmenities) {
-                formData.append('other_amenities', otherAmenities);
-            }
-            
-            for (let i = 1; i <= 6; i++) {
-                const fileInput = document.getElementById(`photo${i}`);
-                if (fileInput && fileInput.files[0]) {
-                    formData.append(`photo${i}`, fileInput.files[0]);
-                    const desc = document.getElementById(`photo${i}_desc`);
-                    if (desc && desc.value.trim()) {
-                        formData.append(`photo${i}_desc`, desc.value.trim());
+                // Count images being uploaded
+                let imageCount = 0;
+                for (let i = 1; i <= 6; i++) {
+                    const fileInput = document.getElementById(`photo${i}`);
+                    if (fileInput && fileInput.files[0]) {
+                        imageCount++;
                     }
                 }
-            }
+                
+                // Check image upload limit
+                const canUpload = await checkImageUploadLimit(imageCount);
+                if (!canUpload) return;
 
-            try {
-                const res = await fetch(`${API_BASE}/hostels/create/`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` },
-                    body: formData
+                setLoading(true);
+                if (messageDiv) messageDiv.style.display = 'none';
+
+                const formData = new FormData();
+                formData.append('name', name);
+                formData.append('house_number', houseNumber);
+                formData.append('room_type', document.getElementById('roomType')?.value || 'bedsitter');
+                formData.append('price', price);
+                formData.append('deposit', document.getElementById('deposit')?.value || 0);
+                formData.append('description', description);
+                formData.append('address', address);
+                formData.append('location_lat', lat);
+                formData.append('location_lng', lng);
+                
+                document.querySelectorAll('#amenitiesList input:checked').forEach(cb => {
+                    formData.append('amenities', cb.value);
                 });
-
-                const data = await res.json();
-
-                if (res.ok) {
-                    showMessage('✅ Hostel added successfully! It will be reviewed by admin before going live.', 'success');
-                    form.reset();
-                    // Restore auto-filled name from profile
-                    const profileData = await loadOwnerProfile();
-                    if (profileData) {
-                        document.getElementById('name').value = profileData.hostel_name || profileData.full_name || '';
-                    }
-                    if (marker) marker.setPosition(universityLocation);
-                    document.getElementById('lat').value = '';
-                    document.getElementById('lng').value = '';
-                    document.getElementById('distance').innerHTML = '<i class="fas fa-walking"></i> Click on map to calculate';
-                    document.getElementById('descCount').textContent = '0';
-                    setTimeout(() => window.location.href = 'hostels.html', 2500);
-                } else {
-                    let errorMsg = data.message || data.detail || data.error || 'Failed to add hostel';
-                    if (data.errors) {
-                        errorMsg = Object.entries(data.errors).map(([k, v]) => `${k}: ${v}`).join(', ');
-                    }
-                    showMessage(errorMsg, 'error');
+                
+                const otherAmenities = document.getElementById('otherAmenities')?.value.trim();
+                if (otherAmenities) {
+                    formData.append('other_amenities', otherAmenities);
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                showMessage('Network error. Please check your connection and try again.', 'error');
-            } finally {
-                setLoading(false);
-            }
-        });
+                
+                for (let i = 1; i <= 6; i++) {
+                    const fileInput = document.getElementById(`photo${i}`);
+                    if (fileInput && fileInput.files[0]) {
+                        formData.append(`photo${i}`, fileInput.files[0]);
+                        const desc = document.getElementById(`photo${i}_desc`);
+                        if (desc && desc.value.trim()) {
+                            formData.append(`photo${i}_desc`, desc.value.trim());
+                        }
+                    }
+                }
 
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            sessionStorage.removeItem('accessToken');
-            localStorage.removeItem('ownerTheme');
-            window.location.href = 'login.html';
-        });
+                try {
+                    const res = await fetch(`${API_BASE}/hostels/create/`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}` },
+                        body: formData
+                    });
 
-        // Initialize everything
-        async function init() {
-            await loadOwnerProfile();
-            initPhotoFields();
-            await loadAmenities();
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        showMessage('✅ Hostel added successfully! It will be reviewed by admin before going live.', 'success');
+                        form.reset();
+                        // Restore auto-filled name from profile
+                        const profileData = await loadOwnerProfile();
+                        if (profileData) {
+                            const nameInput = document.getElementById('name');
+                            if (nameInput) nameInput.value = profileData.hostel_name || profileData.full_name || '';
+                        }
+                        if (marker) marker.setPosition(universityLocation);
+                        const latInput = document.getElementById('lat');
+                        const lngInput = document.getElementById('lng');
+                        if (latInput) latInput.value = '';
+                        if (lngInput) lngInput.value = '';
+                        const distanceSpan = document.getElementById('distance');
+                        if (distanceSpan) distanceSpan.innerHTML = '<i class="fas fa-walking"></i> Click on map to calculate';
+                        const descCount = document.getElementById('descCount');
+                        if (descCount) descCount.textContent = '0';
+                        setTimeout(() => window.location.href = 'hostels.html', 2500);
+                    } else {
+                        let errorMsg = data.message || data.detail || data.error || 'Failed to add hostel';
+                        if (data.errors) {
+                            errorMsg = Object.entries(data.errors).map(([k, v]) => `${k}: ${v}`).join(', ');
+                        }
+                        showMessage(errorMsg, 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showMessage('Network error. Please check your connection and try again.', 'error');
+                } finally {
+                    setLoading(false);
+                }
+            });
         }
-        
-        init();
+
+        // Character counter for description
+        const descTextarea = document.getElementById('description');
+        if (descTextarea) {
+            descTextarea.addEventListener('input', function() {
+                const count = this.value.length;
+                const descCount = document.getElementById('descCount');
+                if (descCount) descCount.textContent = count;
+                if (count > 500) {
+                    this.value = this.value.substring(0, 500);
+                    if (descCount) descCount.textContent = 500;
+                }
+            });
+        }
+
+        // Dark mode toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('click', () => {
+                const isDark = document.body.classList.toggle('dark-mode');
+                localStorage.setItem('ownerTheme', isDark ? 'dark' : 'light');
+                darkModeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            });
+        }
+
+        // Logout
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                sessionStorage.removeItem('accessToken');
+                localStorage.removeItem('ownerTheme');
+                window.location.href = 'login.html';
+            });
+        }
+
+        // Initialize everything when DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('DOM loaded, initializing page...');
+            
+            // Load profile first (doesn't depend on map)
+            await loadOwnerProfile();
+            
+            // Initialize photo fields (pure DOM manipulation)
+            initPhotoFields();
+            
+            // Load amenities (API call)
+            await loadAmenities();
+            
+            console.log('Page initialization complete. Waiting for Google Maps to load...');
+        });
     </script>
 </body>
 </html>
