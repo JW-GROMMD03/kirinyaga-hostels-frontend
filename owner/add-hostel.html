@@ -542,10 +542,7 @@
             <button class="dark-mode-toggle" id="darkModeToggle">
                 <i class="fas fa-moon"></i>
             </button>
-            <div class="user-info">
-                <div class="user-avatar" id="userAvatar">O</div>
-                <span class="user-name" id="userName">Owner</span>
-            </div>
+
             <a href="hostels.html" class="btn-back">
                 <i class="fas fa-arrow-left"></i> My Hostels
             </a>
@@ -784,6 +781,9 @@
         const amenitiesLoading = document.getElementById('amenitiesLoading');
 
         let map, marker;
+        // Use the exact coordinates from the Google Maps link to center the map on the broader area
+        const kerugoyaArea = { lat: -0.5689432, lng: 37.3226507 };
+        // Keep university location for distance calculation
         const universityLocation = { lat: -0.4975, lng: 37.3214 };
 
         function showMessage(text, type) {
@@ -882,14 +882,16 @@
         });
 
         window.initMap = function() {
+            // Initialize map centered on the broader Kerugoya area
             map = new google.maps.Map(document.getElementById('map'), {
-                center: universityLocation,
-                zoom: 15,
+                center: kerugoyaArea,
+                zoom: 15, // Zoom level 15 shows local landmarks and streets clearly
                 mapTypeControl: true,
                 streetViewControl: true,
                 fullscreenControl: true
             });
             
+            // Place the draggable marker at the university as a starting point
             marker = new google.maps.Marker({
                 position: universityLocation,
                 map: map,
@@ -912,7 +914,7 @@
                 calculateDistance(e.latLng.lat(), e.latLng.lng());
             });
 
-            // Add university marker
+            // Add university marker with custom icon
             new google.maps.Marker({
                 position: universityLocation,
                 map: map,
