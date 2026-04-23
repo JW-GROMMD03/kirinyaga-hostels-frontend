@@ -679,6 +679,36 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
     padding: 8px 16px;
     margin: 0 10px;
 }
+
+.toggle-switch input[type="checkbox"] {
+    width: 50px;
+    height: 26px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--border-light);
+    outline: none;
+    border-radius: 30px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s;
+}
+.toggle-switch input[type="checkbox"]:checked {
+    background: var(--kyu-green);
+}
+.toggle-switch input[type="checkbox"]::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    top: 3px;
+    left: 3px;
+    background: white;
+    transition: all 0.3s;
+}
+.toggle-switch input[type="checkbox"]:checked::before {
+    left: 27px;
+}
     </style>
 </head>
 <body>
@@ -873,6 +903,75 @@ body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; }
             </div>
         </div>
     </div>
+
+    <div class="panel" id="panel-maintenance">
+    <div class="panel-header">
+        <h2><i class="fas fa-tools"></i> Maintenance Mode</h2>
+        <div class="panel-actions">
+            <button class="btn btn-outline" onclick="loadMaintenanceSettings()">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+    </div>
+    
+    <div style="background: var(--bg-light); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.5rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+            <div>
+                <h3 style="margin: 0 0 0.5rem 0;">Maintenance Status</h3>
+                <p style="color: var(--text-secondary); margin: 0;">
+                    When enabled, only administrators can access the site.
+                </p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <span id="maintenanceStatusBadge" class="badge badge-success">Inactive</span>
+                <label class="toggle-switch" style="display: flex; align-items: center; gap: 10px;">
+                    <span style="color: var(--text-secondary);">OFF</span>
+                    <input type="checkbox" id="maintenanceToggle" onchange="toggleMaintenance(this.checked)">
+                    <span style="color: var(--text-secondary);">ON</span>
+                </label>
+            </div>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label><i class="fas fa-pencil-alt"></i> Custom Message (shown to users)</label>
+        <textarea id="maintenanceMessage" rows="3" placeholder="e.g., We're upgrading our servers to serve you better..."></textarea>
+    </div>
+    
+    <div class="form-group">
+        <label><i class="fas fa-clock"></i> Estimated Downtime</label>
+        <input type="text" id="maintenanceEstimatedTime" placeholder="e.g., 30 minutes, 2 hours">
+        <small style="color: var(--text-secondary);">This will be displayed to users</small>
+    </div>
+    
+    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+        <button class="btn btn-primary" onclick="saveMaintenanceSettings()">
+            <i class="fas fa-save"></i> Save Settings
+        </button>
+        <button class="btn btn-outline" onclick="previewMaintenancePage()">
+            <i class="fas fa-eye"></i> Preview Page
+        </button>
+    </div>
+    
+    <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-light);">
+        <h4><i class="fas fa-shield-alt"></i> Maintenance History</h4>
+        <div class="table-container" style="margin-top: 1rem;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Action</th>
+                        <th>Duration</th>
+                        <th>Admin</th>
+                    </tr>
+                </thead>
+                <tbody id="maintenanceHistoryBody">
+                    <tr><td colspan="4" class="loading-row">Loading history...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
     <div class="modal" id="settingsModal">
         <div class="modal-content">
@@ -1182,6 +1281,7 @@ if (darkModeToggle) {
             { id: 'hostel-analytics', icon: 'fa-chart-bar', name: 'Hostel Analytics' }
         ]},
         { name: '📢 NOTIFICATIONS', items: [{ id: 'send-notification', icon: 'fa-paper-plane', name: 'Send Notification' }] },
+        { name: '🔧 MAINTENANCE', items: [{ id: 'maintenance', icon: 'fa-tools', name: 'Maintenance Mode' }] },
         { name: '⚙️ SETTINGS', items: [{ id: 'system-settings', icon: 'fa-cog', name: 'Settings' }] }
     ];
     
@@ -1331,6 +1431,72 @@ if (darkModeToggle) {
             'user-analytics': `<div class="panel-header"><h2>User Analytics</h2><div class="panel-actions"><button class="btn btn-outline" onclick="loadUserAnalytics()">Refresh</button></div></div><div class="stats-grid" id="userAnalyticsStats"></div><div class="chart-container"><canvas id="userAnalyticsChart"></canvas></div>`,
             'hostel-analytics': `<div class="panel-header"><h2>Hostel Analytics</h2><div class="panel-actions"><button class="btn btn-outline" onclick="loadHostelAnalytics()">Refresh</button></div></div><div class="stats-grid" id="hostelAnalyticsStats"></div><div class="chart-container"><canvas id="hostelAnalyticsChart"></canvas></div>`,
             'system-settings': `<div class="panel-header"><h2>System Settings</h2><div class="panel-actions"><button class="btn btn-primary" onclick="saveSettings()">Save All Settings</button></div></div><div class="form-group"><label>Site Name</label><input type="text" id="siteName" value="Kirinyaga Hostels"></div><div class="form-group"><label>Admin Email</label><input type="email" id="adminEmail" value="admin@kirinyagahostels.com"></div><div class="form-group"><label>Contact Phone</label><input type="text" id="contactPhone" value="+254712345678"></div><div class="form-group"><label>Max Login Attempts</label><input type="number" id="maxAttempts" value="5"></div><div class="form-group"><label>Admin Max Attempts</label><input type="number" id="adminMaxAttempts" value="3"></div><div class="form-group"><label>Lockout Hours</label><input type="number" id="lockoutHours" value="1"></div>`,
+            'maintenance': `
+    <div class="panel-header">
+        <h2><i class="fas fa-tools"></i> Maintenance Mode</h2>
+        <div class="panel-actions">
+            <button class="btn btn-outline" onclick="loadMaintenanceSettings()">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+    </div>
+    <div style="background: var(--bg-light); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.5rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+            <div>
+                <h3 style="margin: 0 0 0.5rem 0;">Maintenance Status</h3>
+                <p style="color: var(--text-secondary); margin: 0;">
+                    When enabled, only administrators can access the site. Regular users will see a friendly maintenance page.
+                </p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <span id="maintenanceStatusBadge" class="badge badge-success">Inactive</span>
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <span style="color: var(--text-secondary);">OFF</span>
+                    <div style="position: relative; display: inline-block;">
+                        <input type="checkbox" id="maintenanceToggle" onchange="toggleMaintenance(this.checked)" style="width: 50px; height: 26px; -webkit-appearance: none; appearance: none; background: var(--border-light); outline: none; border-radius: 30px; cursor: pointer; position: relative; transition: all 0.3s;">
+                        <span style="position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: white; transition: all 0.3s; pointer-events: none;" id="toggleSlider"></span>
+                    </div>
+                    <span style="color: var(--text-secondary);">ON</span>
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label><i class="fas fa-pencil-alt"></i> Custom Message (shown to users)</label>
+        <textarea id="maintenanceMessage" rows="3" placeholder="e.g., We're upgrading our servers to serve you better..."></textarea>
+    </div>
+    <div class="form-group">
+        <label><i class="fas fa-clock"></i> Estimated Downtime</label>
+        <input type="text" id="maintenanceEstimatedTime" placeholder="e.g., 30 minutes, 2 hours">
+        <small style="color: var(--text-secondary);">This will be displayed to users on the maintenance page</small>
+    </div>
+    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+        <button class="btn btn-primary" onclick="saveMaintenanceSettings()">
+            <i class="fas fa-save"></i> Save Settings
+        </button>
+        <button class="btn btn-outline" onclick="previewMaintenancePage()">
+            <i class="fas fa-eye"></i> Preview Maintenance Page
+        </button>
+    </div>
+    <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-light);">
+        <h4><i class="fas fa-history"></i> Recent Maintenance Activity</h4>
+        <div class="table-container" style="margin-top: 1rem;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Action</th>
+                        <th>Estimated Time</th>
+                        <th>Admin</th>
+                    </tr>
+                </thead>
+                <tbody id="maintenanceHistoryBody">
+                    <tr><td colspan="4" class="loading-row">Loading history...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+`,
             'send-notification': `
                 <div class="panel-header"><h2><i class="fas fa-paper-plane"></i> Send Notification</h2></div>
                 <div class="alert-info" style="margin-bottom:1rem; padding:1rem;"><i class="fas fa-info-circle"></i> Send notifications to users via email and/or SMS.</div>
@@ -1973,6 +2139,7 @@ tbody.innerHTML = (data.sessions || []).map(s => `
         else if (panelId === 'hostel-analytics') loadHostelAnalytics();
         else if (panelId === 'subscriptions') loadAllSubscriptions();
         else if (panelId === 'subscription-plans') loadSubscriptionPlans();
+        else if (panelId === 'maintenance') loadMaintenanceSettings();
     }
     
     // ============================================
@@ -2364,6 +2531,140 @@ window.stopImpersonation = async function() {
     document.getElementById('adminMenu').addEventListener('click', function() { loadAdminProfileForEdit(); openModal('profileEditModal'); });
     document.getElementById('refreshDashboard')?.addEventListener('click', loadDashboardStats);
 
+
+// ============================================
+// MAINTENANCE MODE FUNCTIONS
+// ============================================
+
+async function loadMaintenanceSettings() {
+    try {
+        const data = await apiFetch('/settings/');
+        if (data) {
+            document.getElementById('maintenanceToggle').checked = data.maintenance_mode || false;
+            document.getElementById('maintenanceMessage').value = data.maintenance_message || '';
+            document.getElementById('maintenanceEstimatedTime').value = data.maintenance_estimated_time || '';
+            
+            const badge = document.getElementById('maintenanceStatusBadge');
+            if (data.maintenance_mode) {
+                badge.textContent = 'ACTIVE';
+                badge.className = 'badge badge-danger';
+            } else {
+                badge.textContent = 'Inactive';
+                badge.className = 'badge badge-success';
+            }
+        }
+        
+        // Also load history
+        await loadMaintenanceHistory();
+    } catch(e) {
+        console.error('Load maintenance settings error:', e);
+    }
+}
+
+async function saveMaintenanceSettings() {
+    const maintenanceMode = document.getElementById('maintenanceToggle').checked;
+    const message = document.getElementById('maintenanceMessage').value;
+    const estimatedTime = document.getElementById('maintenanceEstimatedTime').value;
+    
+    try {
+        await apiFetch('/settings/', {
+            method: 'POST',
+            body: JSON.stringify({
+                maintenance_mode: maintenanceMode,
+                maintenance_message: message,
+                maintenance_estimated_time: estimatedTime
+            })
+        });
+        
+        showToast('Maintenance settings saved!', 'success');
+        
+        // Update badge
+        const badge = document.getElementById('maintenanceStatusBadge');
+        if (maintenanceMode) {
+            badge.textContent = 'ACTIVE';
+            badge.className = 'badge badge-danger';
+        } else {
+            badge.textContent = 'Inactive';
+            badge.className = 'badge badge-success';
+        }
+        
+        // Reload history
+        await loadMaintenanceHistory();
+    } catch(e) {
+        showToast('Failed to save settings', 'error');
+    }
+}
+
+async function toggleMaintenance(enabled) {
+    const message = document.getElementById('maintenanceMessage').value;
+    const estimatedTime = document.getElementById('maintenanceEstimatedTime').value;
+    
+    try {
+        await apiFetch('/settings/', {
+            method: 'POST',
+            body: JSON.stringify({
+                maintenance_mode: enabled,
+                maintenance_message: message,
+                maintenance_estimated_time: estimatedTime
+            })
+        });
+        
+        const badge = document.getElementById('maintenanceStatusBadge');
+        if (enabled) {
+            badge.textContent = 'ACTIVE';
+            badge.className = 'badge badge-danger';
+            showToast('🔧 Maintenance mode ENABLED - Site is now restricted to admins only', 'info', 'Maintenance');
+        } else {
+            badge.textContent = 'Inactive';
+            badge.className = 'badge badge-success';
+            showToast('✅ Maintenance mode DISABLED - Site is now publicly accessible', 'success', 'Maintenance');
+        }
+        
+        await loadMaintenanceHistory();
+    } catch(e) {
+        showToast('Failed to toggle maintenance mode', 'error');
+        document.getElementById('maintenanceToggle').checked = !enabled; // Revert
+    }
+}
+
+function previewMaintenancePage() {
+    window.open('/maintenance.html', '_blank');
+}
+
+async function loadMaintenanceHistory() {
+    try {
+        // Get audit logs filtered for maintenance actions
+        const data = await apiFetch('/audit-logs/?action=MAINTENANCE_MODE&page_size=10');
+        const logs = data.results || data || [];
+        
+        const tbody = document.getElementById('maintenanceHistoryBody');
+        if (!tbody) return;
+        
+        if (logs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="loading-row">No maintenance history</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = logs.map(log => {
+            const details = log.details || {};
+            return `
+                <tr>
+                    <td>${formatDate(log.timestamp)}</td>
+                    <td>
+                        <span class="badge ${details.enabled ? 'badge-danger' : 'badge-success'}">
+                            ${details.enabled ? 'ENABLED' : 'DISABLED'}
+                        </span>
+                    </td>
+                    <td>${escapeHtml(details.estimated_time || '—')}</td>
+                    <td>${escapeHtml(log.user_name || log.user || 'System')}</td>
+                </tr>
+            `;
+        }).join('');
+    } catch(e) {
+        console.error('Load maintenance history error:', e);
+    }
+}
+
     // ============================================
 // SUBSCRIPTION MANAGEMENT FUNCTIONS
 // ============================================
@@ -2729,6 +3030,10 @@ function viewSubscriptionDetails(subscriptionId) {
     window.loadUserAnalytics = loadUserAnalytics;
     window.loadHostelAnalytics = loadHostelAnalytics;
     window.showPanel = showPanel;
+    window.loadMaintenanceSettings = loadMaintenanceSettings;
+    window.saveMaintenanceSettings = saveMaintenanceSettings;
+    window.toggleMaintenance = toggleMaintenance;
+    window.previewMaintenancePage = previewMaintenancePage;
     
     async function init() {
         renderSidebarMenu();
