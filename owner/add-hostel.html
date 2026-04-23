@@ -461,7 +461,7 @@
         .message.error {
             background: #fed7d7;
             color: #c53030;
-            border-left: 4px solid #c53030;
+            border-left: 4px solid #22434d;
         }
 
         .message.warning {
@@ -641,6 +641,7 @@
                         </div>
                         <input type="hidden" id="lat" required>
                         <input type="hidden" id="lng" required>
+                        <input type="hidden" id="distanceValue">  <!-- ✅ NEW: Hidden field for distance -->
                     </div>
                 </div>
 
@@ -781,39 +782,39 @@
             if (e.key === 'ownerTheme') applyDarkMode();
         });
 
-// ==================== LOAD OWNER PROFILE ====================
-async function loadOwnerProfile() {
-    try {
-        const data = await apiFetch('/auth/profile/');
-        
-        if (data) {
-            //  Get hostel_name from owner_profile (nested object)
-            const hostelName = data.owner_profile?.hostel_name || data.hostel_name || 'Your Hostel';
-            const nameInput = document.getElementById('name');
-            if (nameInput) nameInput.value = hostelName;
-            
-            // Update header with owner's full name (not hostel name)
-            const displayName = data.full_name || 'Owner';
-            const userNameSpan = document.getElementById('userName');
-            const userAvatarDiv = document.getElementById('userAvatar');
-            
-            if (userNameSpan) userNameSpan.textContent = displayName;
-            if (userAvatarDiv) {
-                const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase();
-                userAvatarDiv.textContent = initials.slice(0, 2);
+        // ==================== LOAD OWNER PROFILE ====================
+        async function loadOwnerProfile() {
+            try {
+                const data = await apiFetch('/auth/profile/');
+                
+                if (data) {
+                    // Get hostel_name from owner_profile (nested object)
+                    const hostelName = data.owner_profile?.hostel_name || data.hostel_name || 'Your Hostel';
+                    const nameInput = document.getElementById('name');
+                    if (nameInput) nameInput.value = hostelName;
+                    
+                    // Update header with owner's full name (not hostel name)
+                    const displayName = data.full_name || 'Owner';
+                    const userNameSpan = document.getElementById('userName');
+                    const userAvatarDiv = document.getElementById('userAvatar');
+                    
+                    if (userNameSpan) userNameSpan.textContent = displayName;
+                    if (userAvatarDiv) {
+                        const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase();
+                        userAvatarDiv.textContent = initials.slice(0, 2);
+                    }
+                    
+                    console.log('✅ Profile loaded - Hostel name:', hostelName);
+                    return data;
+                }
+            } catch (error) {
+                console.error('Failed to load profile:', error);
+                if (!error.message.includes('Authentication')) {
+                    showMessage('Failed to load profile. Please refresh the page.', 'error');
+                }
             }
-            
-            console.log('✅ Profile loaded - Hostel name:', hostelName);
-            return data;
+            return null;
         }
-    } catch (error) {
-        console.error('Failed to load profile:', error);
-        if (!error.message.includes('Authentication')) {
-            showMessage('Failed to load profile. Please refresh the page.', 'error');
-        }
-    }
-    return null;
-}
 
         // ==================== UI HELPERS ====================
         const form = document.getElementById('addHostelForm');
@@ -851,22 +852,22 @@ async function loadOwnerProfile() {
             }
         }
 
-function initPhotoFields() {
-    if (!photoGrid) return;
-    let html = '';
-    const photoLabels = ['Front View', 'Room Interior', 'Bathroom', 'Kitchen', 'Common Area', 'Other'];
-    for (let i = 1; i <= 6; i++) {
-        html += `
-            <div class="photo-item">
-                <i class="fas fa-cloud-upload-alt"></i>
-                <input type="file" id="photo${i}" accept="image/*">
-                <input type="text" id="photo${i}_desc" placeholder="${photoLabels[i-1]}" maxlength="50">
-                ${i === 1 ? '<small style="color: var(--kyu-green);">Primary photo</small>' : ''}
-            </div>
-        `;
-    }
-    photoGrid.innerHTML = html;
-}
+        function initPhotoFields() {
+            if (!photoGrid) return;
+            let html = '';
+            const photoLabels = ['Front View', 'Room Interior', 'Bathroom', 'Kitchen', 'Common Area', 'Other'];
+            for (let i = 1; i <= 6; i++) {
+                html += `
+                    <div class="photo-item">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <input type="file" id="photo${i}" accept="image/*">
+                        <input type="text" id="photo${i}_desc" placeholder="${photoLabels[i-1]}" maxlength="50">
+                        ${i === 1 ? '<small style="color: var(--kyu-green);">Primary photo</small>' : ''}
+                    </div>
+                `;
+            }
+            photoGrid.innerHTML = html;
+        }
 
         async function checkImageUploadLimit(imageCount) {
             try {
@@ -966,13 +967,20 @@ function initPhotoFields() {
         };
 
         function calculateDistance(lat, lng) {
-            const R = 6371;
+            const R = 6371; // Earth's radius in kilometers
             const dLat = (universityLocation.lat - lat) * Math.PI / 180;
             const dLon = (universityLocation.lng - lng) * Math.PI / 180;
             const a = Math.sin(dLat/2)**2 + Math.cos(lat * Math.PI/180) * Math.cos(universityLocation.lat * Math.PI/180) * Math.sin(dLon/2)**2;
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
             const distance = (R * c).toFixed(2);
             
+            // ✅ FIX: Save the distance to the hidden field so it gets sent to the backend
+            const distanceValueInput = document.getElementById('distanceValue');
+            if (distanceValueInput) {
+                distanceValueInput.value = distance;
+            }
+            
+            // Update the display with a friendly format
             let distanceText = distance + ' km';
             if (distance < 1) {
                 distanceText = (distance * 1000).toFixed(0) + ' meters';
@@ -982,6 +990,8 @@ function initPhotoFields() {
             if (distanceSpan) {
                 distanceSpan.innerHTML = `<i class="fas fa-walking"></i> ${distanceText}`;
             }
+            
+            console.log('📏 Distance calculated:', distance, 'km');
         }
 
         // Form submission
@@ -996,6 +1006,7 @@ function initPhotoFields() {
                 const description = document.getElementById('description')?.value.trim();
                 const lat = document.getElementById('lat')?.value;
                 const lng = document.getElementById('lng')?.value;
+                const distance = document.getElementById('distanceValue')?.value;  // ✅ Get the distance value
 
                 // Validation
                 if (!name) return showMessage('Hostel name is required', 'error');
@@ -1032,6 +1043,11 @@ function initPhotoFields() {
                 formData.append('address', address);
                 formData.append('location_lat', lat);
                 formData.append('location_lng', lng);
+                
+                // ✅ FIX: Add the distance to the form data
+                if (distance) {
+                    formData.append('distance_to_university', distance);
+                }
                 
                 document.querySelectorAll('#amenitiesList input:checked').forEach(cb => {
                     formData.append('amenities', cb.value);
@@ -1081,8 +1097,10 @@ function initPhotoFields() {
                         if (marker) marker.setPosition(universityLocation);
                         const latInput = document.getElementById('lat');
                         const lngInput = document.getElementById('lng');
+                        const distanceInput = document.getElementById('distanceValue');
                         if (latInput) latInput.value = '';
                         if (lngInput) lngInput.value = '';
+                        if (distanceInput) distanceInput.value = '';
                         const distanceSpan = document.getElementById('distance');
                         if (distanceSpan) distanceSpan.innerHTML = '<i class="fas fa-walking"></i> Click on map to calculate';
                         const descCount = document.getElementById('descCount');
