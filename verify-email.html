@@ -149,6 +149,19 @@
         .hidden {
             display: none;
         }
+
+        .login-options {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .login-options .btn {
+            margin-top: 0.5rem;
+            padding: 0.8rem 2rem;
+            font-size: 0.95rem;
+        }
     </style>
 </head>
 <body>
@@ -164,18 +177,22 @@
         </div>
 
         <div id="success" class="hidden">
-            <div class="success-icon">✓</div>
+            <div class="success-icon">&#10003;</div>
             <h2>Email Verified!</h2>
-            <p class="message">Your email has been successfully verified. You can now log in to your account.</p>
-            <a href="login.html" class="btn">Go to Login</a>
+            <p class="message">Your email has been verified. Pick your portal below to sign in.</p>
+            <div class="login-options">
+                <a href="student/login.html" class="btn">Student Login</a>
+                <a href="owner/login.html" class="btn btn-outline">Owner Login</a>
+            </div>
         </div>
 
         <div id="error" class="hidden">
-            <div class="error-icon">✗</div>
+            <div class="error-icon">&#10007;</div>
             <h2>Verification Failed</h2>
             <p class="message" id="errorMessage">The verification link is invalid or has expired.</p>
-            <div>
-                <a href="login.html" class="btn btn-outline">Back to Login</a>
+            <div class="login-options">
+                <a href="student/login.html" class="btn btn-outline">Student Login</a>
+                <a href="owner/login.html" class="btn btn-outline">Owner Login</a>
                 <button class="btn" id="resendBtn">Resend Verification</button>
             </div>
         </div>
@@ -183,15 +200,14 @@
 
     <script>
         (function() {
-            // ✅ USE PRODUCTION API URL
             const API_BASE = 'https://kirinyaga-hostels-backend.onrender.com/api';
             
-            // Get URL parameters
+            // Grab token and email from the URL that the backend sent
             const urlParams = new URLSearchParams(window.location.search);
             let token = urlParams.get('token');
             let email = urlParams.get('email');
             
-            // ✅ FALLBACK: Try to get from hash if URL params are empty (Brevo redirect issue)
+            // Some email providers mess with the URL format and put params in the hash
             if (!token || !email) {
                 const hash = window.location.hash.substring(1);
                 if (hash) {
@@ -201,9 +217,7 @@
                 }
             }
             
-            // ✅ DEBUG: Log what we received
             console.log('Verification attempt:', { email, token });
-            console.log('Full URL:', window.location.href);
 
             const loading = document.getElementById('loading');
             const success = document.getElementById('success');
@@ -212,15 +226,13 @@
             const resendBtn = document.getElementById('resendBtn');
 
             if (!token || !email) {
-                console.error('Missing parameters:', { token, email });
-                showError('Invalid verification link. Missing parameters. Please request a new verification email.');
+                console.error('Missing params:', { token, email });
+                showError('This verification link seems incomplete. Try requesting a new one from the login page.');
                 return;
             }
 
-            // Verify email
             async function verifyEmail() {
                 try {
-                    // ✅ USE CORRECT API URL
                     const response = await fetch(`${API_BASE}/auth/verify-email/`, {
                         method: 'POST',
                         headers: {
@@ -230,9 +242,10 @@
                     });
 
                     const data = await response.json();
-                    console.log('Verification response:', data);
+                    console.log('Server response:', data);
 
                     if (!response.ok) {
+                        // The backend sends back different error formats depending on what went wrong
                         if (data.email) {
                             showError(data.email[0]);
                         } else if (data.token) {
@@ -242,31 +255,31 @@
                         } else if (data.message) {
                             showError(data.message);
                         } else {
-                            showError('Verification failed. The link may have expired.');
+                            showError('This verification link has expired. No worries, you can request a new one.');
                         }
                         return;
                     }
 
-                    // Success
+                    // All good - show the success screen
                     loading.classList.add('hidden');
                     success.classList.remove('hidden');
 
                 } catch (err) {
-                    console.error('Verification error:', err);
-                    showError('Network error. Please check your connection and try again.');
+                    console.error('Something went wrong:', err);
+                    showError('Having trouble connecting to the server. Check your internet and try again.');
                 }
             }
 
             function showError(message) {
                 loading.classList.add('hidden');
                 error.classList.remove('hidden');
-                errorMessage.textContent = message || 'The verification link is invalid or has expired.';
+                errorMessage.textContent = message || 'This verification link is invalid or has expired.';
             }
 
-            // Resend verification
+            // Let them request another verification email if this one failed
             resendBtn?.addEventListener('click', async function() {
                 if (!email) {
-                    alert('Email address is missing. Please request a new verification email from the login page.');
+                    alert('No email address found. Head over to the login page to request a new verification email.');
                     return;
                 }
                 
@@ -285,20 +298,19 @@
                     const data = await response.json();
 
                     if (!response.ok) {
-                        alert(data.message || 'Failed to resend verification email.');
+                        alert(data.message || 'Could not resend the email. Try again in a moment.');
                     } else {
-                        alert('Verification email sent! Please check your inbox.');
+                        alert('Check your inbox! A new verification email is on its way.');
                     }
                 } catch (err) {
-                    console.error('Resend error:', err);
-                    alert('Network error. Please try again.');
+                    console.error('Resend failed:', err);
+                    alert('Network hiccup. Give it another shot.');
                 } finally {
                     this.disabled = false;
                     this.textContent = 'Resend Verification';
                 }
             });
 
-            // Start verification
             verifyEmail();
         })();
     </script>
