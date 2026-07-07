@@ -391,6 +391,7 @@
             display: block;
             font-weight: 600;
             margin-bottom: 0.5rem;
+            color: var(--text-primary);
         }
 
         .form-group input {
@@ -400,6 +401,14 @@
             border-radius: 12px;
             background: var(--bg-white);
             color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 0.3rem;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
         }
 
         .payment-note {
@@ -425,6 +434,16 @@
             border-radius: 40px;
             font-weight: 600;
             cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #004d33;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
         }
 
         .btn-secondary {
@@ -486,6 +505,7 @@
 
         .toast.warning {
             background: var(--warning);
+            color: white;
         }
 
         @keyframes slideIn {
@@ -549,7 +569,7 @@
     <div class="container">
         <div class="page-header">
             <h1><i class="fas fa-tags"></i> Subscription Plans</h1>
-            <p>Choose the perfect plan for your hostel business</p>
+            <p style="color: var(--text-secondary);">Choose the perfect plan for your hostel business</p>
         </div>
 
         <div id="currentPlanSection"></div>
@@ -563,21 +583,25 @@
     <div id="paymentModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3><i class="fas fa-mobile-alt"></i> Complete Payment</h3>
+                <h3><i class="fas fa-mobile-alt"></i> Pay with M-Pesa</h3>
                 <span class="modal-close" onclick="closePaymentModal()">&times;</span>
             </div>
             <div id="paymentModalBody">
                 <div class="form-group">
-                    <label>M-Pesa Phone Number</label>
-                    <input type="tel" id="phoneNumber" placeholder="0712345678">
-                    <small>Enter the M-Pesa registered phone number (e.g., 0712345678 or 254712345678)</small>
+                    <label>M-Pesa Phone Number <span style="color: var(--danger);">*</span></label>
+                    <input type="tel" id="phoneNumber" placeholder="e.g. 0712345678">
+                    <small>Enter the phone number registered with M-Pesa</small>
                 </div>
                 <div class="payment-note">
-                    <i class="fas fa-info-circle"></i> You will receive an STK push on your phone. Enter your PIN to complete payment.
+                    <i class="fas fa-info-circle"></i> 
+                    You'll receive a prompt on your phone asking you to enter your M-Pesa PIN. 
+                    Complete the payment to activate your subscription immediately.
                 </div>
                 <div class="modal-footer">
                     <button class="btn-secondary" onclick="closePaymentModal()">Cancel</button>
-                    <button class="btn-primary" id="payNowBtn">Pay Now</button>
+                    <button class="btn-primary" id="payNowBtn">
+                        <i class="fas fa-paper-plane"></i> Pay Now
+                    </button>
                 </div>
             </div>
         </div>
@@ -585,7 +609,7 @@
 
     <footer>
         <div class="footer-content">
-            <p>© 2025 Kirinyaga University Hostels. All rights reserved.</p>
+            <p>&copy; 2025 Kirinyaga University Hostels. All rights reserved.</p>
         </div>
     </footer>
 
@@ -602,7 +626,6 @@
             window.location.href = 'login.html';
         }
 
-        // ==================== UI HELPERS ====================
         function showLoading() {
             document.getElementById('loadingOverlay').classList.add('active');
         }
@@ -611,25 +634,37 @@
             document.getElementById('loadingOverlay').classList.remove('active');
         }
 
-        function showToast(message, isError = false, isWarning = false) {
-            const toast = document.createElement('div');
-            toast.className = `toast ${isError ? 'error' : (isWarning ? 'warning' : '')}`;
-            toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : (isWarning ? 'fa-exclamation-triangle' : 'fa-check-circle')}"></i> ${message}`;
+        function showToast(message, isError, isWarning) {
+            var toast = document.createElement('div');
+            toast.className = 'toast';
+            if (isError) toast.className += ' error';
+            if (isWarning) toast.className += ' warning';
+            
+            var icon = 'fa-check-circle';
+            if (isError) icon = 'fa-exclamation-circle';
+            if (isWarning) icon = 'fa-exclamation-triangle';
+            
+            toast.innerHTML = '<i class="fas ' + icon + '"></i> ' + message;
             document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 5000);
+            setTimeout(function() { toast.remove(); }, 5000);
         }
 
-        // ==================== API HELPER ====================
-        async function apiFetch(url, options = {}) {
+        function escapeHtml(text) {
+            if (!text) return '';
+            var div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        async function apiFetch(url, options) {
+            if (!options) options = {};
+            if (!options.headers) options.headers = {};
+            
+            options.headers['Authorization'] = 'Bearer ' + token;
+            options.headers['Content-Type'] = 'application/json';
+            
             try {
-                const response = await fetch(`${API_BASE}${url}`, {
-                    ...options,
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        ...options.headers
-                    }
-                });
+                var response = await fetch(API_BASE + url, options);
 
                 if (response.status === 401) {
                     sessionStorage.removeItem('accessToken');
@@ -638,8 +673,9 @@
                 }
 
                 if (!response.ok) {
-                    const error = await response.json().catch(() => ({}));
-                    throw new Error(error.error || error.message || `HTTP ${response.status}`);
+                    var errorData = {};
+                    try { errorData = await response.json(); } catch(e) {}
+                    throw new Error(errorData.error || errorData.message || 'Request failed with status ' + response.status);
                 }
 
                 return await response.json();
@@ -649,13 +685,12 @@
             }
         }
 
-        // ==================== LOAD PROFILE ====================
         async function loadProfile() {
             try {
-                const data = await apiFetch('/auth/profile/');
+                var data = await apiFetch('/auth/profile/');
                 if (data) {
                     document.getElementById('userName').textContent = data.full_name || data.email;
-                    const initials = (data.full_name || data.email).split(' ').map(n => n[0]).join('').toUpperCase();
+                    var initials = (data.full_name || data.email).split(' ').map(function(n) { return n[0]; }).join('').toUpperCase();
                     document.getElementById('userAvatar').textContent = initials.slice(0, 2);
                 }
             } catch (error) {
@@ -663,95 +698,65 @@
             }
         }
 
-// ==================== SUBSCRIPTION STATUS ====================
-async function loadCurrentSubscription() {
-    try {
-        const data = await apiFetch('/subscriptions/my/');
-        console.log('Current subscription data:', data);
-        currentSubscription = data;
-        
-        const container = document.getElementById('currentPlanSection');
-        
-        if (!container) return;
-        
-        if (data && data.has_active_subscription) {
-            const daysLeft = data.days_remaining || 0;
-            const isBonus = data.is_bonus || false;
-            const bonusWeeks = data.bonus_weeks;
-            const bonusReason = data.bonus_reason;
-            
-            // ✅ Build bonus info if applicable
-            let bonusHtml = '';
-            if (isBonus) {
-                bonusHtml = `
-                    <div style="margin-top: 1rem; padding: 0.5rem 1rem; background: rgba(255,215,0,0.2); border-radius: 12px;">
-                        <i class="fas fa-gift" style="color: #FBBF24;"></i> 
-                        <strong>🎁 BONUS SUBSCRIPTION</strong>
-                        ${bonusWeeks ? ` - ${bonusWeeks} weeks` : ''}
-                        ${bonusReason ? `<br><small>Reason: ${escapeHtml(bonusReason)}</small>` : ''}
-                    </div>
-                `;
+        async function loadCurrentSubscription() {
+            try {
+                var data = await apiFetch('/subscriptions/my/');
+                currentSubscription = data;
+                
+                var container = document.getElementById('currentPlanSection');
+                if (!container) return;
+                
+                if (data && data.has_active_subscription) {
+                    var daysLeft = data.days_remaining || 0;
+                    var isBonus = data.is_bonus || false;
+                    var bonusWeeks = data.bonus_weeks;
+                    var bonusReason = data.bonus_reason;
+                    
+                    var bonusHtml = '';
+                    if (isBonus) {
+                        bonusHtml = '<div style="margin-top: 1rem; padding: 0.5rem 1rem; background: rgba(255,215,0,0.2); border-radius: 12px;">' +
+                            '<i class="fas fa-gift" style="color: #FBBF24;"></i> ' +
+                            '<strong>BONUS SUBSCRIPTION</strong>' +
+                            (bonusWeeks ? ' - ' + bonusWeeks + ' weeks' : '') +
+                            (bonusReason ? '<br><small>Reason: ' + escapeHtml(bonusReason) + '</small>' : '') +
+                            '</div>';
+                    }
+                    
+                    container.innerHTML = '<div class="current-plan-card" style="' + (isBonus ? 'background: linear-gradient(135deg, #8B5CF6, #6D28D9);' : '') + '">' +
+                        '<h3>Your Current Plan: ' + (data.plan_display || 'Free') + ' ' + (isBonus ? '(BONUS)' : '') + '</h3>' +
+                        '<div class="plan-badge" style="' + (isBonus ? 'background: #FBBF24; color: #1e293b;' : '') + '">' + (data.has_active_subscription ? 'ACTIVE' : 'EXPIRED') + '</div>' +
+                        (data.expires_at ? '<p>Expires: ' + new Date(data.expires_at).toLocaleDateString() + '</p>' : '') +
+                        '<div class="plan-limits">' +
+                            '<div class="limit-item"><i class="fas fa-home"></i> Hostels: ' + (data.current_hostels || 0) + '/' + (data.max_hostels || 1) + '</div>' +
+                            '<div class="limit-item"><i class="fas fa-image"></i> Images: ' + (data.max_images_per_hostel || 6) + ' per hostel</div>' +
+                            '<div class="limit-item"><i class="fas fa-star"></i> Featured: ' + (data.can_feature ? 'Yes' : 'No') + '</div>' +
+                            '<div class="limit-item"><i class="fas fa-chart-line"></i> Analytics: ' + (data.has_analytics_access ? 'Yes' : 'No') + '</div>' +
+                        '</div>' +
+                        bonusHtml +
+                        (daysLeft > 0 ? '<p style="margin-top: 1rem;"><strong>' + daysLeft + ' days remaining</strong></p>' : '') +
+                        '</div>';
+                } else {
+                    container.innerHTML = '<div class="current-plan-card">' +
+                        '<h3>Free Plan</h3>' +
+                        '<p>You are on the Free plan. Upgrade to unlock more features!</p>' +
+                        '<div class="plan-limits">' +
+                            '<div class="limit-item"><i class="fas fa-home"></i> Hostels: ' + ((data && data.current_hostels) || 0) + '/1 per month</div>' +
+                            '<div class="limit-item"><i class="fas fa-image"></i> Images: ' + ((data && data.max_images_per_hostel) || 6) + ' per hostel</div>' +
+                            '<div class="limit-item"><i class="fas fa-star"></i> Featured listings: ' + ((data && data.can_feature) ? 'Yes' : 'No') + '</div>' +
+                            '<div class="limit-item"><i class="fas fa-chart-line"></i> Analytics: ' + ((data && data.has_analytics_access) ? 'Yes' : 'No') + '</div>' +
+                        '</div>' +
+                        '</div>';
+                }
+            } catch (error) {
+                console.error('Failed to load subscription:', error);
             }
-            
-            container.innerHTML = `
-                <div class="current-plan-card" style="${isBonus ? 'background: linear-gradient(135deg, #8B5CF6, #6D28D9);' : ''}">
-                    <h3>Your Current Plan: ${data.plan_display || 'Free'} ${isBonus ? '🎁 (BONUS)' : ''}</h3>
-                    <div class="plan-badge" style="${isBonus ? 'background: #FBBF24; color: #1e293b;' : ''}">${data.has_active_subscription ? 'ACTIVE' : 'EXPIRED'}</div>
-                    ${data.expires_at ? `<p>Expires: ${new Date(data.expires_at).toLocaleDateString()}</p>` : ''}
-                    <div class="plan-limits">
-                        <div class="limit-item"><i class="fas fa-home"></i> Hostels: ${data.current_hostels || 0}/${data.max_hostels || 1}</div>
-                        <div class="limit-item"><i class="fas fa-image"></i> Images: ${data.max_images_per_hostel || 6} per hostel</div>
-                        <div class="limit-item"><i class="fas fa-star"></i> Featured: ${data.can_feature ? '✓' : '✗'}</div>
-                        <div class="limit-item"><i class="fas fa-chart-line"></i> Analytics: ${data.has_analytics_access ? '✓' : '✗'}</div>
-                    </div>
-                    ${bonusHtml}
-                    ${daysLeft > 0 ? `<p style="margin-top: 1rem;"><strong>${daysLeft} days remaining</strong></p>` : ''}
-                    ${!data.has_active_subscription ? `<p style="margin-top: 1rem;"><i class="fas fa-exclamation-triangle"></i> Your subscription has expired. Please renew to continue adding hostels.</p>` : ''}
-                </div>
-            `;
-        } else {
-            container.innerHTML = `
-                <div class="current-plan-card">
-                    <h3>Free Plan</h3>
-                    <p>You are currently on the Free plan. Upgrade to unlock more features!</p>
-                    <div class="plan-limits">
-                        <div class="limit-item"><i class="fas fa-home"></i> Hostels: ${(data && data.current_hostels) || 0}/1 per month</div>
-                        <div class="limit-item"><i class="fas fa-image"></i> Images: ${(data && data.max_images_per_hostel) || 6} per hostel</div>
-                        <div class="limit-item"><i class="fas fa-star"></i> Featured listings: ${(data && data.can_feature) ? '✓' : '✗'}</div>
-                        <div class="limit-item"><i class="fas fa-chart-line"></i> Analytics: ${(data && data.has_analytics_access) ? '✓' : '✗'}</div>
-                    </div>
-                    ${(data && !data.can_add_hostel) ? `<p style="margin-top: 1rem; color: var(--warning);"><i class="fas fa-exclamation-triangle"></i> You have reached your free tier limit. Subscribe to add more hostels.</p>` : ''}
-                </div>
-            `;
         }
-    } catch (error) {
-        console.error('Failed to load current subscription:', error);
-        const container = document.getElementById('currentPlanSection');
-        if (container) {
-            container.innerHTML = `
-                <div class="current-plan-card">
-                    <h3>Free Plan</h3>
-                    <p>You are currently on the Free plan. Upgrade to unlock more features!</p>
-                </div>
-            `;
-        }
-    }
-}
-        
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
 
-        // ==================== LOAD PLANS ====================
         async function loadPlans() {
             try {
-                const data = await apiFetch('/subscriptions/plans/');
-                console.log('Plans API response:', data);
+                var data = await apiFetch('/subscriptions/plans/');
                 
-                let plans = [];
+                var plans = [];
                 if (Array.isArray(data)) {
                     plans = data;
                 } else if (data && data.results && Array.isArray(data.results)) {
@@ -760,115 +765,101 @@ function escapeHtml(text) {
                     plans = data.data;
                 }
                 
-                const container = document.getElementById('plansGrid');
+                var container = document.getElementById('plansGrid');
                 
                 if (!plans || plans.length === 0) {
-                    container.innerHTML = '<div class="empty-state">No plans available</div>';
+                    container.innerHTML = '<div class="empty-state" style="text-align:center;padding:2rem;">No plans available right now. Check back later.</div>';
                     return;
                 }
                 
-                container.innerHTML = plans.map(plan => {
-                    const isCurrent = currentSubscription && currentSubscription.plan === plan.name;
-                    const isRecommended = plan.name === 'premium';
-                    const features = plan.features_list || [];
+                container.innerHTML = plans.map(function(plan) {
+                    var isCurrent = currentSubscription && currentSubscription.plan === plan.name;
+                    var isRecommended = plan.name === 'premium';
+                    var features = plan.features_list || [];
                     
-                    return `
-                        <div class="plan-card ${isRecommended ? 'recommended' : ''}">
-                            ${isRecommended ? '<div class="recommended-badge">⭐ Most Popular</div>' : ''}
-                            <div class="plan-header">
-                                <div class="plan-name">${plan.display_name || plan.name}</div>
-                                <div class="plan-price">KSh ${(plan.price_kes || 0).toLocaleString()}<small>/month</small></div>
-                            </div>
-                            <div class="plan-body">
-                                <ul class="feature-list">
-                                    ${features.map(f => `<li><i class="fas fa-check-circle"></i> ${f}</li>`).join('')}
-                                </ul>
-                                ${(plan.price_kes === 0) ? 
-                                    `<button class="btn-current" disabled>Current Plan</button>` :
-                                    (isCurrent ? 
-                                        `<button class="btn-current" disabled>Current Plan</button>` :
-                                        `<button class="btn-subscribe" onclick="openPaymentModal('${plan.id}', '${plan.display_name || plan.name}', ${plan.price_kes})">Subscribe Now</button>`
-                                    )
-                                }
-                            </div>
-                        </div>
-                    `;
+                    var buttonHtml = '';
+                    if (plan.price_kes === 0) {
+                        buttonHtml = '<button class="btn-current" disabled>Current Plan</button>';
+                    } else if (isCurrent) {
+                        buttonHtml = '<button class="btn-current" disabled>Current Plan</button>';
+                    } else {
+                        buttonHtml = '<button class="btn-subscribe" onclick="openPaymentModal(\'' + plan.id + '\', \'' + (plan.display_name || plan.name) + '\', ' + plan.price_kes + ')">Subscribe Now</button>';
+                    }
+                    
+                    return '<div class="plan-card ' + (isRecommended ? 'recommended' : '') + '">' +
+                        (isRecommended ? '<div class="recommended-badge">Most Popular</div>' : '') +
+                        '<div class="plan-header">' +
+                            '<div class="plan-name">' + (plan.display_name || plan.name) + '</div>' +
+                            '<div class="plan-price">KSh ' + (plan.price_kes || 0).toLocaleString() + '<small>/month</small></div>' +
+                        '</div>' +
+                        '<div class="plan-body">' +
+                            '<ul class="feature-list">' +
+                                features.map(function(f) { return '<li><i class="fas fa-check-circle"></i> ' + f + '</li>'; }).join('') +
+                            '</ul>' +
+                            buttonHtml +
+                        '</div>' +
+                    '</div>';
                 }).join('');
             } catch (error) {
                 console.error('Failed to load plans:', error);
-                document.getElementById('plansGrid').innerHTML = '<div class="empty-state">Failed to load plans. Please refresh.</div>';
+                document.getElementById('plansGrid').innerHTML = '<div class="empty-state" style="text-align:center;padding:2rem;">Failed to load plans. Please refresh the page.</div>';
             }
         }
 
-        // ==================== PAYMENT MODAL ====================
         function openPaymentModal(planId, planName, price) {
-            console.log('Opening payment modal for plan:', planId, planName, price);
             selectedPlan = { id: planId, name: planName, price: price };
-            console.log('Selected plan set to:', selectedPlan);
-            
-            // Clear phone number field
-            const phoneInput = document.getElementById('phoneNumber');
-            if (phoneInput) {
-                phoneInput.value = '';
-            }
-            
+            var phoneInput = document.getElementById('phoneNumber');
+            if (phoneInput) phoneInput.value = '';
             document.getElementById('paymentModal').classList.add('active');
         }
 
         function closePaymentModal() {
             document.getElementById('paymentModal').classList.remove('active');
-            // Don't clear selectedPlan here, it's needed for payment
         }
 
-        // ==================== PAYMENT POLLING ====================
         function cancelPolling() {
             if (paymentPollingInterval) {
                 clearInterval(paymentPollingInterval);
                 paymentPollingInterval = null;
             }
-            const waitingToast = document.getElementById('waitingToast');
+            var waitingToast = document.getElementById('waitingToast');
             if (waitingToast) waitingToast.remove();
         }
 
         function startPaymentPolling(subscriptionId) {
             paymentPollingAttempts = 0;
             
-            if (paymentPollingInterval) {
-                clearInterval(paymentPollingInterval);
-            }
+            if (paymentPollingInterval) clearInterval(paymentPollingInterval);
             
-            const waitingToast = document.createElement('div');
+            var waitingToast = document.createElement('div');
             waitingToast.id = 'waitingToast';
             waitingToast.className = 'toast warning';
             waitingToast.style.position = 'fixed';
             waitingToast.style.bottom = '20px';
             waitingToast.style.right = '20px';
             waitingToast.style.zIndex = '10001';
-            waitingToast.innerHTML = `
-                <i class="fas fa-hourglass-half"></i> 
-                Waiting for payment confirmation... 
-                <span id="pollingCounter">0</span>/${MAX_POLLING_ATTEMPTS}
-                <button onclick="cancelPolling()" style="margin-left: 10px; background: none; border: none; color: white; cursor: pointer;">✕</button>
-            `;
+            waitingToast.innerHTML = '<i class="fas fa-hourglass-half"></i> Waiting for payment... ' +
+                '<span id="pollingCounter">0</span>/' + MAX_POLLING_ATTEMPTS +
+                '<button onclick="cancelPolling()" style="margin-left: 10px; background: none; border: none; color: white; cursor: pointer;">Cancel</button>';
             document.body.appendChild(waitingToast);
             
-            paymentPollingInterval = setInterval(async () => {
+            paymentPollingInterval = setInterval(async function() {
                 paymentPollingAttempts++;
-                const counterSpan = document.getElementById('pollingCounter');
+                var counterSpan = document.getElementById('pollingCounter');
                 if (counterSpan) counterSpan.textContent = paymentPollingAttempts;
                 
                 if (paymentPollingAttempts >= MAX_POLLING_ATTEMPTS) {
                     cancelPolling();
-                    showToast('Payment confirmation timeout. Please check your email for status.', true);
+                    showToast('Payment is taking longer than expected. We will notify you once confirmed.', false, true);
                     return;
                 }
                 
                 try {
-                    const status = await apiFetch('/subscriptions/my/');
+                    var status = await apiFetch('/subscriptions/my/');
                     if (status.has_active_subscription && status.plan !== 'free') {
                         cancelPolling();
-                        showToast('Payment successful! Your subscription is now active.', false);
-                        setTimeout(() => {
+                        showToast('Payment confirmed! Your subscription is now active.', false, false);
+                        setTimeout(function() {
                             window.location.href = 'dashboard.html';
                         }, 2000);
                     }
@@ -878,107 +869,97 @@ function escapeHtml(text) {
             }, 3000);
         }
 
-        // ==================== PROCESS PAYMENT ====================
         async function processPayment() {
-            console.log('processPayment called, selectedPlan:', selectedPlan);
-            
-            // Check if a plan is selected
             if (!selectedPlan) {
-                showToast('Please select a plan first', true);
+                showToast('Please select a plan first', true, false);
                 return;
             }
             
-            const phoneNumber = document.getElementById('phoneNumber').value;
+            var phoneNumber = document.getElementById('phoneNumber').value.trim();
             
             if (!phoneNumber) {
-                showToast('Please enter your phone number', true);
+                showToast('Please enter your M-Pesa phone number', true, false);
                 return;
             }
             
-            // Validate Kenyan phone number
-            const phoneRegex = /^(254|0)([17]|11)\d{8}$/;
-            if (!phoneRegex.test(phoneNumber)) {
-                showToast('Please enter a valid Kenyan phone number (e.g., 0712345678 or 254712345678)', true);
+            // Clean the phone number
+            var cleanPhone = phoneNumber.replace(/\s/g, '');
+            if (cleanPhone.startsWith('+')) cleanPhone = cleanPhone.substring(1);
+            if (cleanPhone.startsWith('0')) cleanPhone = '254' + cleanPhone.substring(1);
+            if (!cleanPhone.startsWith('254')) cleanPhone = '254' + cleanPhone;
+            
+            // Validate Kenyan phone format
+            var phoneRegex = /^254[17]\d{8}$/;
+            if (!phoneRegex.test(cleanPhone)) {
+                showToast('Please enter a valid Kenyan phone number like 0712345678', true, false);
                 return;
             }
             
-            // Close modal
             closePaymentModal();
             showLoading();
             
             try {
-                const response = await apiFetch('/subscriptions/create/', {
+                var response = await apiFetch('/subscriptions/create/', {
                     method: 'POST',
                     body: JSON.stringify({
                         plan_id: selectedPlan.id,
                         payment_method: 'mpesa',
-                        phone_number: phoneNumber,
+                        phone_number: cleanPhone,
                         auto_renew: false
                     })
                 });
                 
-                console.log('Payment response:', response);
-                
                 if (response.payment && response.payment.success) {
-                    showToast('STK Push sent! Check your phone and enter PIN.', false);
+                    showToast('Check your phone! Enter your M-Pesa PIN to complete payment.', false, false);
                     startPaymentPolling(response.subscription_id);
-                    showToast('Payment initiated. Please complete transaction on your phone.', false);
                 } else if (response.subscription_id) {
-                    showToast('Subscription created! Waiting for payment confirmation...', false);
+                    showToast('Subscription created. Waiting for payment confirmation...', false, true);
                     startPaymentPolling(response.subscription_id);
                 } else {
-                    const errorMsg = response.error || 'Payment initiation failed. Please try again.';
-                    showToast(errorMsg, true);
+                    var errorMsg = response.error || 'Payment could not be started. Please try again.';
+                    showToast(errorMsg, true, false);
                 }
             } catch (error) {
                 console.error('Payment error:', error);
-                showToast(error.message || 'Payment failed. Please try again.', true);
+                showToast(error.message || 'Payment failed. Please try again.', true, false);
             } finally {
                 hideLoading();
             }
         }
 
-        // ==================== LOGOUT ====================
         function logout() {
             sessionStorage.removeItem('accessToken');
             window.location.href = 'login.html';
         }
 
-        // ==================== DARK MODE ====================
-        const savedTheme = localStorage.getItem('ownerTheme');
+        // Dark mode
+        var savedTheme = localStorage.getItem('ownerTheme');
         if (savedTheme === 'dark') {
             document.body.classList.add('dark-mode');
             document.getElementById('darkModeToggle').innerHTML = '<i class="fas fa-sun"></i>';
         }
 
-        document.getElementById('darkModeToggle').addEventListener('click', () => {
-            const isDark = document.body.classList.toggle('dark-mode');
+        document.getElementById('darkModeToggle').addEventListener('click', function() {
+            var isDark = document.body.classList.toggle('dark-mode');
             localStorage.setItem('ownerTheme', isDark ? 'dark' : 'light');
             document.getElementById('darkModeToggle').innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
         });
 
-        // ==================== EVENT LISTENERS ====================
         document.getElementById('logoutBtn').addEventListener('click', logout);
-        document.getElementById('profileBtn').addEventListener('click', () => {
+        document.getElementById('profileBtn').addEventListener('click', function() {
             window.location.href = 'profile.html';
         });
 
-        // Attach event listener to the Pay Now button
-        const payNowBtn = document.getElementById('payNowBtn');
+        var payNowBtn = document.getElementById('payNowBtn');
         if (payNowBtn) {
-            // Remove any existing listeners to avoid duplicates
-            payNowBtn.removeEventListener('click', processPayment);
             payNowBtn.addEventListener('click', processPayment);
-            console.log('Pay Now button event listener attached');
         }
 
-        // ==================== MAKE FUNCTIONS GLOBAL ====================
         window.closePaymentModal = closePaymentModal;
         window.processPayment = processPayment;
         window.openPaymentModal = openPaymentModal;
         window.cancelPolling = cancelPolling;
 
-        // ==================== INITIALIZE ====================
         async function init() {
             showLoading();
             try {
@@ -987,7 +968,7 @@ function escapeHtml(text) {
                 await loadPlans();
             } catch (error) {
                 console.error('Init error:', error);
-                showToast('Failed to load subscription data', true);
+                showToast('Could not load subscription data. Please refresh.', true, false);
             } finally {
                 hideLoading();
             }
